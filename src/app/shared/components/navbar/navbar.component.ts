@@ -1,7 +1,7 @@
-import { Component, computed, HostListener } from '@angular/core';
+import { Component, computed, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services';
+import { AuthService, ThemeService } from '../../../core/services';
 
 @Component({
   selector: 'app-navbar',
@@ -11,6 +11,8 @@ import { AuthService } from '../../../core/services';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  private themeService = inject(ThemeService);
+
   isMenuOpen = false;
   isDropdownOpen = false;
 
@@ -22,7 +24,28 @@ export class NavbarComponent {
     return u ? `${u.nome} ${u.cognome}` : '';
   });
 
+  isDarkTheme = computed(() => this.themeService.currentTheme().id.endsWith('-dark'));
+
   constructor(private authService: AuthService) {}
+
+  toggleLightDark(): void {
+    const currentId = this.themeService.currentTheme().id;
+    let newId: string;
+
+    if (currentId.endsWith('-dark')) {
+      // Switch to light
+      newId = currentId.replace('-dark', '');
+    } else {
+      // Switch to dark
+      newId = currentId + '-dark';
+    }
+
+    // Check if the target theme exists
+    const targetTheme = this.themeService.getThemeById(newId);
+    if (targetTheme) {
+      this.themeService.setTheme(newId);
+    }
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {

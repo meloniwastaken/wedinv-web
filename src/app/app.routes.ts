@@ -28,11 +28,13 @@ export const routes: Routes = [
   },
   {
     path: 'pagamento/successo',
-    loadComponent: () => import('./features/payment/payment-success.component').then(m => m.PaymentSuccessComponent)
+    loadComponent: () => import('./features/payment/payment-success.component').then(m => m.PaymentSuccessComponent),
+    canActivate: [paymentGuard]
   },
   {
     path: 'pagamento/annullato',
-    loadComponent: () => import('./features/payment/payment-cancel.component').then(m => m.PaymentCancelComponent)
+    loadComponent: () => import('./features/payment/payment-cancel.component').then(m => m.PaymentCancelComponent),
+    canActivate: [paymentGuard]
   },
 
   // Route protette (auth + attivo)

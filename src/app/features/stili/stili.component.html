@@ -18,38 +18,68 @@
     </div>
 
     <div class="row g-4">
-      @for (theme of themes; track theme.id) {
+      @for (pair of themePairs; track pair.light.id) {
         <div class="col-12 col-sm-6 col-lg-4">
-          <div
-            class="theme-card"
-            [class.selected]="isSelected(theme)"
-            (click)="selectTheme(theme)">
-
-            <div class="theme-preview">
-              <div class="preview-header" [style.background]="theme.colors.primary">
-                <div class="preview-title">Aa</div>
+          <div class="split-theme-card" [class.selected]="isSelectedPair(pair)">
+            <div class="split-theme-header">
+              <div class="split-header-left" [style.background]="pair.light.colors.primary">
+                <span class="split-label">Light</span>
               </div>
-              <div class="preview-body" [style.background]="theme.colors.background">
-                <div class="preview-colors">
-                  <span class="preview-dot" [style.background]="theme.colors.primary"></span>
-                  <span class="preview-dot" [style.background]="theme.colors.primaryLight"></span>
-                  <span class="preview-dot" [style.background]="theme.colors.accent"></span>
-                  <span class="preview-dot" [style.background]="theme.colors.secondary"></span>
-                </div>
-                <div class="preview-lines">
-                  <div class="preview-line" [style.background]="theme.colors.text"></div>
-                  <div class="preview-line short" [style.background]="theme.colors.textMuted"></div>
-                </div>
-                <div class="preview-button" [style.background]="theme.colors.primary"></div>
+              <div class="split-header-right" [style.background]="pair.dark.colors.primary">
+                <span class="split-label">Dark</span>
               </div>
             </div>
-
-            <div class="theme-info">
-              <h5 class="theme-name">{{ theme.name }}</h5>
-              <p class="theme-description">{{ theme.description }}</p>
+            <div class="split-theme-preview">
+              <!-- Left side: Light theme -->
+              <div class="split-half" [style.background]="pair.light.colors.background"
+                   (click)="selectTheme(pair.light)">
+                <div class="split-preview-header" [style.background]="pair.light.colors.primary">
+                  <span class="split-title">Aa</span>
+                </div>
+                <div class="split-preview-body" [style.background]="pair.light.colors.secondary">
+                  <div class="split-colors">
+                    <span class="split-dot" [style.background]="pair.light.colors.primary"></span>
+                    <span class="split-dot" [style.background]="pair.light.colors.primaryLight"></span>
+                    <span class="split-dot" [style.background]="pair.light.colors.accent"></span>
+                  </div>
+                  <div class="split-lines">
+                    <div class="split-line" [style.background]="pair.light.colors.text"></div>
+                    <div class="split-line short" [style.background]="pair.light.colors.textMuted"></div>
+                  </div>
+                  <div class="split-button" [style.background]="pair.light.colors.primary"></div>
+                </div>
+              </div>
+              <!-- Right side: Dark theme -->
+              <div class="split-half" [style.background]="pair.dark.colors.background"
+                   (click)="selectTheme(pair.dark)">
+                <div class="split-preview-header" [style.background]="pair.dark.colors.primary">
+                  <span class="split-title">Aa</span>
+                </div>
+                <div class="split-preview-body" [style.background]="pair.dark.colors.secondary">
+                  <div class="split-colors">
+                    <span class="split-dot" [style.background]="pair.dark.colors.primary"></span>
+                    <span class="split-dot" [style.background]="pair.dark.colors.primaryLight"></span>
+                    <span class="split-dot" [style.background]="pair.dark.colors.accent"></span>
+                  </div>
+                  <div class="split-lines">
+                    <div class="split-line" [style.background]="pair.dark.colors.text"></div>
+                    <div class="split-line short" [style.background]="pair.dark.colors.textMuted"></div>
+                  </div>
+                  <div class="split-button" [style.background]="pair.dark.colors.primary"></div>
+                </div>
+              </div>
             </div>
-
-            @if (isSelected(theme)) {
+            <div class="split-theme-info">
+              <div class="split-info-left" [style.background]="pair.light.colors.secondary">
+                <h5 class="theme-name" [style.color]="pair.light.colors.text">{{ pair.light.name }}</h5>
+                <p class="theme-description" [style.color]="pair.light.colors.textMuted">{{ pair.light.description }}</p>
+              </div>
+              <div class="split-info-right" [style.background]="pair.dark.colors.secondary">
+                <h5 class="theme-name" [style.color]="pair.dark.colors.text">{{ pair.dark.name }}</h5>
+                <p class="theme-description" [style.color]="pair.dark.colors.textMuted">{{ pair.dark.description }}</p>
+              </div>
+            </div>
+            @if (isSelectedPair(pair)) {
               <div class="theme-selected-badge">
                 <i class="bi bi-check-circle-fill"></i>
               </div>

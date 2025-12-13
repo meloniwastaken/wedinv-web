@@ -9,5 +9,5 @@
 }
 
 .stat-card .stat-number.text-muted {
-  color: var(--color-text-light) !important;
+  color: var(--color-text-muted) !important;
 }

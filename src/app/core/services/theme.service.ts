@@ -291,6 +291,238 @@ export class ThemeService {
         danger: '#c86060',
         warning: '#d4a060'
       }
+    },
+    // === TEMI DARK ===
+    {
+      id: 'classic-gold-dark',
+      name: 'Oro Classico Dark',
+      description: 'Eleganza dorata su sfondo notturno',
+      colors: {
+        primary: '#d4af37',
+        primaryLight: '#e8c44a',
+        primaryDark: '#b8960b',
+        secondary: '#1f1c16',
+        secondaryLight: '#2a2620',
+        accent: '#daa520',
+        background: '#141210',
+        backgroundAlt: '#1a1814',
+        text: '#f0efe8',
+        textMuted: '#a8a498',
+        border: '#3a3428',
+        success: '#7cb86c',
+        danger: '#e07070',
+        warning: '#e8c030'
+      }
+    },
+    {
+      id: 'romantic-rose-dark',
+      name: 'Rosa Romantico Dark',
+      description: 'Rose delicate su velluto notturno',
+      colors: {
+        primary: '#e8b8b8',
+        primaryLight: '#f0d0d0',
+        primaryDark: '#c89090',
+        secondary: '#1e1618',
+        secondaryLight: '#281e22',
+        accent: '#d4a0a0',
+        background: '#141012',
+        backgroundAlt: '#1a1416',
+        text: '#f5eeee',
+        textMuted: '#a89898',
+        border: '#3a2830',
+        success: '#8bc48b',
+        danger: '#e07070',
+        warning: '#e8c890'
+      }
+    },
+    {
+      id: 'sage-green-dark',
+      name: 'Verde Salvia Dark',
+      description: 'Natura rilassante in atmosfera serale',
+      colors: {
+        primary: '#a8c4ac',
+        primaryLight: '#c0d8c4',
+        primaryDark: '#88a88c',
+        secondary: '#161c18',
+        secondaryLight: '#1e2620',
+        accent: '#98b89c',
+        background: '#10140f',
+        backgroundAlt: '#161a14',
+        text: '#eef3ee',
+        textMuted: '#98a89a',
+        border: '#2a3828',
+        success: '#8ac88a',
+        danger: '#d88080',
+        warning: '#d8c080'
+      }
+    },
+    {
+      id: 'dusty-blue-dark',
+      name: 'Blu Polvere Dark',
+      description: 'Serenità blu in cielo stellato',
+      colors: {
+        primary: '#a4bdd4',
+        primaryLight: '#b8d0e8',
+        primaryDark: '#7a9bb8',
+        secondary: '#14181c',
+        secondaryLight: '#1c2228',
+        accent: '#90b0c8',
+        background: '#0e1216',
+        backgroundAlt: '#141a1e',
+        text: '#eef2f8',
+        textMuted: '#90a0b0',
+        border: '#283440',
+        success: '#80c098',
+        danger: '#d88888',
+        warning: '#d8c088'
+      }
+    },
+    {
+      id: 'lavender-dream-dark',
+      name: 'Sogno Lavanda Dark',
+      description: 'Sogni viola nella notte',
+      colors: {
+        primary: '#b8a8d0',
+        primaryLight: '#d0c0e8',
+        primaryDark: '#9888b0',
+        secondary: '#18141c',
+        secondaryLight: '#201a26',
+        accent: '#a898c0',
+        background: '#100e14',
+        backgroundAlt: '#16121c',
+        text: '#f2eef8',
+        textMuted: '#a098b0',
+        border: '#302840',
+        success: '#88c888',
+        danger: '#d88898',
+        warning: '#d8c088'
+      }
+    },
+    {
+      id: 'terracotta-dark',
+      name: 'Terracotta Dark',
+      description: 'Calore terroso al chiaro di luna',
+      colors: {
+        primary: '#d9a08a',
+        primaryLight: '#e8b8a0',
+        primaryDark: '#c08068',
+        secondary: '#1c1614',
+        secondaryLight: '#261e1a',
+        accent: '#d4906b',
+        background: '#12100c',
+        backgroundAlt: '#1a1610',
+        text: '#f5f0eb',
+        textMuted: '#a89888',
+        border: '#3a2820',
+        success: '#90c080',
+        danger: '#e07070',
+        warning: '#e8b868'
+      }
+    },
+    {
+      id: 'navy-elegance-dark',
+      name: 'Blu Navy Dark',
+      description: 'Eleganza marina nelle profondità',
+      colors: {
+        primary: '#6a8aa8',
+        primaryLight: '#8aaac8',
+        primaryDark: '#4a6a88',
+        secondary: '#12161c',
+        secondaryLight: '#1a1e26',
+        accent: '#5a7a98',
+        background: '#0c0e14',
+        backgroundAlt: '#10141a',
+        text: '#e8eef5',
+        textMuted: '#8898a8',
+        border: '#202838',
+        success: '#70a888',
+        danger: '#e07070',
+        warning: '#e8b868'
+      }
+    },
+    {
+      id: 'burgundy-dark',
+      name: 'Borgogna Dark',
+      description: 'Passione intensa nella notte',
+      colors: {
+        primary: '#a85060',
+        primaryLight: '#c06878',
+        primaryDark: '#883848',
+        secondary: '#1a1214',
+        secondaryLight: '#24181c',
+        accent: '#984858',
+        background: '#100c0e',
+        backgroundAlt: '#161012',
+        text: '#f5eeef',
+        textMuted: '#a89098',
+        border: '#382028',
+        success: '#70a870',
+        danger: '#c85858',
+        warning: '#d8a068'
+      }
+    },
+    {
+      id: 'champagne-dark',
+      name: 'Champagne Dark',
+      description: 'Lusso dorato sotto le stelle',
+      colors: {
+        primary: '#e0c8a8',
+        primaryLight: '#f0d8b8',
+        primaryDark: '#c8b090',
+        secondary: '#1a1814',
+        secondaryLight: '#24201a',
+        accent: '#d4b898',
+        background: '#12100c',
+        backgroundAlt: '#181610',
+        text: '#f5f2eb',
+        textMuted: '#a8a090',
+        border: '#383020',
+        success: '#90b878',
+        danger: '#d08878',
+        warning: '#d8b060'
+      }
+    },
+    {
+      id: 'midnight-garden-dark',
+      name: 'Giardino di Mezzanotte Dark',
+      description: 'Mistero verde nelle ombre',
+      colors: {
+        primary: '#5a8870',
+        primaryLight: '#78a890',
+        primaryDark: '#406850',
+        secondary: '#121814',
+        secondaryLight: '#1a201c',
+        accent: '#4a7860',
+        background: '#0a100c',
+        backgroundAlt: '#101610',
+        text: '#e8f0ea',
+        textMuted: '#88a090',
+        border: '#203020',
+        success: '#60a870',
+        danger: '#c06060',
+        warning: '#c8a060'
+      }
+    },
+    {
+      id: 'peach-blossom-dark',
+      name: 'Fiore di Pesco Dark',
+      description: 'Petali di pesco al tramonto',
+      colors: {
+        primary: '#f0b890',
+        primaryLight: '#f8d0a8',
+        primaryDark: '#d8a078',
+        secondary: '#1c1614',
+        secondaryLight: '#261e1a',
+        accent: '#e8a880',
+        background: '#12100c',
+        backgroundAlt: '#1a1610',
+        text: '#f8f2ee',
+        textMuted: '#b0a090',
+        border: '#382820',
+        success: '#90c090',
+        danger: '#e07878',
+        warning: '#e8b070'
+      }
     }
   ];
 

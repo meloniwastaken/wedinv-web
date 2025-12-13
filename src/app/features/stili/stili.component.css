@@ -152,6 +152,149 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Split Theme Card - Light/Dark Comparison */
+.split-theme-card {
+  background: var(--color-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.split-theme-header {
+  display: flex;
+  height: 28px;
+}
+
+.split-header-left,
+.split-header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.split-header-left {
+  background: #b8860b;
+}
+
+.split-header-right {
+  background: #d4af37;
+}
+
+.split-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+}
+
+.split-theme-preview {
+  display: flex;
+  height: 120px;
+}
+
+.split-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.split-half:hover {
+  opacity: 0.9;
+}
+
+.split-theme-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+.split-preview-header {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.split-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+}
+
+.split-preview-body {
+  flex: 1;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.split-colors {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.split-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.split-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.split-line {
+  height: 5px;
+  border-radius: 2px;
+  width: 75%;
+  opacity: 0.7;
+}
+
+.split-line.short {
+  width: 45%;
+  opacity: 0.5;
+}
+
+.split-button {
+  width: 40px;
+  height: 14px;
+  border-radius: 3px;
+  margin-top: auto;
+}
+
+.split-theme-info {
+  display: flex;
+  border-top: 1px solid var(--color-border);
+}
+
+.split-info-left,
+.split-info-right {
+  flex: 1;
+  padding: 0.75rem 1rem;
+}
+
+.split-info-left {
+  border-right: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.split-theme-info .theme-name {
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.split-theme-info .theme-description {
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
 /* Responsive */
 @media (max-width: 576px) {
   .current-theme-card {
