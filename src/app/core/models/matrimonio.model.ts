@@ -22,6 +22,7 @@ export interface MatrimonioDTO {
   iban: string | null;
   linkListaNozze: string | null;
   note: string | null;
+  messaggioInvito: string | null;
   dataCreazione: string;
   dataModifica: string;
   stileCodice: string | null;
@@ -49,6 +50,7 @@ export interface CreaMatrimonioRequest {
   iban?: string | null;
   linkListaNozze?: string | null;
   note?: string | null;
+  messaggioInvito?: string | null;
   stileCodice?: string | null;
 }
 

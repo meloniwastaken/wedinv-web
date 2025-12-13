@@ -29,7 +29,7 @@
             Caro/a <strong>{{ invito()!.nomeInvitato }} {{ invito()!.cognomeInvitato }}</strong>,
           </p>
           <p class="text-muted">
-            saremmo onorati della tua presenza nel giorno più importante della nostra vita.
+            {{ invito()!.messaggioInvito || 'saremmo onorati della tua presenza nel giorno più importante della nostra vita.' }}
           </p>
         </div>
 
@@ -219,7 +219,7 @@
 
                   <div class="mb-4 text-start">
                     <label class="form-label">
-                      <i class="bi bi-exclamation-triangle me-1"></i>
+                      <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
                       Allergie o intolleranze alimentari
                     </label>
                     <textarea class="form-control" rows="3"
@@ -281,7 +281,7 @@
 
                   <div class="mb-4 text-start">
                     <label class="form-label">
-                      <i class="bi bi-exclamation-triangle me-1"></i>
+                      <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
                       Allergie o intolleranze alimentari
                     </label>
                     <textarea class="form-control" rows="3"

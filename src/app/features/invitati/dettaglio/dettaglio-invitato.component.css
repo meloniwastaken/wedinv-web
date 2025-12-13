@@ -1,1 +1,10 @@
 /* Dettaglio invitato component specific styles */
+
+/* Force dark text for warning card header (allergie section) */
+.card-header.bg-warning-subtle {
+  color: #212529 !important;
+}
+
+.card-header.bg-warning-subtle i {
+  color: #856404 !important;
+}

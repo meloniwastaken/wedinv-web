@@ -26,6 +26,7 @@ export interface InvitoPubblicoResponse {
   iban: string | null;
   linkListaNozze: string | null;
   note: string | null;
+  messaggioInvito: string | null;
   stileCodice: string | null;
   intolleranzeAlimentari: string | null;
 }
