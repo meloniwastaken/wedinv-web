@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { authGuard, guestGuard, paymentGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // Route pubbliche (guest)
@@ -20,7 +20,22 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/invito/invito-pubblico.component').then(m => m.InvitoPubblicoComponent)
   },
 
-  // Route protette (auth)
+  // Route pagamento (autenticato ma non attivo)
+  {
+    path: 'pagamento',
+    loadComponent: () => import('./features/payment/payment.component').then(m => m.PaymentComponent),
+    canActivate: [paymentGuard]
+  },
+  {
+    path: 'pagamento/successo',
+    loadComponent: () => import('./features/payment/payment-success.component').then(m => m.PaymentSuccessComponent)
+  },
+  {
+    path: 'pagamento/annullato',
+    loadComponent: () => import('./features/payment/payment-cancel.component').then(m => m.PaymentCancelComponent)
+  },
+
+  // Route protette (auth + attivo)
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),

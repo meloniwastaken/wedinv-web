@@ -41,14 +41,6 @@
         </div>
       </div>
 
-      @if (error()) {
-        <div class="alert alert-danger alert-dismissible">
-          <i class="bi bi-exclamation-circle me-2"></i>
-          {{ error() }}
-          <button type="button" class="btn-close" (click)="error.set(null)"></button>
-        </div>
-      }
-
       @if (success()) {
         <div class="alert alert-success alert-dismissible">
           <i class="bi bi-check-circle me-2"></i>

@@ -17,6 +17,7 @@ export interface LoginResponse {
   email: string;
   nome: string;
   cognome: string;
+  attivo: boolean;
 }
 
 export interface UtenteSession {
@@ -25,4 +26,10 @@ export interface UtenteSession {
   nome: string;
   cognome: string;
   token: string;
+  attivo: boolean;
+}
+
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  checkoutUrl: string;
 }

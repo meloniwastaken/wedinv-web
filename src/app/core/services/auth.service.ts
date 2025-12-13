@@ -24,6 +24,7 @@ export class AuthService {
 
   readonly user = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.userSignal());
+  readonly isActive = computed(() => this.userSignal()?.attivo ?? false);
   readonly token = computed(() => this.userSignal()?.token || null);
 
   constructor(
@@ -58,7 +59,8 @@ export class AuthService {
           email: response.email,
           nome: response.nome,
           cognome: response.cognome,
-          token: response.token
+          token: response.token,
+          attivo: response.attivo
         };
 
         localStorage.setItem(TOKEN_KEY, response.token);
@@ -66,12 +68,28 @@ export class AuthService {
           id: response.id,
           email: response.email,
           nome: response.nome,
-          cognome: response.cognome
+          cognome: response.cognome,
+          attivo: response.attivo
         }));
 
         this.userSignal.set(user);
       })
     );
+  }
+
+  updateUserActiveStatus(attivo: boolean): void {
+    const currentUser = this.userSignal();
+    if (currentUser) {
+      const updatedUser = { ...currentUser, attivo };
+      this.userSignal.set(updatedUser);
+      localStorage.setItem(USER_KEY, JSON.stringify({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        nome: updatedUser.nome,
+        cognome: updatedUser.cognome,
+        attivo: updatedUser.attivo
+      }));
+    }
   }
 
   logout(): void {

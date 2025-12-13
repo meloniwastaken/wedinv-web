@@ -1,0 +1,45 @@
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
+}
+
+.payment-card {
+  background: var(--color-surface);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: var(--color-background);
+  border-radius: 0.5rem;
+}
+
+.feature-item i {
+  font-size: 1.25rem;
+}
+
+.feature-item span {
+  color: var(--color-text);
+}
+
+h1 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+}

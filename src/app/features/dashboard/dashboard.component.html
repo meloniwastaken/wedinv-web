@@ -6,11 +6,6 @@
           <span class="visually-hidden">Caricamento...</span>
         </div>
       </div>
-    } @else if (error()) {
-      <div class="alert alert-danger">
-        <i class="bi bi-exclamation-circle me-2"></i>
-        {{ error() }}
-      </div>
     } @else if (!hasMatrimonio()) {
       <!-- Stato: Nessun matrimonio creato -->
       <div class="text-center py-5">
