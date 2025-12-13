@@ -12,6 +12,7 @@ export interface InvitatoDTO {
   dataInvioEmail: string | null;
   dataConferma: string | null;
   note: string | null;
+  intolleranzeAlimentari: string | null;
   dataCreazione: string;
   dataModifica: string;
 }
@@ -25,6 +26,7 @@ export interface InvitatoRiepilogoDTO {
   statoInvitoDescrizione: string | null;
   numeroPlusConsentiti: number | null;
   plusConfermati: number | null;
+  intolleranzeAlimentari: string | null;
 }
 
 export interface ListaInvitatiResponse {
@@ -53,6 +55,7 @@ export interface AggiornaInvitatoRequest {
   statoInvito?: number | null;
   plusConfermati?: number | null;
   note?: string | null;
+  intolleranzeAlimentari?: string | null;
 }
 
 export interface InviaInvitiRequest {

@@ -19,6 +19,7 @@ export class DettaglioInvitatoComponent implements OnInit {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   isEdit = signal(false);
+  editMode = signal(false);
   invitato = signal<InvitatoDTO | null>(null);
   invitatoId: string | null = null;
 
@@ -43,8 +44,10 @@ export class DettaglioInvitatoComponent implements OnInit {
 
     if (this.invitatoId && this.invitatoId !== 'nuovo') {
       this.isEdit.set(true);
+      this.editMode.set(false); // Start in view mode for existing guests
       this.loadInvitato(this.invitatoId);
     } else {
+      this.editMode.set(true); // New guest starts in edit mode
       this.loading.set(false);
     }
   }
@@ -58,7 +61,8 @@ export class DettaglioInvitatoComponent implements OnInit {
       numeroPlusConsentiti: [0, [Validators.min(0)]],
       statoInvito: [StatoInvito.DA_INVIARE],
       plusConfermati: [0, [Validators.min(0)]],
-      note: ['']
+      note: [''],
+      intolleranzeAlimentari: ['']
     });
   }
 
@@ -89,7 +93,8 @@ export class DettaglioInvitatoComponent implements OnInit {
       numeroPlusConsentiti: invitato.numeroPlusConsentiti || 0,
       statoInvito: invitato.statoInvito || StatoInvito.DA_INVIARE,
       plusConfermati: invitato.plusConfermati || 0,
-      note: invitato.note || ''
+      note: invitato.note || '',
+      intolleranzeAlimentari: invitato.intolleranzeAlimentari || ''
     });
   }
 
@@ -146,13 +151,16 @@ export class DettaglioInvitatoComponent implements OnInit {
       numeroPlusConsentiti: formValue.numeroPlusConsentiti || null,
       statoInvito: formValue.statoInvito,
       plusConfermati: formValue.plusConfermati || null,
-      note: formValue.note || null
+      note: formValue.note || null,
+      intolleranzeAlimentari: formValue.intolleranzeAlimentari || null
     };
 
     this.invitatoService.aggiornaInvitato(this.invitatoId!, request).subscribe({
       next: () => {
         this.success.set('Modifiche salvate con successo!');
         this.saving.set(false);
+        this.editMode.set(false);
+        this.loadInvitato(this.invitatoId!); // Reload data
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Errore durante il salvataggio');
@@ -163,6 +171,18 @@ export class DettaglioInvitatoComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/invitati']);
+  }
+
+  enableEditMode(): void {
+    this.editMode.set(true);
+  }
+
+  cancelEdit(): void {
+    if (this.invitato()) {
+      this.patchForm(this.invitato()!);
+    }
+    this.editMode.set(false);
+    this.error.set(null);
   }
 
   get f() {
@@ -179,5 +199,23 @@ export class DettaglioInvitatoComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  getStatoBadgeClass(statoInvito: number | null): string {
+    switch (statoInvito) {
+      case StatoInvito.CONFERMATO:
+        return 'bg-success';
+      case StatoInvito.RIFIUTATO:
+        return 'bg-danger';
+      case StatoInvito.INVIATO:
+        return 'bg-info';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  getStatoDescrizione(statoInvito: number | null): string {
+    const stato = this.statiInvito.find(s => s.id === statoInvito);
+    return stato?.descrizione ?? 'Da inviare';
   }
 }

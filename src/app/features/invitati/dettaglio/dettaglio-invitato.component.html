@@ -9,12 +9,19 @@
     } @else {
       <div class="row justify-content-center">
         <div class="col-lg-8">
+          <!-- Header -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2>{{ isEdit() ? 'Modifica Invitato' : 'Nuovo Invitato' }}</h2>
-              <p class="text-muted mb-0">
-                {{ isEdit() ? 'Modifica i dati dell\'invitato' : 'Aggiungi un nuovo invitato alla lista' }}
-              </p>
+              @if (!isEdit()) {
+                <h2>Nuovo Invitato</h2>
+                <p class="text-muted mb-0">Aggiungi un nuovo invitato alla lista</p>
+              } @else if (!editMode()) {
+                <h2>{{ invitato()?.nome }} {{ invitato()?.cognome }}</h2>
+                <p class="text-muted mb-0">Dettaglio invitato</p>
+              } @else {
+                <h2>Modifica Invitato</h2>
+                <p class="text-muted mb-0">Modifica i dati dell'invitato</p>
+              }
             </div>
             <button class="btn btn-outline-secondary" (click)="goBack()">
               <i class="bi bi-arrow-left me-2"></i>Torna alla lista
@@ -29,64 +36,37 @@
             </div>
           }
 
-          <form [formGroup]="invitatoForm" (ngSubmit)="onSubmit()">
+          <!-- VIEW MODE -->
+          @if (isEdit() && !editMode() && invitato()) {
+            <!-- Stato Invito Badge -->
+            <div class="mb-4">
+              <span class="badge fs-6" [class]="getStatoBadgeClass(invitato()!.statoInvito)">
+                {{ getStatoDescrizione(invitato()!.statoInvito) }}
+              </span>
+            </div>
+
             <!-- Dati Personali -->
             <div class="card mb-4">
               <div class="card-header">
                 <i class="bi bi-person me-2"></i>Dati Personali
               </div>
               <div class="card-body">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label for="nome" class="form-label">Nome *</label>
-                    <input type="text" class="form-control" id="nome"
-                      formControlName="nome"
-                      [class.is-invalid]="f['nome'].touched && f['nome'].invalid">
-                    @if (f['nome'].touched && f['nome'].errors) {
-                      <div class="invalid-feedback">
-                        @if (f['nome'].errors['required']) {
-                          Il nome è obbligatorio
-                        } @else if (f['nome'].errors['minlength']) {
-                          Minimo 2 caratteri
-                        }
-                      </div>
-                    }
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Nome</small>
+                    <strong>{{ invitato()!.nome }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Cognome</small>
+                    <strong>{{ invitato()!.cognome }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <small class="text-muted d-block">Email</small>
+                    <strong>{{ invitato()!.email }}</strong>
                   </div>
                   <div class="col-md-6">
-                    <label for="cognome" class="form-label">Cognome *</label>
-                    <input type="text" class="form-control" id="cognome"
-                      formControlName="cognome"
-                      [class.is-invalid]="f['cognome'].touched && f['cognome'].invalid">
-                    @if (f['cognome'].touched && f['cognome'].errors) {
-                      <div class="invalid-feedback">
-                        @if (f['cognome'].errors['required']) {
-                          Il cognome è obbligatorio
-                        } @else if (f['cognome'].errors['minlength']) {
-                          Minimo 2 caratteri
-                        }
-                      </div>
-                    }
-                  </div>
-                  <div class="col-md-6">
-                    <label for="email" class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="email"
-                      formControlName="email"
-                      [class.is-invalid]="f['email'].touched && f['email'].invalid">
-                    @if (f['email'].touched && f['email'].errors) {
-                      <div class="invalid-feedback">
-                        @if (f['email'].errors['required']) {
-                          L'email è obbligatoria
-                        } @else if (f['email'].errors['email']) {
-                          Inserisci un'email valida
-                        }
-                      </div>
-                    }
-                  </div>
-                  <div class="col-md-6">
-                    <label for="telefono" class="form-label">Telefono</label>
-                    <input type="tel" class="form-control" id="telefono"
-                      formControlName="telefono"
-                      placeholder="+39 123 456 7890">
+                    <small class="text-muted d-block">Telefono</small>
+                    <strong>{{ invitato()!.telefono || '-' }}</strong>
                   </div>
                 </div>
               </div>
@@ -98,89 +78,222 @@
                 <i class="bi bi-envelope me-2"></i>Dettagli Invito
               </div>
               <div class="card-body">
-                <div class="row g-3">
-                  <div class="col-md-4">
-                    <label for="numeroPlusConsentiti" class="form-label">Accompagnatori consentiti</label>
-                    <input type="number" class="form-control" id="numeroPlusConsentiti"
-                      formControlName="numeroPlusConsentiti" min="0">
-                    <div class="form-text">Numero massimo di accompagnatori</div>
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Accompagnatori consentiti</small>
+                    <strong>{{ invitato()!.numeroPlusConsentiti ?? 0 }}</strong>
                   </div>
-
-                  @if (isEdit()) {
-                    <div class="col-md-4">
-                      <label for="statoInvito" class="form-label">Stato Invito</label>
-                      <select class="form-select" id="statoInvito" formControlName="statoInvito">
-                        @for (stato of statiInvito; track stato.id) {
-                          <option [value]="stato.id">{{ stato.descrizione }}</option>
-                        }
-                      </select>
-                    </div>
-                    <div class="col-md-4">
-                      <label for="plusConfermati" class="form-label">Accompagnatori confermati</label>
-                      <input type="number" class="form-control" id="plusConfermati"
-                        formControlName="plusConfermati" min="0">
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Accompagnatori confermati</small>
+                    <strong>{{ invitato()!.plusConfermati ?? 0 }}</strong>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Stato</small>
+                    <span class="badge" [class]="getStatoBadgeClass(invitato()!.statoInvito)">
+                      {{ getStatoDescrizione(invitato()!.statoInvito) }}
+                    </span>
+                  </div>
+                  @if (invitato()!.note) {
+                    <div class="col-12">
+                      <small class="text-muted d-block">Note</small>
+                      <span>{{ invitato()!.note }}</span>
                     </div>
                   }
-
-                  <div class="col-12">
-                    <label for="note" class="form-label">Note</label>
-                    <textarea class="form-control" id="note" rows="3"
-                      formControlName="note"
-                      placeholder="Note interne sull'invitato..."></textarea>
-                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Info aggiuntive in modifica -->
-            @if (isEdit() && invitato()) {
+            <!-- Intolleranze Alimentari -->
+            @if (invitato()?.intolleranzeAlimentari) {
               <div class="card mb-4">
-                <div class="card-header">
-                  <i class="bi bi-info-circle me-2"></i>Informazioni
+                <div class="card-header bg-warning-subtle">
+                  <i class="bi bi-exclamation-triangle me-2"></i>Intolleranze / Allergie Alimentari
                 </div>
                 <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-2">
-                        <strong>Data creazione:</strong><br>
-                        {{ formatDate(invitato()!.dataCreazione) }}
-                      </p>
-                      <p class="mb-0">
-                        <strong>Ultima modifica:</strong><br>
-                        {{ formatDate(invitato()!.dataModifica) }}
-                      </p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-2">
-                        <strong>Email inviata:</strong><br>
-                        {{ formatDate(invitato()!.dataInvioEmail) }}
-                      </p>
-                      <p class="mb-0">
-                        <strong>Data conferma:</strong><br>
-                        {{ formatDate(invitato()!.dataConferma) }}
-                      </p>
-                    </div>
-                  </div>
+                  <p class="mb-0">{{ invitato()!.intolleranzeAlimentari }}</p>
                 </div>
               </div>
             }
 
-            <!-- Buttons -->
+            <!-- Informazioni -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Informazioni
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <small class="text-muted d-block">Data creazione</small>
+                    <span>{{ formatDate(invitato()!.dataCreazione) }}</span>
+                  </div>
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <small class="text-muted d-block">Ultima modifica</small>
+                    <span>{{ formatDate(invitato()!.dataModifica) }}</span>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <small class="text-muted d-block">Email inviata</small>
+                    <span>{{ formatDate(invitato()!.dataInvioEmail) }}</span>
+                  </div>
+                  <div class="col-md-6">
+                    <small class="text-muted d-block">Data conferma</small>
+                    <span>{{ formatDate(invitato()!.dataConferma) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons View Mode -->
             <div class="d-flex justify-content-end gap-2">
               <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-                Annulla
+                <i class="bi bi-arrow-left me-2"></i>Torna alla lista
               </button>
-              <button type="submit" class="btn btn-primary" [disabled]="saving()">
-                @if (saving()) {
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Salvataggio...
-                } @else {
-                  <i class="bi bi-check-lg me-2"></i>
-                  {{ isEdit() ? 'Salva Modifiche' : 'Crea Invitato' }}
-                }
+              <button type="button" class="btn btn-primary" (click)="enableEditMode()">
+                <i class="bi bi-pencil me-2"></i>Modifica
               </button>
             </div>
-          </form>
+          }
+
+          <!-- EDIT MODE -->
+          @if (editMode()) {
+            <form [formGroup]="invitatoForm" (ngSubmit)="onSubmit()">
+              <!-- Dati Personali -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-person me-2"></i>Dati Personali
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="nome" class="form-label">Nome *</label>
+                      <input type="text" class="form-control" id="nome"
+                        formControlName="nome"
+                        [class.is-invalid]="f['nome'].touched && f['nome'].invalid">
+                      @if (f['nome'].touched && f['nome'].errors) {
+                        <div class="invalid-feedback">
+                          @if (f['nome'].errors['required']) {
+                            Il nome è obbligatorio
+                          } @else if (f['nome'].errors['minlength']) {
+                            Minimo 2 caratteri
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="col-md-6">
+                      <label for="cognome" class="form-label">Cognome *</label>
+                      <input type="text" class="form-control" id="cognome"
+                        formControlName="cognome"
+                        [class.is-invalid]="f['cognome'].touched && f['cognome'].invalid">
+                      @if (f['cognome'].touched && f['cognome'].errors) {
+                        <div class="invalid-feedback">
+                          @if (f['cognome'].errors['required']) {
+                            Il cognome è obbligatorio
+                          } @else if (f['cognome'].errors['minlength']) {
+                            Minimo 2 caratteri
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="col-md-6">
+                      <label for="email" class="form-label">Email *</label>
+                      <input type="email" class="form-control" id="email"
+                        formControlName="email"
+                        [class.is-invalid]="f['email'].touched && f['email'].invalid">
+                      @if (f['email'].touched && f['email'].errors) {
+                        <div class="invalid-feedback">
+                          @if (f['email'].errors['required']) {
+                            L'email è obbligatoria
+                          } @else if (f['email'].errors['email']) {
+                            Inserisci un'email valida
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="col-md-6">
+                      <label for="telefono" class="form-label">Telefono</label>
+                      <input type="tel" class="form-control" id="telefono"
+                        formControlName="telefono"
+                        placeholder="+39 123 456 7890">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dettagli Invito -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-envelope me-2"></i>Dettagli Invito
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label for="numeroPlusConsentiti" class="form-label">Accompagnatori consentiti</label>
+                      <input type="number" class="form-control" id="numeroPlusConsentiti"
+                        formControlName="numeroPlusConsentiti" min="0">
+                      <div class="form-text">Numero massimo di accompagnatori</div>
+                    </div>
+
+                    @if (isEdit()) {
+                      <div class="col-md-4">
+                        <label for="plusConfermati" class="form-label">Accompagnatori confermati</label>
+                        <input type="number" class="form-control" id="plusConfermati"
+                          formControlName="plusConfermati" min="0">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="statoInvito" class="form-label">Stato Invito</label>
+                        <select class="form-select" id="statoInvito" formControlName="statoInvito">
+                          @for (stato of statiInvito; track stato.id) {
+                            <option [value]="stato.id">{{ stato.descrizione }}</option>
+                          }
+                        </select>
+                      </div>
+                    }
+
+                    <div class="col-12">
+                      <label for="note" class="form-label">Note</label>
+                      <textarea class="form-control" id="note" rows="3"
+                        formControlName="note"
+                        placeholder="Note interne sull'invitato..."></textarea>
+                    </div>
+
+                    <div class="col-12">
+                      <label for="intolleranzeAlimentari" class="form-label">
+                        <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
+                        Intolleranze / Allergie Alimentari
+                      </label>
+                      <textarea class="form-control" id="intolleranzeAlimentari" rows="2"
+                        formControlName="intolleranzeAlimentari"
+                        placeholder="Es. celiaco, intollerante al lattosio, allergia alle noci..."></textarea>
+                      <div class="form-text">Questo campo viene normalmente compilato dall'invitato durante la conferma</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Buttons Edit Mode -->
+              <div class="d-flex justify-content-end gap-2">
+                @if (isEdit()) {
+                  <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+                    Annulla
+                  </button>
+                } @else {
+                  <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                    Annulla
+                  </button>
+                }
+                <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                  @if (saving()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Salvataggio...
+                  } @else {
+                    <i class="bi bi-check-lg me-2"></i>
+                    {{ isEdit() ? 'Salva Modifiche' : 'Crea Invitato' }}
+                  }
+                </button>
+              </div>
+            </form>
+          }
         </div>
       </div>
     }

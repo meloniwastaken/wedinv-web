@@ -27,9 +27,11 @@ export interface InvitoPubblicoResponse {
   linkListaNozze: string | null;
   note: string | null;
   stileCodice: string | null;
+  intolleranzeAlimentari: string | null;
 }
 
 export interface ConfermaInvitoRequest {
   confermato: boolean;
   plusConfermati?: number | null;
+  intolleranzeAlimentari?: string | null;
 }

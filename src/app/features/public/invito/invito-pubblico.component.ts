@@ -22,6 +22,7 @@ export class InvitoPubblicoComponent implements OnInit {
 
   showConfirmForm = signal(false);
   plusConfermati = signal(0);
+  intolleranzeAlimentari = signal('');
 
   StatoInvito = StatoInvito;
 
@@ -58,6 +59,7 @@ export class InvitoPubblicoComponent implements OnInit {
       next: (invito) => {
         this.invito.set(invito);
         this.plusConfermati.set(invito.plusConfermati || 0);
+        this.intolleranzeAlimentari.set(invito.intolleranzeAlimentari || '');
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
         this.loading.set(false);
@@ -80,6 +82,7 @@ export class InvitoPubblicoComponent implements OnInit {
   cancelConfirm(): void {
     this.showConfirmForm.set(false);
     this.plusConfermati.set(this.invito()?.plusConfermati || 0);
+    this.intolleranzeAlimentari.set(this.invito()?.intolleranzeAlimentari || '');
   }
 
   confermaPartecipazione(): void {
@@ -88,7 +91,8 @@ export class InvitoPubblicoComponent implements OnInit {
 
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
       confermato: true,
-      plusConfermati: this.plusConfermati()
+      plusConfermati: this.plusConfermati(),
+      intolleranzeAlimentari: this.intolleranzeAlimentari() || null
     }).subscribe({
       next: () => {
         this.success.set('La tua conferma è stata registrata!');
@@ -113,7 +117,8 @@ export class InvitoPubblicoComponent implements OnInit {
 
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
       confermato: false,
-      plusConfermati: 0
+      plusConfermati: 0,
+      intolleranzeAlimentari: this.intolleranzeAlimentari() || null
     }).subscribe({
       next: () => {
         this.success.set('La tua risposta è stata registrata.');
