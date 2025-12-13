@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.git
+.gitignore
+.angular/
+.vscode/
+*.md
+Dockerfile
+.env
+.env.*
