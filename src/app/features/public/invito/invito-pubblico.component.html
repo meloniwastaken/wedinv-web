@@ -1,0 +1,298 @@
+<div class="invitation-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+    </div>
+  } @else if (error() && !invito()) {
+    <div class="invitation-card">
+      <div class="invitation-body text-center py-5">
+        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+        <h3 class="mt-4">{{ error() }}</h3>
+        <p class="text-muted">Verifica che il link sia corretto o contatta gli sposi.</p>
+      </div>
+    </div>
+  } @else if (invito()) {
+    <div class="invitation-card">
+      <!-- Header con nomi degli sposi -->
+      <div class="invitation-header">
+        <p class="mb-2" style="font-size: 1.1rem; opacity: 0.9;">Siete invitati al matrimonio di</p>
+        <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
+        <div class="ornament" style="color: rgba(255,255,255,0.6);">&#10084;</div>
+      </div>
+
+      <div class="invitation-body">
+        <!-- Saluto personale -->
+        <div class="text-center mb-4">
+          <p class="lead">
+            Caro/a <strong>{{ invito()!.nomeInvitato }} {{ invito()!.cognomeInvitato }}</strong>,
+          </p>
+          <p class="text-muted">
+            saremmo onorati della tua presenza nel giorno più importante della nostra vita.
+          </p>
+        </div>
+
+        <!-- Alerts -->
+        @if (error()) {
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            {{ error() }}
+          </div>
+        }
+
+        @if (success()) {
+          <div class="alert alert-success">
+            <i class="bi bi-check-circle me-2"></i>
+            {{ success() }}
+          </div>
+        }
+
+        <!-- Stato risposta -->
+        @if (hasResponded()) {
+          <div class="text-center mb-4 p-4 bg-light rounded">
+            @if (isConfermato()) {
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 2.5rem;"></i>
+              <h4 class="mt-3 mb-2">Partecipazione confermata!</h4>
+              <p class="text-muted mb-0">
+                @if ((invito()!.plusConfermati ?? 0) > 0) {
+                  Parteciperai con {{ invito()!.plusConfermati }} accompagnatore/i.
+                } @else {
+                  Grazie per aver confermato la tua presenza.
+                }
+              </p>
+            } @else {
+              <i class="bi bi-x-circle-fill text-danger" style="font-size: 2.5rem;"></i>
+              <h4 class="mt-3 mb-2">Hai declinato l'invito</h4>
+              <p class="text-muted mb-0">
+                Ci dispiace che non potrai essere presente.
+              </p>
+            }
+          </div>
+        }
+
+        <!-- Sezione Cerimonia -->
+        <div class="invitation-section">
+          <h3><i class="bi bi-building me-2"></i>La Cerimonia</h3>
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Data:</strong></p>
+              <p class="mb-3">{{ formatDate(invito()!.dataCerimonia) }}</p>
+            </div>
+            <div class="col-md-6">
+              @if (invito()!.oraCerimonia) {
+                <p class="mb-1"><strong>Ora:</strong></p>
+                <p class="mb-3">{{ formatTime(invito()!.oraCerimonia) }}</p>
+              }
+            </div>
+          </div>
+          @if (invito()!.luogoCerimonia) {
+            <p class="mb-1"><strong>Luogo:</strong></p>
+            <p class="mb-1">{{ invito()!.luogoCerimonia }}</p>
+            @if (invito()!.indirizzoCerimonia) {
+              <p class="text-muted mb-2">
+                {{ invito()!.indirizzoCerimonia }}
+                @if (invito()!.cittaCerimonia) {
+                  - {{ invito()!.cittaCerimonia }}
+                }
+              </p>
+            }
+            @if (invito()!.linkMapsCerimonia) {
+              <button class="btn btn-outline-primary btn-sm"
+                (click)="openMaps(invito()!.linkMapsCerimonia)">
+                <i class="bi bi-geo-alt me-2"></i>Apri in Google Maps
+              </button>
+            }
+          }
+        </div>
+
+        <!-- Sezione Ricevimento -->
+        <div class="invitation-section">
+          <h3><i class="bi bi-cup-hot me-2"></i>Il Ricevimento</h3>
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Data:</strong></p>
+              <p class="mb-3">{{ formatDate(invito()!.dataRicevimento) }}</p>
+            </div>
+            <div class="col-md-6">
+              @if (invito()!.oraRicevimento) {
+                <p class="mb-1"><strong>Ora:</strong></p>
+                <p class="mb-3">{{ formatTime(invito()!.oraRicevimento) }}</p>
+              }
+            </div>
+          </div>
+          @if (invito()!.luogoRicevimento) {
+            <p class="mb-1"><strong>Luogo:</strong></p>
+            <p class="mb-1">{{ invito()!.luogoRicevimento }}</p>
+            @if (invito()!.indirizzoRicevimento) {
+              <p class="text-muted mb-2">
+                {{ invito()!.indirizzoRicevimento }}
+                @if (invito()!.cittaRicevimento) {
+                  - {{ invito()!.cittaRicevimento }}
+                }
+              </p>
+            }
+            @if (invito()!.linkMapsRicevimento) {
+              <button class="btn btn-outline-primary btn-sm"
+                (click)="openMaps(invito()!.linkMapsRicevimento)">
+                <i class="bi bi-geo-alt me-2"></i>Apri in Google Maps
+              </button>
+            }
+          }
+        </div>
+
+        <!-- Info aggiuntive -->
+        @if (invito()!.note || invito()!.linkListaNozze || invito()!.iban) {
+          <div class="invitation-section">
+            <h3><i class="bi bi-info-circle me-2"></i>Informazioni Utili</h3>
+
+            @if (invito()!.note) {
+              <p class="mb-3">{{ invito()!.note }}</p>
+            }
+
+            @if (invito()!.linkListaNozze) {
+              <p class="mb-2">
+                <i class="bi bi-gift me-2"></i>
+                <a [href]="invito()!.linkListaNozze" target="_blank">Lista Nozze</a>
+              </p>
+            }
+
+            @if (invito()!.iban) {
+              <p class="mb-0">
+                <i class="bi bi-credit-card me-2"></i>
+                IBAN: <code>{{ invito()!.iban }}</code>
+              </p>
+            }
+          </div>
+        }
+
+        <!-- Deadline e Contatto -->
+        <div class="invitation-section">
+          @if (invito()!.dataDeadlineConferma) {
+            <div class="alert alert-warning">
+              <i class="bi bi-calendar-event me-2"></i>
+              <strong>Conferma entro:</strong> {{ formatDate(invito()!.dataDeadlineConferma) }}
+            </div>
+          }
+
+          @if (invito()!.contattoRiferimento) {
+            <p class="text-muted text-center mb-0">
+              <i class="bi bi-telephone me-2"></i>
+              Per informazioni: {{ invito()!.contattoRiferimento }}
+            </p>
+          }
+        </div>
+
+        <!-- Bottoni conferma -->
+        @if (!hasResponded()) {
+          <div class="text-center mt-4">
+            @if (!showConfirmForm()) {
+              <div class="d-flex gap-3 justify-content-center">
+                <button class="btn btn-success btn-lg" (click)="openConfirmForm()">
+                  <i class="bi bi-check-lg me-2"></i>Conferma Partecipazione
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" (click)="rifiutaPartecipazione()"
+                  [disabled]="saving()">
+                  Non potrò esserci
+                </button>
+              </div>
+            } @else {
+              <!-- Form conferma con plus -->
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title mb-4">Conferma la tua partecipazione</h5>
+
+                  @if ((invito()!.numeroPlusConsentiti ?? 0) > 0) {
+                    <div class="mb-4">
+                      <label class="form-label">
+                        Con quanti accompagnatori parteciperai?
+                        <small class="text-muted">(max {{ invito()!.numeroPlusConsentiti }})</small>
+                      </label>
+                      <select class="form-select" style="max-width: 200px; margin: 0 auto;"
+                        [ngModel]="plusConfermati()" (ngModelChange)="plusConfermati.set($event)">
+                        @for (n of [].constructor(invito()!.numeroPlusConsentiti! + 1); track $index) {
+                          <option [value]="$index">{{ $index }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-secondary" (click)="cancelConfirm()">
+                      Annulla
+                    </button>
+                    <button class="btn btn-success" (click)="confermaPartecipazione()"
+                      [disabled]="saving()">
+                      @if (saving()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Conferma
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Bottone per modificare risposta -->
+          <div class="text-center mt-4">
+            <button class="btn btn-outline-primary" (click)="showConfirmForm.set(true)"
+              *ngIf="!showConfirmForm()">
+              <i class="bi bi-pencil me-2"></i>Modifica risposta
+            </button>
+
+            @if (showConfirmForm()) {
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title mb-4">Modifica la tua risposta</h5>
+
+                  <div class="d-flex gap-3 justify-content-center mb-4">
+                    <button class="btn btn-success" (click)="openConfirmForm()">
+                      <i class="bi bi-check-lg me-2"></i>Parteciperò
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="rifiutaPartecipazione()"
+                      [disabled]="saving()">
+                      Non potrò esserci
+                    </button>
+                  </div>
+
+                  @if ((invito()!.numeroPlusConsentiti ?? 0) > 0) {
+                    <div class="mb-4">
+                      <label class="form-label">Accompagnatori:</label>
+                      <select class="form-select" style="max-width: 200px; margin: 0 auto;"
+                        [ngModel]="plusConfermati()" (ngModelChange)="plusConfermati.set($event)">
+                        @for (n of [].constructor(invito()!.numeroPlusConsentiti! + 1); track $index) {
+                          <option [value]="$index">{{ $index }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-secondary" (click)="showConfirmForm.set(false)">
+                      Annulla
+                    </button>
+                    <button class="btn btn-primary" (click)="confermaPartecipazione()"
+                      [disabled]="saving()">
+                      @if (saving()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Salva modifiche
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center py-4 bg-light">
+        <p class="text-muted mb-0" style="font-size: 0.85rem;">
+          Creato con <i class="bi bi-heart-fill text-danger"></i> WedInv
+        </p>
+      </div>
+    </div>
+  }
+</div>

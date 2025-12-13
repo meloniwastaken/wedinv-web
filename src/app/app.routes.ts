@@ -1,3 +1,67 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  // Route pubbliche (guest)
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
+    canActivate: [guestGuard]
+  },
+  {
+    path: 'registrazione',
+    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+    canActivate: [guestGuard]
+  },
+
+  // Route pubblica per invito
+  {
+    path: 'invito/:id',
+    loadComponent: () => import('./features/public/invito/invito-pubblico.component').then(m => m.InvitoPubblicoComponent)
+  },
+
+  // Route protette (auth)
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'matrimonio',
+    loadComponent: () => import('./features/matrimonio/matrimonio.component').then(m => m.MatrimonioComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'invitati',
+    loadComponent: () => import('./features/invitati/lista/lista-invitati.component').then(m => m.ListaInvitatiComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'invitati/nuovo',
+    loadComponent: () => import('./features/invitati/dettaglio/dettaglio-invitato.component').then(m => m.DettaglioInvitatoComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'invitati/:id',
+    loadComponent: () => import('./features/invitati/dettaglio/dettaglio-invitato.component').then(m => m.DettaglioInvitatoComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'stili',
+    loadComponent: () => import('./features/stili/stili.component').then(m => m.StiliComponent),
+    canActivate: [authGuard]
+  },
+
+  // Redirect default
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
+  },
+
+  // 404
+  {
+    path: '**',
+    redirectTo: 'dashboard'
+  }
+];

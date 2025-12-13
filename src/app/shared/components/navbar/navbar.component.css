@@ -1,0 +1,14 @@
+/* Navbar component specific styles */
+
+.dropdown-menu {
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-background-alt);
+}

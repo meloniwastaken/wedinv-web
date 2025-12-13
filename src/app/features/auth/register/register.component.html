@@ -1,0 +1,167 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h1 class="auth-logo">WedInv</h1>
+    <p class="auth-subtitle">Crea il tuo account</p>
+
+    @if (success()) {
+      <div class="alert alert-success mb-4">
+        <i class="bi bi-check-circle me-2"></i>
+        Registrazione completata! Verrai reindirizzato al login...
+      </div>
+    }
+
+    @if (error()) {
+      <div class="alert alert-danger mb-4">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="nome" class="form-label">Nome</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nome"
+            formControlName="nome"
+            placeholder="Il tuo nome"
+            [class.is-invalid]="f['nome'].touched && f['nome'].invalid"
+          >
+          @if (f['nome'].touched && f['nome'].errors) {
+            <div class="invalid-feedback">
+              @if (f['nome'].errors['required']) {
+                Il nome è obbligatorio
+              } @else if (f['nome'].errors['minlength']) {
+                Minimo 2 caratteri
+              }
+            </div>
+          }
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label for="cognome" class="form-label">Cognome</label>
+          <input
+            type="text"
+            class="form-control"
+            id="cognome"
+            formControlName="cognome"
+            placeholder="Il tuo cognome"
+            [class.is-invalid]="f['cognome'].touched && f['cognome'].invalid"
+          >
+          @if (f['cognome'].touched && f['cognome'].errors) {
+            <div class="invalid-feedback">
+              @if (f['cognome'].errors['required']) {
+                Il cognome è obbligatorio
+              } @else if (f['cognome'].errors['minlength']) {
+                Minimo 2 caratteri
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="nome@esempio.com"
+          [class.is-invalid]="f['email'].touched && f['email'].invalid"
+        >
+        @if (f['email'].touched && f['email'].errors) {
+          <div class="invalid-feedback">
+            @if (f['email'].errors['required']) {
+              L'email è obbligatoria
+            } @else if (f['email'].errors['email']) {
+              Inserisci un'email valida
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            id="password"
+            formControlName="password"
+            placeholder="Minimo 8 caratteri"
+            [class.is-invalid]="f['password'].touched && f['password'].invalid"
+          >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePassword()"
+          >
+            <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+          </button>
+        </div>
+        @if (f['password'].touched && f['password'].errors) {
+          <div class="invalid-feedback d-block">
+            @if (f['password'].errors['required']) {
+              La password è obbligatoria
+            } @else if (f['password'].errors['minlength']) {
+              La password deve avere almeno 8 caratteri
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label for="confermaPassword" class="form-label">Conferma Password</label>
+        <div class="input-group">
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            class="form-control"
+            id="confermaPassword"
+            formControlName="confermaPassword"
+            placeholder="Ripeti la password"
+            [class.is-invalid]="f['confermaPassword'].touched && f['confermaPassword'].invalid"
+          >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleConfirmPassword()"
+          >
+            <i class="bi" [class.bi-eye]="!showConfirmPassword()" [class.bi-eye-slash]="showConfirmPassword()"></i>
+          </button>
+        </div>
+        @if (f['confermaPassword'].touched && f['confermaPassword'].errors) {
+          <div class="invalid-feedback d-block">
+            @if (f['confermaPassword'].errors['required']) {
+              Conferma la password
+            } @else if (f['confermaPassword'].errors['passwordMismatch']) {
+              Le password non coincidono
+            }
+          </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="loading() || success()"
+      >
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Registrazione in corso...
+        } @else {
+          Registrati
+        }
+      </button>
+    </form>
+
+    <div class="divider my-4">oppure</div>
+
+    <p class="text-center mb-0">
+      Hai già un account?
+      <a routerLink="/login" class="fw-semibold">Accedi</a>
+    </p>
+  </div>
+</div>

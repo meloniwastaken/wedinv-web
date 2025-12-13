@@ -1,0 +1,82 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h1 class="auth-logo">WedInv</h1>
+    <p class="auth-subtitle">Accedi al tuo account</p>
+
+    @if (error()) {
+      <div class="alert alert-danger mb-4">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="nome@esempio.com"
+          [class.is-invalid]="f['email'].touched && f['email'].invalid"
+        >
+        @if (f['email'].touched && f['email'].errors) {
+          <div class="invalid-feedback">
+            @if (f['email'].errors['required']) {
+              L'email è obbligatoria
+            } @else if (f['email'].errors['email']) {
+              Inserisci un'email valida
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            id="password"
+            formControlName="password"
+            placeholder="La tua password"
+            [class.is-invalid]="f['password'].touched && f['password'].invalid"
+          >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePassword()"
+          >
+            <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+          </button>
+        </div>
+        @if (f['password'].touched && f['password'].errors) {
+          <div class="invalid-feedback d-block">
+            La password è obbligatoria
+          </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="loading()"
+      >
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Accesso in corso...
+        } @else {
+          Accedi
+        }
+      </button>
+    </form>
+
+    <div class="divider my-4">oppure</div>
+
+    <p class="text-center mb-0">
+      Non hai un account?
+      <a routerLink="/registrazione" class="fw-semibold">Registrati</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,288 @@
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    } @else {
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2>{{ isEdit() ? 'Modifica Matrimonio' : 'Crea il tuo Matrimonio' }}</h2>
+              <p class="text-muted mb-0">
+                {{ isEdit() ? 'Modifica i dettagli del tuo evento' : 'Inserisci i dettagli della cerimonia e del ricevimento' }}
+              </p>
+            </div>
+            <button class="btn btn-outline-secondary" (click)="goBack()">
+              <i class="bi bi-arrow-left me-2"></i>Dashboard
+            </button>
+          </div>
+
+          @if (error()) {
+            <div class="alert alert-danger alert-dismissible">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              {{ error() }}
+              <button type="button" class="btn-close" (click)="error.set(null)"></button>
+            </div>
+          }
+
+          @if (success()) {
+            <div class="alert alert-success alert-dismissible">
+              <i class="bi bi-check-circle me-2"></i>
+              {{ success() }}
+              <button type="button" class="btn-close" (click)="success.set(null)"></button>
+            </div>
+          }
+
+          <form [formGroup]="matrimonioForm" (ngSubmit)="onSubmit()">
+            <!-- Sezione Sposi -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-heart me-2"></i>Gli Sposi
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <h6 class="text-muted mb-3">Primo Sposo/a</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="nomeSposoA" class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="nomeSposoA"
+                          formControlName="nomeSposoA"
+                          [class.is-invalid]="f['nomeSposoA'].touched && f['nomeSposoA'].invalid">
+                        @if (f['nomeSposoA'].touched && f['nomeSposoA'].errors) {
+                          <div class="invalid-feedback">Nome obbligatorio</div>
+                        }
+                      </div>
+                      <div class="col-md-6">
+                        <label for="cognomeSposoA" class="form-label">Cognome *</label>
+                        <input type="text" class="form-control" id="cognomeSposoA"
+                          formControlName="cognomeSposoA"
+                          [class.is-invalid]="f['cognomeSposoA'].touched && f['cognomeSposoA'].invalid">
+                        @if (f['cognomeSposoA'].touched && f['cognomeSposoA'].errors) {
+                          <div class="invalid-feedback">Cognome obbligatorio</div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-muted mb-3">Secondo Sposo/a</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="nomeSposoB" class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="nomeSposoB"
+                          formControlName="nomeSposoB"
+                          [class.is-invalid]="f['nomeSposoB'].touched && f['nomeSposoB'].invalid">
+                        @if (f['nomeSposoB'].touched && f['nomeSposoB'].errors) {
+                          <div class="invalid-feedback">Nome obbligatorio</div>
+                        }
+                      </div>
+                      <div class="col-md-6">
+                        <label for="cognomeSposoB" class="form-label">Cognome *</label>
+                        <input type="text" class="form-control" id="cognomeSposoB"
+                          formControlName="cognomeSposoB"
+                          [class.is-invalid]="f['cognomeSposoB'].touched && f['cognomeSposoB'].invalid">
+                        @if (f['cognomeSposoB'].touched && f['cognomeSposoB'].errors) {
+                          <div class="invalid-feedback">Cognome obbligatorio</div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Cerimonia -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-building me-2"></i>Cerimonia
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="dataCerimonia" class="form-label">Data *</label>
+                    <input type="date" class="form-control" id="dataCerimonia"
+                      formControlName="dataCerimonia"
+                      [class.is-invalid]="f['dataCerimonia'].touched && f['dataCerimonia'].invalid">
+                    @if (f['dataCerimonia'].touched && f['dataCerimonia'].errors) {
+                      <div class="invalid-feedback">Data obbligatoria</div>
+                    }
+                  </div>
+                  <div class="col-md-2">
+                    <label for="oraCerimonia" class="form-label">Ora</label>
+                    <input type="time" class="form-control" id="oraCerimonia"
+                      formControlName="oraCerimonia">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="luogoCerimonia" class="form-label">Luogo</label>
+                    <input type="text" class="form-control" id="luogoCerimonia"
+                      formControlName="luogoCerimonia" placeholder="es. Chiesa di San Marco">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="indirizzoCerimonia" class="form-label">Indirizzo</label>
+                    <input type="text" class="form-control" id="indirizzoCerimonia"
+                      formControlName="indirizzoCerimonia" placeholder="es. Via Roma, 1">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="cittaCerimonia" class="form-label">Città</label>
+                    <input type="text" class="form-control" id="cittaCerimonia"
+                      formControlName="cittaCerimonia">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="linkMapsCerimonia" class="form-label">Link Maps</label>
+                    <input type="url" class="form-control" id="linkMapsCerimonia"
+                      formControlName="linkMapsCerimonia" placeholder="https://maps.google.com/...">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Ricevimento -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-cup-hot me-2"></i>Ricevimento
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="dataRicevimento" class="form-label">Data *</label>
+                    <input type="date" class="form-control" id="dataRicevimento"
+                      formControlName="dataRicevimento"
+                      [class.is-invalid]="f['dataRicevimento'].touched && f['dataRicevimento'].invalid">
+                    @if (f['dataRicevimento'].touched && f['dataRicevimento'].errors) {
+                      <div class="invalid-feedback">Data obbligatoria</div>
+                    }
+                  </div>
+                  <div class="col-md-2">
+                    <label for="oraRicevimento" class="form-label">Ora</label>
+                    <input type="time" class="form-control" id="oraRicevimento"
+                      formControlName="oraRicevimento">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="luogoRicevimento" class="form-label">Luogo</label>
+                    <input type="text" class="form-control" id="luogoRicevimento"
+                      formControlName="luogoRicevimento" placeholder="es. Villa dei Fiori">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="indirizzoRicevimento" class="form-label">Indirizzo</label>
+                    <input type="text" class="form-control" id="indirizzoRicevimento"
+                      formControlName="indirizzoRicevimento" placeholder="es. Via dei Giardini, 10">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="cittaRicevimento" class="form-label">Città</label>
+                    <input type="text" class="form-control" id="cittaRicevimento"
+                      formControlName="cittaRicevimento">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="linkMapsRicevimento" class="form-label">Link Maps</label>
+                    <input type="url" class="form-control" id="linkMapsRicevimento"
+                      formControlName="linkMapsRicevimento" placeholder="https://maps.google.com/...">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Info Aggiuntive -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Informazioni Aggiuntive
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="dataDeadlineConferma" class="form-label">Deadline Conferme</label>
+                    <input type="date" class="form-control" id="dataDeadlineConferma"
+                      formControlName="dataDeadlineConferma">
+                    <div class="form-text">Data entro cui gli invitati devono confermare</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="contattoRiferimento" class="form-label">Contatto di riferimento</label>
+                    <input type="text" class="form-control" id="contattoRiferimento"
+                      formControlName="contattoRiferimento" placeholder="es. +39 123 456 7890">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="iban" class="form-label">IBAN (per regali)</label>
+                    <input type="text" class="form-control" id="iban"
+                      formControlName="iban" placeholder="IT00X0000000000000000000000">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="linkListaNozze" class="form-label">Link Lista Nozze</label>
+                    <input type="url" class="form-control" id="linkListaNozze"
+                      formControlName="linkListaNozze" placeholder="https://...">
+                  </div>
+                  <div class="col-12">
+                    <label for="note" class="form-label">Note per gli invitati</label>
+                    <textarea class="form-control" id="note" rows="3"
+                      formControlName="note"
+                      placeholder="Informazioni aggiuntive che verranno mostrate nell'invito..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                @if (isEdit()) {
+                  <button type="button" class="btn btn-outline-danger" (click)="confirmDelete()"
+                    [disabled]="deleting()">
+                    <i class="bi bi-trash me-2"></i>Elimina Matrimonio
+                  </button>
+                }
+              </div>
+              <div>
+                <button type="button" class="btn btn-outline-secondary me-2" (click)="goBack()">
+                  Annulla
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                  @if (saving()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Salvataggio...
+                  } @else {
+                    <i class="bi bi-check-lg me-2"></i>
+                    {{ isEdit() ? 'Salva Modifiche' : 'Crea Matrimonio' }}
+                  }
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Delete Confirmation Modal -->
+          @if (showDeleteConfirm()) {
+            <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Conferma Eliminazione</h5>
+                    <button type="button" class="btn-close" (click)="cancelDelete()"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="mb-0">
+                      Sei sicuro di voler eliminare questo matrimonio?
+                      <strong>Questa azione eliminerà anche tutti gli invitati associati e non può essere annullata.</strong>
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+                      Annulla
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="deleteMatrimonio()"
+                      [disabled]="deleting()">
+                      @if (deleting()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Elimina
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

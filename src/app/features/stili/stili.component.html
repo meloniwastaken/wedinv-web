@@ -1,0 +1,62 @@
+<div class="page-container">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col">
+        <h2>Personalizza lo Stile</h2>
+        <p class="text-muted">Scegli la palette di colori che preferisci per il tuo sito</p>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col">
+        <div class="current-theme-card">
+          <div class="current-theme-label">Tema attuale</div>
+          <div class="current-theme-name">{{ currentTheme().name }}</div>
+          <div class="current-theme-description">{{ currentTheme().description }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      @for (theme of themes; track theme.id) {
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div
+            class="theme-card"
+            [class.selected]="isSelected(theme)"
+            (click)="selectTheme(theme)">
+
+            <div class="theme-preview">
+              <div class="preview-header" [style.background]="theme.colors.primary">
+                <div class="preview-title">Aa</div>
+              </div>
+              <div class="preview-body" [style.background]="theme.colors.background">
+                <div class="preview-colors">
+                  <span class="preview-dot" [style.background]="theme.colors.primary"></span>
+                  <span class="preview-dot" [style.background]="theme.colors.primaryLight"></span>
+                  <span class="preview-dot" [style.background]="theme.colors.accent"></span>
+                  <span class="preview-dot" [style.background]="theme.colors.secondary"></span>
+                </div>
+                <div class="preview-lines">
+                  <div class="preview-line" [style.background]="theme.colors.text"></div>
+                  <div class="preview-line short" [style.background]="theme.colors.textMuted"></div>
+                </div>
+                <div class="preview-button" [style.background]="theme.colors.primary"></div>
+              </div>
+            </div>
+
+            <div class="theme-info">
+              <h5 class="theme-name">{{ theme.name }}</h5>
+              <p class="theme-description">{{ theme.description }}</p>
+            </div>
+
+            @if (isSelected(theme)) {
+              <div class="theme-selected-badge">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,256 @@
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    } @else {
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>Gestione Invitati</h2>
+          <p class="text-muted mb-0">
+            {{ data()?.totaleInvitati ?? 0 }} invitati totali
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" (click)="openSendModal()"
+            [disabled]="(data()?.totaleInvitati ?? 0) === 0">
+            <i class="bi bi-envelope me-2"></i>Invia Inviti
+          </button>
+          <a routerLink="/invitati/nuovo" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nuovo Invitato
+          </a>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="alert alert-danger alert-dismissible">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          {{ error() }}
+          <button type="button" class="btn-close" (click)="error.set(null)"></button>
+        </div>
+      }
+
+      @if (success()) {
+        <div class="alert alert-success alert-dismissible">
+          <i class="bi bi-check-circle me-2"></i>
+          {{ success() }}
+          <button type="button" class="btn-close" (click)="success.set(null)"></button>
+        </div>
+      }
+
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-number">{{ data()?.totaleInvitati ?? 0 }}</div>
+            <div class="stat-label">Totali</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-number text-success">{{ data()?.totaleConfermati ?? 0 }}</div>
+            <div class="stat-label">Confermati</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-number text-danger">{{ data()?.totaleRifiutati ?? 0 }}</div>
+            <div class="stat-label">Rifiutati</div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-number text-muted">{{ nonInviatiCount() }}</div>
+            <div class="stat-label">Da Inviare</div>
+          </div>
+        </div>
+      </div>
+
+      @if ((data()?.totaleInvitati ?? 0) === 0) {
+        <!-- Empty State -->
+        <div class="empty-state">
+          <i class="bi bi-people"></i>
+          <h3>Nessun invitato</h3>
+          <p class="text-muted">Inizia aggiungendo il primo invitato alla lista</p>
+          <a routerLink="/invitati/nuovo" class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-lg"></i>
+            <span>Aggiungi Invitato</span>
+          </a>
+        </div>
+      } @else {
+        <!-- Search and Actions -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
+                    [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+                </div>
+              </div>
+              <div class="col-md-6 text-md-end">
+                @if (someSelected()) {
+                  <span class="me-3 text-muted">{{ selectedCount() }} selezionati</span>
+                  <button class="btn btn-outline-secondary btn-sm me-2" (click)="clearSelection()">
+                    Deseleziona
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width: 40px;">
+                    <input type="checkbox" class="form-check-input"
+                      [checked]="allSelected()"
+                      (change)="toggleAll()">
+                  </th>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Stato</th>
+                  <th>Plus</th>
+                  <th style="width: 120px;">Azioni</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invitato of filteredInvitati(); track invitato.id) {
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input"
+                        [checked]="selectedIds().has(invitato.id)"
+                        (change)="toggleSelection(invitato.id)">
+                    </td>
+                    <td>
+                      <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
+                    </td>
+                    <td>{{ invitato.email }}</td>
+                    <td>
+                      <span class="badge" [class]="getStatoBadgeClass(invitato.statoInvito)">
+                        {{ invitato.statoInvitoDescrizione ?? 'Da inviare' }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (invitato.statoInvito === StatoInvito.CONFERMATO) {
+                        {{ invitato.plusConfermati ?? 0 }}/{{ invitato.numeroPlusConsentiti ?? 0 }}
+                      } @else {
+                        {{ invitato.numeroPlusConsentiti ?? 0 }} max
+                      }
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <a [routerLink]="['/invitati', invitato.id]" class="btn btn-outline-primary"
+                          title="Modifica">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn btn-outline-danger" title="Elimina"
+                          (click)="deleteInvitato(invitato.id, invitato.nome, invitato.cognome)">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      Nessun risultato per "{{ searchTerm() }}"
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Send Modal -->
+    @if (showSendModal()) {
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-envelope me-2"></i>Invia Inviti
+              </h5>
+              <button type="button" class="btn-close" (click)="closeSendModal()"
+                [disabled]="sending()"></button>
+            </div>
+            <div class="modal-body">
+              @if (sendResult()) {
+                <div class="text-center py-3">
+                  @if (sendResult()!.totaleFalliti === 0) {
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Invio completato!</h5>
+                    <p class="text-muted">{{ sendResult()!.totaleInviati }} inviti inviati con successo</p>
+                  } @else {
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Invio parziale</h5>
+                    <p class="text-muted">
+                      {{ sendResult()!.totaleInviati }} inviati,
+                      {{ sendResult()!.totaleFalliti }} falliti
+                    </p>
+                    @if (sendResult()!.errori.length > 0) {
+                      <div class="alert alert-danger text-start mt-3">
+                        <strong>Errori:</strong>
+                        <ul class="mb-0 mt-2">
+                          @for (errore of sendResult()!.errori; track errore) {
+                            <li>{{ errore }}</li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  }
+                </div>
+              } @else {
+                <p>Scegli come inviare gli inviti:</p>
+                <div class="d-grid gap-2">
+                  @if (someSelected()) {
+                    <button class="btn btn-outline-primary" (click)="sendToSelected()"
+                      [disabled]="sending()">
+                      @if (sending()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Invia a {{ selectedCount() }} selezionati
+                    </button>
+                  }
+                  @if (nonInviatiCount() > 0) {
+                    <button class="btn btn-primary" (click)="sendToAllNonInviati()"
+                      [disabled]="sending()">
+                      @if (sending()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Invia a tutti i non ancora invitati ({{ nonInviatiCount() }})
+                    </button>
+                  }
+                  @if (!someSelected() && nonInviatiCount() === 0) {
+                    <p class="text-muted text-center mb-0">
+                      Tutti gli invitati hanno già ricevuto l'invito.<br>
+                      Seleziona degli invitati per reinviare.
+                    </p>
+                  }
+                </div>
+              }
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeSendModal()"
+                [disabled]="sending()">
+                {{ sendResult() ? 'Chiudi' : 'Annulla' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

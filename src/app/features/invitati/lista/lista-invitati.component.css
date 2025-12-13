@@ -1,0 +1,13 @@
+/* Lista invitati component specific styles */
+
+.stat-card .stat-number.text-success {
+  color: var(--color-success) !important;
+}
+
+.stat-card .stat-number.text-danger {
+  color: var(--color-danger) !important;
+}
+
+.stat-card .stat-number.text-muted {
+  color: var(--color-text-light) !important;
+}
