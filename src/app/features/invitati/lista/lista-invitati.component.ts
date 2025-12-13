@@ -55,6 +55,8 @@ export class ListaInvitatiComponent implements OnInit {
     return invitati.filter(inv => inv.statoInvito === StatoInvito.DA_INVIARE).length;
   });
 
+  hasMatrimonio = computed(() => this.data()?.hasMatrimonio ?? true);
+
   constructor(private invitatoService: InvitatoService) {}
 
   ngOnInit(): void {

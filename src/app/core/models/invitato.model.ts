@@ -28,6 +28,7 @@ export interface InvitatoRiepilogoDTO {
 }
 
 export interface ListaInvitatiResponse {
+  hasMatrimonio: boolean;
   invitati: InvitatoRiepilogoDTO[];
   totaleInvitati: number;
   totaleConfermati: number;
