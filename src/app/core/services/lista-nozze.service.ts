@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ElementoListaNozzeDTO,
+  ListaElementiNozzeResponse,
   CreaElementoListaNozzeRequest,
   AggiornaElementoListaNozzeRequest,
   ListaNozzePubblicoResponse,
@@ -24,9 +25,9 @@ export class ListaNozzeService {
   constructor(private http: HttpClient) {}
 
   // API per sposi (autenticati)
-  getElementi(): Observable<ElementoListaNozzeDTO[]> {
-    return this.http.get<ElementoListaNozzeDTO[]>(this.apiUrl).pipe(
-      tap(response => this.elementiSignal.set(response))
+  getElementi(): Observable<ListaElementiNozzeResponse> {
+    return this.http.get<ListaElementiNozzeResponse>(this.apiUrl).pipe(
+      tap(response => this.elementiSignal.set(response.elementi || []))
     );
   }
 

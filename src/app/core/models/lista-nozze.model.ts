@@ -11,6 +11,11 @@ export interface ElementoListaNozzeDTO {
   dataModifica: string | null;
 }
 
+export interface ListaElementiNozzeResponse {
+  hasMatrimonio: boolean;
+  elementi: ElementoListaNozzeDTO[];
+}
+
 export interface CreaElementoListaNozzeRequest {
   nome: string;
   descrizione?: string | null;

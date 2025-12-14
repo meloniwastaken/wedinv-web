@@ -21,7 +21,6 @@ export class ListaNozzePubblicoComponent implements OnInit {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   invitoId: string = '';
-  ibanCopied = signal(false);
 
   // Set di ID elementi selezionati (prenotati da me o che voglio prenotare)
   selectedIds = signal<Set<string>>(new Set());
@@ -121,6 +120,10 @@ export class ListaNozzePubblicoComponent implements OnInit {
     return !!(lista?.elementi?.length);
   }
 
+  get hasIban(): boolean {
+    return !!(this.listaNozze()?.iban || this.invito()?.iban);
+  }
+
   toggleSelection(elemento: ElementoListaNozzePubblicoDTO): void {
     // Non permettere selezione se prenotato da altri
     if (elemento.prenotatoDaAltri) return;
@@ -172,16 +175,6 @@ export class ListaNozzePubblicoComponent implements OnInit {
     const link = this.listaNozze()?.linkListaNozze || this.invito()?.linkListaNozze;
     if (link) {
       window.open(link, '_blank');
-    }
-  }
-
-  copyIban(): void {
-    const iban = this.listaNozze()?.iban || this.invito()?.iban;
-    if (iban) {
-      navigator.clipboard.writeText(iban).then(() => {
-        this.ibanCopied.set(true);
-        setTimeout(() => this.ibanCopied.set(false), 2000);
-      });
     }
   }
 

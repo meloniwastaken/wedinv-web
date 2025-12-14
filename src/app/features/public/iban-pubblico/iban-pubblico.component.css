@@ -1,0 +1,33 @@
+/* IBAN Pubblico component styles */
+
+.display-title {
+  color: var(--color-primary);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+/* Override Bootstrap per rispettare il tema */
+.card {
+  background-color: var(--color-secondary);
+  border-color: var(--color-border);
+  --bs-card-bg: var(--color-secondary);
+  --bs-card-color: var(--color-text);
+}
+
+.iban-container {
+  background-color: var(--color-background-alt);
+  border: 2px dashed var(--color-border);
+}
+
+.iban-code {
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  color: var(--color-text);
+  word-break: break-all;
+  font-weight: 600;
+}

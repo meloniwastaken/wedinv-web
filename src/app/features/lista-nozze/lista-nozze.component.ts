@@ -1,19 +1,21 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ListaNozzeService } from '../../core/services';
 import { ElementoListaNozzeDTO, CreaElementoListaNozzeRequest } from '../../core/models';
 
 @Component({
   selector: 'app-lista-nozze',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './lista-nozze.component.html',
   styleUrl: './lista-nozze.component.css'
 })
 export class ListaNozzeComponent implements OnInit {
   loading = signal(true);
   saving = signal(false);
+  hasMatrimonio = signal(true);
   elementi = signal<ElementoListaNozzeDTO[]>([]);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
@@ -40,7 +42,8 @@ export class ListaNozzeComponent implements OnInit {
 
     this.listaNozzeService.getElementi().subscribe({
       next: (data) => {
-        this.elementi.set(data);
+        this.hasMatrimonio.set(data.hasMatrimonio);
+        this.elementi.set(data.elementi || []);
         this.loading.set(false);
       },
       error: (err) => {

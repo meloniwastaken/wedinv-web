@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { InvitoPubblicoService, ThemeService } from '../../../core/services';
+import { InvitoPubblicoService, ThemeService, ListaNozzeService } from '../../../core/services';
 import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 
@@ -33,6 +33,9 @@ export class InvitoPubblicoComponent implements OnInit {
 
   StatoInvito = StatoInvito;
 
+  // Flag per navbar
+  hasListaNozze = signal(false);
+
   isConfermato = computed(() =>
     this.invito()?.statoInvito === StatoInvito.CONFERMATO
   );
@@ -50,8 +53,13 @@ export class InvitoPubblicoComponent implements OnInit {
     return inv ? `${inv.nomeInvitato} ${inv.cognomeInvitato}` : '';
   }
 
+  get hasIban(): boolean {
+    return !!this.invito()?.iban;
+  }
+
   constructor(
     private invitoPubblicoService: InvitoPubblicoService,
+    private listaNozzeService: ListaNozzeService,
     private themeService: ThemeService,
     private route: ActivatedRoute
   ) {}
@@ -83,7 +91,8 @@ export class InvitoPubblicoComponent implements OnInit {
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
-        this.loading.set(false);
+        // Verifica se ci sono elementi nella lista nozze
+        this.checkListaNozze();
       },
       error: (err) => {
         if (err.status === 404) {
@@ -91,6 +100,19 @@ export class InvitoPubblicoComponent implements OnInit {
         } else {
           this.error.set('Errore nel caricamento dell\'invito');
         }
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private checkListaNozze(): void {
+    this.listaNozzeService.getListaNozzePubblica(this.invitoId).subscribe({
+      next: (lista) => {
+        this.hasListaNozze.set(lista.elementi && lista.elementi.length > 0);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.hasListaNozze.set(false);
         this.loading.set(false);
       }
     });

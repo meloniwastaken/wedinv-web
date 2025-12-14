@@ -1,4 +1,9 @@
-<app-navbar-pubblico [invitatoId]="invitoId" [nomeInvitato]="nomeInvitato"></app-navbar-pubblico>
+<app-navbar-pubblico
+  [invitatoId]="invitoId"
+  [nomeInvitato]="nomeInvitato"
+  [showListaNozze]="hasListaNozze()"
+  [showIban]="hasIban">
+</app-navbar-pubblico>
 
 <div class="invitation-container">
   @if (loading()) {

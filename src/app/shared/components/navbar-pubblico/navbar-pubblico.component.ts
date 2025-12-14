@@ -15,6 +15,8 @@ export class NavbarPubblicoComponent {
 
   @Input() invitatoId: string = '';
   @Input() nomeInvitato: string = '';
+  @Input() showListaNozze: boolean = false;
+  @Input() showIban: boolean = false;
 
   isMenuOpen = false;
 

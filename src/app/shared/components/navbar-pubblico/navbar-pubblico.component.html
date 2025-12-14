@@ -21,12 +21,22 @@
             <i class="bi bi-heart me-1"></i>Matrimonio
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/invito', invitatoId, 'lista-nozze']" routerLinkActive="active"
-            (click)="closeMenu()">
-            <i class="bi bi-gift me-1"></i>Lista Nozze
-          </a>
-        </li>
+        @if (showListaNozze) {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/invito', invitatoId, 'lista-nozze']" routerLinkActive="active"
+              (click)="closeMenu()">
+              <i class="bi bi-gift me-1"></i>Lista Nozze
+            </a>
+          </li>
+        }
+        @if (showIban) {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/invito', invitatoId, 'iban']" routerLinkActive="active"
+              (click)="closeMenu()">
+              <i class="bi bi-credit-card me-1"></i>IBAN
+            </a>
+          </li>
+        }
       </ul>
 
       <ul class="navbar-nav align-items-center">

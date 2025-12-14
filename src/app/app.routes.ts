@@ -27,6 +27,10 @@ export const routes: Routes = [
     path: 'invito/:id/lista-nozze',
     loadComponent: () => import('./features/public/lista-nozze-pubblico/lista-nozze-pubblico.component').then(m => m.ListaNozzePubblicoComponent)
   },
+  {
+    path: 'invito/:id/iban',
+    loadComponent: () => import('./features/public/iban-pubblico/iban-pubblico.component').then(m => m.IbanPubblicoComponent)
+  },
 
   // Route pagamento (autenticato ma non attivo)
   {
