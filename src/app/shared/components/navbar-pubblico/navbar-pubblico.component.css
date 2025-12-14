@@ -1,0 +1,17 @@
+/* Navbar pubblico component specific styles */
+
+.theme-toggle {
+  padding: 0.25rem 0.5rem;
+  font-size: 1.1rem;
+  color: var(--color-text) !important;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  color: var(--color-primary) !important;
+  transform: rotate(15deg);
+}
+
+.theme-toggle:focus {
+  box-shadow: none;
+}

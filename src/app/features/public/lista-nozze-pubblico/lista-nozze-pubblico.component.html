@@ -1,0 +1,86 @@
+<app-navbar-pubblico [invitatoId]="invitoId" [nomeInvitato]="nomeInvitato"></app-navbar-pubblico>
+
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="text-center py-5">
+        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+        <h3 class="mt-4">{{ error() }}</h3>
+        <p class="text-muted">Verifica che il link sia corretto o contatta gli sposi.</p>
+      </div>
+    } @else if (invito()) {
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <!-- Header -->
+          <div class="text-center mb-5">
+            <i class="bi bi-gift" style="font-size: 4rem; color: var(--color-primary);"></i>
+            <h1 class="display-title mt-3">Lista Nozze</h1>
+            <p class="text-muted">{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</p>
+          </div>
+
+          @if (!hasListaNozze) {
+            <!-- Nessuna lista nozze configurata -->
+            <div class="text-center py-5">
+              <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+              <h4 class="mt-3">Nessuna lista nozze disponibile</h4>
+              <p class="text-muted">Gli sposi non hanno ancora configurato una lista nozze.</p>
+            </div>
+          } @else {
+            <!-- Link Lista Nozze -->
+            @if (invito()!.linkListaNozze) {
+              <div class="card mb-4">
+                <div class="card-body text-center py-4">
+                  <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                  <h4 class="mt-3">Lista Nozze Online</h4>
+                  <p class="text-muted mb-4">
+                    Visita la lista nozze per scegliere un regalo per gli sposi.
+                  </p>
+                  <button class="btn btn-primary btn-lg" (click)="openListaNozze()">
+                    <i class="bi bi-box-arrow-up-right me-2"></i>Vai alla Lista Nozze
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- IBAN per bonifico -->
+            @if (invito()!.iban) {
+              <div class="card mb-4">
+                <div class="card-body text-center py-4">
+                  <i class="bi bi-credit-card text-primary" style="font-size: 3rem;"></i>
+                  <h4 class="mt-3">Contributo tramite Bonifico</h4>
+                  <p class="text-muted mb-3">
+                    Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario.
+                  </p>
+                  <div class="iban-container p-3 rounded mb-3">
+                    <code class="iban-code">{{ invito()!.iban }}</code>
+                  </div>
+                  <button class="btn btn-outline-primary" (click)="copyIban()">
+                    @if (ibanCopied()) {
+                      <i class="bi bi-check-lg me-2"></i>Copiato!
+                    } @else {
+                      <i class="bi bi-clipboard me-2"></i>Copia IBAN
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Messaggio di ringraziamento -->
+            <div class="text-center mt-4">
+              <p class="text-muted">
+                <i class="bi bi-heart-fill text-danger me-1"></i>
+                Grazie per il vostro pensiero!
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

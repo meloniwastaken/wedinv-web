@@ -1,3 +1,5 @@
+import { AccompagnatoreDTO } from './invitato.model';
+
 export interface InvitoPubblicoResponse {
   nomeInvitato: string;
   cognomeInvitato: string;
@@ -29,10 +31,12 @@ export interface InvitoPubblicoResponse {
   messaggioInvito: string | null;
   stileCodice: string | null;
   intolleranzeAlimentari: string | null;
+  accompagnatori?: AccompagnatoreDTO[];
 }
 
 export interface ConfermaInvitoRequest {
   confermato: boolean;
   plusConfermati?: number | null;
   intolleranzeAlimentari?: string | null;
+  accompagnatori?: AccompagnatoreDTO[];
 }

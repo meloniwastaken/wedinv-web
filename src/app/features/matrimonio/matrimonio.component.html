@@ -11,10 +11,16 @@
         <div class="col-lg-10">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2>{{ isEdit() ? 'Modifica Matrimonio' : 'Crea il tuo Matrimonio' }}</h2>
-              <p class="text-muted mb-0">
-                {{ isEdit() ? 'Modifica i dettagli del tuo evento' : 'Inserisci i dettagli della cerimonia e del ricevimento' }}
-              </p>
+              @if (!isEdit()) {
+                <h2>Crea il tuo Matrimonio</h2>
+                <p class="text-muted mb-0">Inserisci i dettagli della cerimonia e del ricevimento</p>
+              } @else if (!editMode()) {
+                <h2>{{ matrimonio()?.nomeSposoA }} & {{ matrimonio()?.nomeSposoB }}</h2>
+                <p class="text-muted mb-0">Dettaglio matrimonio</p>
+              } @else {
+                <h2>Modifica Matrimonio</h2>
+                <p class="text-muted mb-0">Modifica i dettagli del tuo evento</p>
+              }
             </div>
             <button class="btn btn-outline-secondary" (click)="goBack()">
               <i class="bi bi-arrow-left me-2"></i>Dashboard
@@ -29,6 +35,167 @@
             </div>
           }
 
+          <!-- VIEW MODE -->
+          @if (isEdit() && !editMode() && matrimonio()) {
+            <!-- Sezione Sposi -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-heart me-2"></i>Gli Sposi
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <h6 class="text-muted mb-2">Primo Sposo/a</h6>
+                    <strong>{{ matrimonio()!.nomeSposoA }} {{ matrimonio()!.cognomeSposoA }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <h6 class="text-muted mb-2">Secondo Sposo/a</h6>
+                    <strong>{{ matrimonio()!.nomeSposoB }} {{ matrimonio()!.cognomeSposoB }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Cerimonia -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-building me-2"></i>Cerimonia
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Data</small>
+                    <strong>{{ formatDate(matrimonio()!.dataCerimonia) }}</strong>
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <small class="text-muted d-block">Ora</small>
+                    <strong>{{ formatTime(matrimonio()!.oraCerimonia) }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Luogo</small>
+                    <strong>{{ matrimonio()!.luogoCerimonia || '-' }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Indirizzo</small>
+                    <span>{{ matrimonio()!.indirizzoCerimonia || '-' }}</span>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">Città</small>
+                    <span>{{ matrimonio()!.cittaCerimonia || '-' }}</span>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">Link Maps</small>
+                    @if (matrimonio()!.linkMapsCerimonia) {
+                      <a [href]="matrimonio()!.linkMapsCerimonia" target="_blank" class="text-primary">
+                        <i class="bi bi-geo-alt me-1"></i>Apri
+                      </a>
+                    } @else {
+                      <span>-</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Ricevimento -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-cup-hot me-2"></i>Ricevimento
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Data</small>
+                    <strong>{{ formatDate(matrimonio()!.dataRicevimento) }}</strong>
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <small class="text-muted d-block">Ora</small>
+                    <strong>{{ formatTime(matrimonio()!.oraRicevimento) }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Luogo</small>
+                    <strong>{{ matrimonio()!.luogoRicevimento || '-' }}</strong>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Indirizzo</small>
+                    <span>{{ matrimonio()!.indirizzoRicevimento || '-' }}</span>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">Città</small>
+                    <span>{{ matrimonio()!.cittaRicevimento || '-' }}</span>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">Link Maps</small>
+                    @if (matrimonio()!.linkMapsRicevimento) {
+                      <a [href]="matrimonio()!.linkMapsRicevimento" target="_blank" class="text-primary">
+                        <i class="bi bi-geo-alt me-1"></i>Apri
+                      </a>
+                    } @else {
+                      <span>-</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione Info Aggiuntive -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Informazioni Aggiuntive
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Deadline Conferme</small>
+                    <span>{{ formatDate(matrimonio()!.dataDeadlineConferma) }}</span>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">Contatto di riferimento</small>
+                    <span>{{ matrimonio()!.contattoRiferimento || '-' }}</span>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <small class="text-muted d-block">IBAN</small>
+                    <span>{{ matrimonio()!.iban || '-' }}</span>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <small class="text-muted d-block">Link Lista Nozze</small>
+                    @if (matrimonio()!.linkListaNozze) {
+                      <a [href]="matrimonio()!.linkListaNozze" target="_blank" class="text-primary">
+                        <i class="bi bi-gift me-1"></i>Apri
+                      </a>
+                    } @else {
+                      <span>-</span>
+                    }
+                  </div>
+                  @if (matrimonio()!.note) {
+                    <div class="col-12 mb-3">
+                      <small class="text-muted d-block">Note per gli invitati</small>
+                      <span>{{ matrimonio()!.note }}</span>
+                    </div>
+                  }
+                  @if (matrimonio()!.messaggioInvito) {
+                    <div class="col-12">
+                      <small class="text-muted d-block">Messaggio di invito</small>
+                      <span>{{ matrimonio()!.messaggioInvito }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons View Mode -->
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>Torna alla dashboard
+              </button>
+              <button type="button" class="btn btn-primary" (click)="enableEditMode()">
+                <i class="bi bi-pencil me-2"></i>Modifica
+              </button>
+            </div>
+          }
+
+          <!-- EDIT MODE -->
+          @if (editMode()) {
           <form [formGroup]="matrimonioForm" (ngSubmit)="onSubmit()">
             <!-- Sezione Sposi -->
             <div class="card mb-4">
@@ -233,9 +400,15 @@
                 }
               </div>
               <div>
-                <button type="button" class="btn btn-outline-secondary me-2" (click)="goBack()">
-                  Annulla
-                </button>
+                @if (isEdit()) {
+                  <button type="button" class="btn btn-outline-secondary me-2" (click)="cancelEdit()">
+                    Annulla
+                  </button>
+                } @else {
+                  <button type="button" class="btn btn-outline-secondary me-2" (click)="goBack()">
+                    Annulla
+                  </button>
+                }
                 <button type="submit" class="btn btn-primary" [disabled]="saving()">
                   @if (saving()) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
@@ -248,6 +421,7 @@
               </div>
             </div>
           </form>
+          }
 
           <!-- Delete Confirmation Modal -->
           @if (showDeleteConfirm()) {

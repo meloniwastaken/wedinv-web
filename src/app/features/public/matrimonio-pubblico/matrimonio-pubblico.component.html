@@ -1,0 +1,155 @@
+<app-navbar-pubblico [invitatoId]="invitoId" [nomeInvitato]="nomeInvitato"></app-navbar-pubblico>
+
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="text-center py-5">
+        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+        <h3 class="mt-4">{{ error() }}</h3>
+        <p class="text-muted">Verifica che il link sia corretto o contatta gli sposi.</p>
+      </div>
+    } @else if (invito()) {
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h1 class="display-title">{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
+            <p class="text-muted">Dettagli del Matrimonio</p>
+          </div>
+
+          <!-- Sezione Sposi -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="bi bi-heart me-2"></i>Gli Sposi
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">Primo Sposo/a</h6>
+                  <strong>{{ invito()!.nomeSposoA }} {{ invito()!.cognomeSposoA }}</strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-muted mb-2">Secondo Sposo/a</h6>
+                  <strong>{{ invito()!.nomeSposoB }} {{ invito()!.cognomeSposoB }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sezione Cerimonia -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="bi bi-building me-2"></i>Cerimonia
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <small class="text-muted d-block">Data</small>
+                  <strong>{{ formatDate(invito()!.dataCerimonia) }}</strong>
+                </div>
+                <div class="col-md-2 mb-3">
+                  <small class="text-muted d-block">Ora</small>
+                  <strong>{{ formatTime(invito()!.oraCerimonia) }}</strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block">Luogo</small>
+                  <strong>{{ invito()!.luogoCerimonia || '-' }}</strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block">Indirizzo</small>
+                  <span>{{ invito()!.indirizzoCerimonia || '-' }}</span>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <small class="text-muted d-block">Città</small>
+                  <span>{{ invito()!.cittaCerimonia || '-' }}</span>
+                </div>
+                <div class="col-md-3 mb-3">
+                  @if (invito()!.linkMapsCerimonia) {
+                    <button class="btn btn-outline-primary btn-sm" (click)="openMaps(invito()!.linkMapsCerimonia)">
+                      <i class="bi bi-geo-alt me-1"></i>Apri in Google Maps
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sezione Ricevimento -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="bi bi-cup-hot me-2"></i>Ricevimento
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <small class="text-muted d-block">Data</small>
+                  <strong>{{ formatDate(invito()!.dataRicevimento) }}</strong>
+                </div>
+                <div class="col-md-2 mb-3">
+                  <small class="text-muted d-block">Ora</small>
+                  <strong>{{ formatTime(invito()!.oraRicevimento) }}</strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block">Luogo</small>
+                  <strong>{{ invito()!.luogoRicevimento || '-' }}</strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block">Indirizzo</small>
+                  <span>{{ invito()!.indirizzoRicevimento || '-' }}</span>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <small class="text-muted d-block">Città</small>
+                  <span>{{ invito()!.cittaRicevimento || '-' }}</span>
+                </div>
+                <div class="col-md-3 mb-3">
+                  @if (invito()!.linkMapsRicevimento) {
+                    <button class="btn btn-outline-primary btn-sm" (click)="openMaps(invito()!.linkMapsRicevimento)">
+                      <i class="bi bi-geo-alt me-1"></i>Apri in Google Maps
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informazioni Aggiuntive -->
+          @if (invito()!.note || invito()!.contattoRiferimento || invito()!.dataDeadlineConferma) {
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Informazioni Utili
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  @if (invito()!.dataDeadlineConferma) {
+                    <div class="col-md-6 mb-3">
+                      <small class="text-muted d-block">Deadline Conferme</small>
+                      <strong>{{ formatDate(invito()!.dataDeadlineConferma) }}</strong>
+                    </div>
+                  }
+                  @if (invito()!.contattoRiferimento) {
+                    <div class="col-md-6 mb-3">
+                      <small class="text-muted d-block">Contatto di riferimento</small>
+                      <span>{{ invito()!.contattoRiferimento }}</span>
+                    </div>
+                  }
+                  @if (invito()!.note) {
+                    <div class="col-12">
+                      <small class="text-muted d-block">Note</small>
+                      <span>{{ invito()!.note }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

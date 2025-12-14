@@ -14,10 +14,18 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
 
-  // Route pubblica per invito
+  // Route pubbliche per invito
   {
     path: 'invito/:id',
     loadComponent: () => import('./features/public/invito/invito-pubblico.component').then(m => m.InvitoPubblicoComponent)
+  },
+  {
+    path: 'invito/:id/matrimonio',
+    loadComponent: () => import('./features/public/matrimonio-pubblico/matrimonio-pubblico.component').then(m => m.MatrimonioPubblicoComponent)
+  },
+  {
+    path: 'invito/:id/lista-nozze',
+    loadComponent: () => import('./features/public/lista-nozze-pubblico/lista-nozze-pubblico.component').then(m => m.ListaNozzePubblicoComponent)
   },
 
   // Route pagamento (autenticato ma non attivo)

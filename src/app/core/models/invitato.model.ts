@@ -1,3 +1,12 @@
+export interface AccompagnatoreDTO {
+  id?: string;
+  invitato?: string;
+  nome: string;
+  cognome: string;
+  dataCreazione?: string;
+  dataModifica?: string;
+}
+
 export interface InvitatoDTO {
   id: string;
   matrimonio: string;
@@ -15,6 +24,7 @@ export interface InvitatoDTO {
   intolleranzeAlimentari: string | null;
   dataCreazione: string;
   dataModifica: string;
+  accompagnatori?: AccompagnatoreDTO[];
 }
 
 export interface InvitatoRiepilogoDTO {
@@ -56,6 +66,7 @@ export interface AggiornaInvitatoRequest {
   plusConfermati?: number | null;
   note?: string | null;
   intolleranzeAlimentari?: string | null;
+  accompagnatori?: AccompagnatoreDTO[];
 }
 
 export interface InviaInvitiRequest {

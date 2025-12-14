@@ -20,7 +20,9 @@ export class MatrimonioComponent implements OnInit {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   isEdit = signal(false);
+  editMode = signal(false);
   showDeleteConfirm = signal(false);
+  matrimonio = signal<MatrimonioDTO | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -67,9 +69,12 @@ export class MatrimonioComponent implements OnInit {
       next: (matrimonio) => {
         if (matrimonio) {
           this.isEdit.set(true);
+          this.editMode.set(false); // Start in view mode for existing matrimonio
+          this.matrimonio.set(matrimonio);
           this.patchForm(matrimonio);
         } else {
           this.isEdit.set(false);
+          this.editMode.set(true); // New matrimonio starts in edit mode
         }
         this.loading.set(false);
       },
@@ -177,12 +182,37 @@ export class MatrimonioComponent implements OnInit {
       next: () => {
         this.success.set('Modifiche salvate con successo!');
         this.saving.set(false);
+        this.editMode.set(false);
+        this.loadMatrimonioData(); // Reload data
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Errore durante il salvataggio');
         this.saving.set(false);
       }
     });
+  }
+
+  private loadMatrimonioData(): void {
+    this.matrimonioService.getMatrimonio().subscribe({
+      next: (matrimonio) => {
+        if (matrimonio) {
+          this.matrimonio.set(matrimonio);
+          this.patchForm(matrimonio);
+        }
+      }
+    });
+  }
+
+  enableEditMode(): void {
+    this.editMode.set(true);
+  }
+
+  cancelEdit(): void {
+    if (this.matrimonio()) {
+      this.patchForm(this.matrimonio()!);
+    }
+    this.editMode.set(false);
+    this.error.set(null);
   }
 
   confirmDelete(): void {
@@ -215,5 +245,21 @@ export class MatrimonioComponent implements OnInit {
 
   get f() {
     return this.matrimonioForm.controls;
+  }
+
+  formatDate(dateStr: string | null): string {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('it-IT', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  formatTime(timeStr: string | null): string {
+    if (!timeStr) return '-';
+    return timeStr.substring(0, 5);
   }
 }

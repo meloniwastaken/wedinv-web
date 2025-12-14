@@ -115,6 +115,22 @@
               </div>
             }
 
+            <!-- Accompagnatori -->
+            @if (invitato()?.accompagnatori && invitato()!.accompagnatori!.length > 0) {
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-people me-2"></i>Accompagnatori ({{ invitato()!.accompagnatori!.length }})
+                </div>
+                <div class="card-body">
+                  @for (acc of invitato()!.accompagnatori!; track $index) {
+                    <p class="mb-2">
+                      <i class="bi bi-person me-2"></i>{{ acc.nome }} {{ acc.cognome }}
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- Informazioni -->
             <div class="card mb-4">
               <div class="card-header">
@@ -230,7 +246,8 @@
                     <div class="col-md-4">
                       <label for="numeroPlusConsentiti" class="form-label">Accompagnatori consentiti</label>
                       <input type="number" class="form-control" id="numeroPlusConsentiti"
-                        formControlName="numeroPlusConsentiti" min="0">
+                        formControlName="numeroPlusConsentiti" min="0"
+                        (input)="onNumeroPlusConsentitiChange($event)">
                       <div class="form-text">Numero massimo di accompagnatori</div>
                     </div>
 
@@ -238,7 +255,9 @@
                       <div class="col-md-4">
                         <label for="plusConfermati" class="form-label">Accompagnatori confermati</label>
                         <input type="number" class="form-control" id="plusConfermati"
-                          formControlName="plusConfermati" min="0">
+                          formControlName="plusConfermati" min="0"
+                          [attr.max]="f['numeroPlusConsentiti'].value"
+                          (input)="onPlusConfermatiChange($event)">
                       </div>
                       <div class="col-md-4">
                         <label for="statoInvito" class="form-label">Stato Invito</label>
@@ -248,6 +267,25 @@
                           }
                         </select>
                       </div>
+
+                      <!-- Accompagnatori dinamici -->
+                      @if (accompagnatoriFormArray.length > 0) {
+                        <div class="col-12 mt-3">
+                          <label class="form-label"><i class="bi bi-people me-2"></i>Accompagnatori</label>
+                          <div formArrayName="accompagnatori">
+                            @for (acc of accompagnatoriFormArray.controls; track $index) {
+                              <div class="row g-2 mb-2 align-items-center" [formGroupName]="$index">
+                                <div class="col-6">
+                                  <input type="text" class="form-control" placeholder="Nome" formControlName="nome">
+                                </div>
+                                <div class="col-6">
+                                  <input type="text" class="form-control" placeholder="Cognome" formControlName="cognome">
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
                     }
 
                     <div class="col-12">

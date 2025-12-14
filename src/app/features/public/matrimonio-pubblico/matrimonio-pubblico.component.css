@@ -1,0 +1,12 @@
+/* Matrimonio Pubblico component styles */
+
+.display-title {
+  color: var(--color-primary);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}

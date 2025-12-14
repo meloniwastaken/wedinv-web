@@ -1,14 +1,20 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitoPubblicoService, ThemeService } from '../../../core/services';
-import { InvitoPubblicoResponse, StatoInvito } from '../../../core/models';
+import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
+import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
+
+interface AccompagnatoreForm {
+  nome: string;
+  cognome: string;
+}
 
 @Component({
   selector: 'app-invito-pubblico',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarPubblicoComponent],
   templateUrl: './invito-pubblico.component.html',
   styleUrl: './invito-pubblico.component.css'
 })
@@ -23,6 +29,7 @@ export class InvitoPubblicoComponent implements OnInit {
   showConfirmForm = signal(false);
   plusConfermati = signal(0);
   intolleranzeAlimentari = signal('');
+  accompagnatori = signal<AccompagnatoreForm[]>([]);
 
   StatoInvito = StatoInvito;
 
@@ -37,6 +44,11 @@ export class InvitoPubblicoComponent implements OnInit {
   hasResponded = computed(() =>
     this.isConfermato() || this.isRifiutato()
   );
+
+  get nomeInvitato(): string {
+    const inv = this.invito();
+    return inv ? `${inv.nomeInvitato} ${inv.cognomeInvitato}` : '';
+  }
 
   constructor(
     private invitoPubblicoService: InvitoPubblicoService,
@@ -60,6 +72,15 @@ export class InvitoPubblicoComponent implements OnInit {
         this.invito.set(invito);
         this.plusConfermati.set(invito.plusConfermati || 0);
         this.intolleranzeAlimentari.set(invito.intolleranzeAlimentari || '');
+        // Popola accompagnatori esistenti
+        if (invito.accompagnatori && invito.accompagnatori.length > 0) {
+          this.accompagnatori.set(invito.accompagnatori.map(a => ({
+            nome: a.nome,
+            cognome: a.cognome
+          })));
+        } else {
+          this.syncAccompagnatori(invito.plusConfermati || 0);
+        }
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
         this.loading.set(false);
@@ -83,16 +104,58 @@ export class InvitoPubblicoComponent implements OnInit {
     this.showConfirmForm.set(false);
     this.plusConfermati.set(this.invito()?.plusConfermati || 0);
     this.intolleranzeAlimentari.set(this.invito()?.intolleranzeAlimentari || '');
+    // Ripristina accompagnatori dal server
+    const invito = this.invito();
+    if (invito?.accompagnatori && invito.accompagnatori.length > 0) {
+      this.accompagnatori.set(invito.accompagnatori.map(a => ({
+        nome: a.nome,
+        cognome: a.cognome
+      })));
+    } else {
+      this.syncAccompagnatori(invito?.plusConfermati || 0);
+    }
+  }
+
+  onPlusConfermatiChange(value: number): void {
+    this.plusConfermati.set(value);
+    this.syncAccompagnatori(value);
+  }
+
+  private syncAccompagnatori(count: number): void {
+    const current = this.accompagnatori();
+    if (count > current.length) {
+      // Aggiungi nuovi accompagnatori vuoti
+      const newAccompagnatori = [...current];
+      for (let i = current.length; i < count; i++) {
+        newAccompagnatori.push({ nome: '', cognome: '' });
+      }
+      this.accompagnatori.set(newAccompagnatori);
+    } else if (count < current.length) {
+      // Rimuovi accompagnatori in eccesso
+      this.accompagnatori.set(current.slice(0, count));
+    }
+  }
+
+  updateAccompagnatore(index: number, field: 'nome' | 'cognome', value: string): void {
+    const current = [...this.accompagnatori()];
+    current[index] = { ...current[index], [field]: value };
+    this.accompagnatori.set(current);
   }
 
   confermaPartecipazione(): void {
     this.saving.set(true);
     this.error.set(null);
 
+    // Prepara accompagnatori (solo quelli con nome e cognome compilati)
+    const accompagnatori = this.accompagnatori()
+      .filter(a => a.nome.trim() && a.cognome.trim())
+      .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }));
+
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
       confermato: true,
       plusConfermati: this.plusConfermati(),
-      intolleranzeAlimentari: this.intolleranzeAlimentari() || null
+      intolleranzeAlimentari: this.intolleranzeAlimentari() || null,
+      accompagnatori: accompagnatori.length > 0 ? accompagnatori : undefined
     }).subscribe({
       next: () => {
         this.success.set('La tua conferma è stata registrata!');
