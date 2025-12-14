@@ -174,9 +174,15 @@
                     </div>
                   }
                   @if (matrimonio()!.messaggioInvito) {
-                    <div class="col-12">
+                    <div class="col-12 mb-3">
                       <small class="text-muted d-block">Messaggio di invito</small>
                       <span>{{ matrimonio()!.messaggioInvito }}</span>
+                    </div>
+                  }
+                  @if (matrimonio()!.messaggioIban) {
+                    <div class="col-12">
+                      <small class="text-muted d-block">Messaggio per contributo IBAN</small>
+                      <span>{{ matrimonio()!.messaggioIban }}</span>
                     </div>
                   }
                 </div>
@@ -384,6 +390,13 @@
                       formControlName="messaggioInvito"
                       placeholder="es. Saremmo onorati della tua presenza nel giorno più importante della nostra vita."></textarea>
                     <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito</div>
+                  </div>
+                  <div class="col-12">
+                    <label for="messaggioIban" class="form-label">Messaggio per contributo IBAN</label>
+                    <textarea class="form-control" id="messaggioIban" rows="2"
+                      formControlName="messaggioIban"
+                      placeholder="es. Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario."></textarea>
+                    <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito nella pagina di contributo IBAN</div>
                   </div>
                 </div>
               </div>

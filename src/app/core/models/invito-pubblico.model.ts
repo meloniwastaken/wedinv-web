@@ -29,6 +29,7 @@ export interface InvitoPubblicoResponse {
   linkListaNozze: string | null;
   note: string | null;
   messaggioInvito: string | null;
+  messaggioIban: string | null;
   stileCodice: string | null;
   intolleranzeAlimentari: string | null;
   accompagnatori?: AccompagnatoreDTO[];
