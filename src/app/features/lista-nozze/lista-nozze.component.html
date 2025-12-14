@@ -1,0 +1,153 @@
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+    } @else {
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>Lista Nozze</h2>
+          <p class="text-muted mb-0">
+            {{ elementi().length }} elementi nella lista
+          </p>
+        </div>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="bi bi-plus-lg me-2"></i>Aggiungi Elemento
+        </button>
+      </div>
+
+      @if (success()) {
+        <div class="alert alert-success alert-dismissible">
+          <i class="bi bi-check-circle me-2"></i>
+          {{ success() }}
+          <button type="button" class="btn-close" (click)="success.set(null)"></button>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="alert alert-danger alert-dismissible">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {{ error() }}
+          <button type="button" class="btn-close" (click)="error.set(null)"></button>
+        </div>
+      }
+
+      @if (elementi().length === 0) {
+        <!-- Empty State -->
+        <div class="empty-state">
+          <i class="bi bi-gift"></i>
+          <h3>Nessun elemento nella lista</h3>
+          <p class="text-muted">Inizia aggiungendo i regali che desiderate ricevere</p>
+          <button class="btn btn-primary d-inline-flex align-items-center gap-2" (click)="openCreateModal()">
+            <i class="bi bi-plus-lg"></i>
+            <span>Aggiungi Elemento</span>
+          </button>
+        </div>
+      } @else {
+        <!-- Lista elementi -->
+        <div class="row g-4">
+          @for (elemento of elementi(); track elemento.id) {
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 elemento-card" [class.prenotato]="elemento.invitatoPrenotante">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title mb-0">{{ elemento.nome }}</h5>
+                    <span class="badge" [class]="getPrenotazioneBadgeClass(elemento)">
+                      {{ elemento.invitatoPrenotante ? 'Prenotato' : 'Disponibile' }}
+                    </span>
+                  </div>
+
+                  @if (elemento.descrizione) {
+                    <p class="card-text text-muted small">{{ elemento.descrizione }}</p>
+                  }
+
+                  @if (elemento.invitatoPrenotante) {
+                    <div class="prenotazione-info mt-3">
+                      <i class="bi bi-person-check me-2"></i>
+                      <span>{{ elemento.nomePrenotante || 'Invitato' }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="card-footer bg-transparent">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      @if (elemento.link) {
+                        <button class="btn btn-sm btn-outline-primary me-2" (click)="openLink(elemento.link)"
+                          title="Apri link">
+                          <i class="bi bi-box-arrow-up-right"></i>
+                        </button>
+                      }
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-secondary" (click)="openEditModal(elemento)"
+                        title="Modifica">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn btn-outline-danger" (click)="deleteElemento(elemento)"
+                        title="Elimina">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Modal Crea/Modifica -->
+    @if (showModal()) {
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-gift me-2"></i>
+                {{ modalMode() === 'create' ? 'Nuovo Elemento' : 'Modifica Elemento' }}
+              </h5>
+              <button type="button" class="btn-close" (click)="closeModal()"
+                [disabled]="saving()"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Nome *</label>
+                <input type="text" class="form-control" placeholder="Es. Set di piatti"
+                  [ngModel]="formNome()" (ngModelChange)="formNome.set($event)">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Descrizione</label>
+                <textarea class="form-control" rows="3" placeholder="Descrizione opzionale..."
+                  [ngModel]="formDescrizione()" (ngModelChange)="formDescrizione.set($event)"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Link</label>
+                <input type="url" class="form-control" placeholder="https://esempio.com/prodotto"
+                  [ngModel]="formLink()" (ngModelChange)="formLink.set($event)">
+                <div class="form-text">Link opzionale al prodotto o esempio</div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeModal()"
+                [disabled]="saving()">
+                Annulla
+              </button>
+              <button type="button" class="btn btn-primary" (click)="saveElemento()"
+                [disabled]="saving() || !formNome().trim()">
+                @if (saving()) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                {{ modalMode() === 'create' ? 'Aggiungi' : 'Salva' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

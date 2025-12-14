@@ -1,0 +1,38 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: var(--color-primary-light);
+  margin-bottom: 1rem;
+}
+
+.elemento-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.elemento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.elemento-card.prenotato {
+  border-left: 4px solid var(--bs-success);
+}
+
+.prenotazione-info {
+  padding: 0.5rem;
+  background-color: var(--color-secondary);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}

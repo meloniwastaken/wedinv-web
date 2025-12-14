@@ -5,3 +5,4 @@ export * from './invito-pubblico.service';
 export * from './theme.service';
 export * from './payment.service';
 export * from './error-modal.service';
+export * from './lista-nozze.service';

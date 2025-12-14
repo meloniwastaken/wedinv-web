@@ -22,3 +22,63 @@
   color: var(--color-text);
   word-break: break-all;
 }
+
+/* Override Bootstrap per rispettare il tema */
+.card {
+  background-color: var(--color-secondary);
+  border-color: var(--color-border);
+  --bs-card-bg: var(--color-secondary);
+  --bs-card-color: var(--color-text);
+}
+
+.card-header {
+  background-color: var(--color-background-alt);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.card-footer {
+  background-color: var(--color-background-alt);
+  border-color: var(--color-border);
+}
+
+.list-group-item {
+  background-color: var(--color-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Stili elementi lista */
+.elemento-item {
+  transition: background-color 0.2s, opacity 0.2s;
+  background-color: var(--color-secondary);
+}
+
+.elemento-item:hover:not(.elemento-prenotato-altri) {
+  background-color: var(--color-secondary-light);
+}
+
+.elemento-selezionato {
+  background-color: var(--color-secondary-light) !important;
+  border-left: 3px solid var(--color-success);
+}
+
+.elemento-prenotato-altri {
+  opacity: 0.6;
+  background-color: var(--color-secondary);
+}
+
+.elemento-prenotato-altri .form-check-input {
+  cursor: not-allowed;
+}
+
+/* Checkbox più grande per touch */
+.elemento-item .form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.elemento-item .form-check-input:disabled {
+  cursor: not-allowed;
+}

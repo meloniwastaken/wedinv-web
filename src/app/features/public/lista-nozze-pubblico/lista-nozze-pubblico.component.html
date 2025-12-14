@@ -16,13 +16,21 @@
       </div>
     } @else if (invito()) {
       <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
           <!-- Header -->
           <div class="text-center mb-5">
             <i class="bi bi-gift" style="font-size: 4rem; color: var(--color-primary);"></i>
             <h1 class="display-title mt-3">Lista Nozze</h1>
-            <p class="text-muted">{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</p>
+            <p class="text-muted">{{ listaNozze()?.nomeSposoA || invito()!.nomeSposoA }} & {{ listaNozze()?.nomeSposoB || invito()!.nomeSposoB }}</p>
           </div>
+
+          @if (success()) {
+            <div class="alert alert-success alert-dismissible mb-4">
+              <i class="bi bi-check-circle me-2"></i>
+              {{ success() }}
+              <button type="button" class="btn-close" (click)="success.set(null)"></button>
+            </div>
+          }
 
           @if (!hasListaNozze) {
             <!-- Nessuna lista nozze configurata -->
@@ -32,8 +40,85 @@
               <p class="text-muted">Gli sposi non hanno ancora configurato una lista nozze.</p>
             </div>
           } @else {
-            <!-- Link Lista Nozze -->
-            @if (invito()!.linkListaNozze) {
+            <!-- Lista elementi prenotabili -->
+            @if (hasElementi) {
+              <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">
+                    <i class="bi bi-list-check me-2"></i>Regali Disponibili
+                  </h5>
+                  @if (hasChanges()) {
+                    <button class="btn btn-primary btn-sm" (click)="salvaPrenotazioni()" [disabled]="saving()">
+                      @if (saving()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      <i class="bi bi-check-lg me-1"></i>Conferma Prenotazioni
+                    </button>
+                  }
+                </div>
+                <div class="card-body p-0">
+                  <div class="list-group list-group-flush">
+                    @for (elemento of listaNozze()?.elementi; track elemento.id) {
+                      <div class="list-group-item elemento-item" [class]="getElementoClass(elemento)">
+                        <div class="d-flex align-items-start">
+                          <div class="form-check me-3 mt-1">
+                            <input type="checkbox" class="form-check-input"
+                              [id]="'elemento-' + elemento.id"
+                              [checked]="isSelected(elemento)"
+                              [disabled]="elemento.prenotatoDaAltri"
+                              (change)="toggleSelection(elemento)">
+                          </div>
+                          <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                              <div>
+                                <h6 class="mb-1">{{ elemento.nome }}</h6>
+                                @if (elemento.descrizione) {
+                                  <p class="text-muted small mb-1">{{ elemento.descrizione }}</p>
+                                }
+                              </div>
+                              @if (elemento.link) {
+                                <button class="btn btn-sm btn-outline-primary ms-2" (click)="openLink(elemento.link)"
+                                  title="Vedi esempio">
+                                  <i class="bi bi-box-arrow-up-right"></i>
+                                </button>
+                              }
+                            </div>
+                            @if (elemento.prenotatoDaAltri) {
+                              <span class="badge bg-secondary mt-1">
+                                <i class="bi bi-lock me-1"></i>Già prenotato
+                              </span>
+                            } @else if (elemento.prenotatoDaMe) {
+                              <span class="badge bg-success mt-1">
+                                <i class="bi bi-check-lg me-1"></i>Prenotato da te
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+                @if (hasChanges()) {
+                  <div class="card-footer text-end">
+                    <button class="btn btn-primary" (click)="salvaPrenotazioni()" [disabled]="saving()">
+                      @if (saving()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      <i class="bi bi-check-lg me-2"></i>Conferma Prenotazioni
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="alert alert-info mb-4">
+                <i class="bi bi-info-circle me-2"></i>
+                Seleziona i regali che desideri prenotare e clicca su "Conferma Prenotazioni".
+                Puoi modificare le tue scelte in qualsiasi momento.
+              </div>
+            }
+
+            <!-- Link Lista Nozze Esterna -->
+            @if (listaNozze()?.linkListaNozze || invito()!.linkListaNozze) {
               <div class="card mb-4">
                 <div class="card-body text-center py-4">
                   <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
@@ -41,7 +126,7 @@
                   <p class="text-muted mb-4">
                     Visita la lista nozze per scegliere un regalo per gli sposi.
                   </p>
-                  <button class="btn btn-primary btn-lg" (click)="openListaNozze()">
+                  <button class="btn btn-primary btn-lg" (click)="openListaNozzeEsterna()">
                     <i class="bi bi-box-arrow-up-right me-2"></i>Vai alla Lista Nozze
                   </button>
                 </div>
@@ -49,7 +134,7 @@
             }
 
             <!-- IBAN per bonifico -->
-            @if (invito()!.iban) {
+            @if (listaNozze()?.iban || invito()!.iban) {
               <div class="card mb-4">
                 <div class="card-body text-center py-4">
                   <i class="bi bi-credit-card text-primary" style="font-size: 3rem;"></i>
@@ -58,7 +143,7 @@
                     Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario.
                   </p>
                   <div class="iban-container p-3 rounded mb-3">
-                    <code class="iban-code">{{ invito()!.iban }}</code>
+                    <code class="iban-code">{{ listaNozze()?.iban || invito()!.iban }}</code>
                   </div>
                   <button class="btn btn-outline-primary" (click)="copyIban()">
                     @if (ibanCopied()) {

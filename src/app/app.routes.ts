@@ -76,6 +76,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/stili/stili.component').then(m => m.StiliComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'lista-nozze',
+    loadComponent: () => import('./features/lista-nozze/lista-nozze.component').then(m => m.ListaNozzeComponent),
+    canActivate: [authGuard]
+  },
 
   // Redirect default
   {
