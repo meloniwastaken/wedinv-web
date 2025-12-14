@@ -1,0 +1,493 @@
+.tavoli-container {
+  height: calc(100vh - 80px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.row {
+  margin: 0;
+}
+
+/* Sidebar persone */
+.sidebar-persone {
+  background: var(--color-secondary);
+  border-right: 1px solid var(--color-border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.sidebar-header {
+  flex-shrink: 0;
+}
+
+.sidebar-header h5 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+}
+
+.persone-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+.persona-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--color-background-alt);
+  border-radius: var(--radius-md);
+  cursor: grab;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+}
+
+.persona-card:hover {
+  background: var(--color-secondary-light);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.persona-card:active {
+  cursor: grabbing;
+}
+
+.persona-card.confermato {
+  border-left: 3px solid var(--color-success);
+}
+
+.persona-card.accompagnatore {
+  opacity: 0.85;
+}
+
+.persona-iniziali {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.persona-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.persona-nome {
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.persona-invitatore {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.badge-confermato {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  background-color: var(--color-success) !important;
+}
+
+/* Grid container */
+.grid-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--color-background);
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.grid-header h5 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+}
+
+.grid-area {
+  flex: 1;
+  background: var(--color-background-alt);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.empty-grid-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.empty-grid-message i {
+  color: var(--color-border);
+}
+
+.empty-grid-message p {
+  color: var(--color-text-muted);
+}
+
+/* Tavolo */
+.tavolo {
+  position: absolute;
+  background: var(--color-secondary);
+  border: 2px solid var(--color-border);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+  z-index: 1;
+}
+
+.tavolo:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.tavolo.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+  z-index: 2;
+}
+
+.tavolo:active {
+  cursor: grabbing;
+}
+
+.tavolo.circolare {
+  border-radius: 50%;
+}
+
+.tavolo.rettangolare {
+  border-radius: var(--radius-md);
+}
+
+.tavolo.over-capacity {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent);
+}
+
+.tavolo.over-capacity:hover,
+.tavolo.over-capacity.selected {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 35%, transparent);
+}
+
+.tavolo-nome {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.tavolo-posti {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Persone sul tavolo */
+.persona-tavolo {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  z-index: 3;
+  border: 2px solid var(--color-secondary);
+}
+
+.persona-tavolo:hover {
+  transform: scale(1.15);
+  z-index: 4;
+  box-shadow: var(--shadow-md);
+}
+
+.persona-tavolo.confermato {
+  background: var(--color-success);
+}
+
+/* Sidebar destra */
+.sidebar-destra {
+  background: var(--color-secondary);
+  border-left: 1px solid var(--color-border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.sidebar-destra .sidebar-header {
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+}
+
+.sidebar-destra .sidebar-header .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.sidebar-destra .sidebar-header .btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+/* Dettaglio tavolo nella sidebar destra */
+.tavolo-detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background-alt);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.detail-header h6 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.detail-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: var(--color-background-alt);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.detail-body p {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.detail-body h6 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+
+.detail-body h6.persone-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.list-group-item {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+/* Drag feedback - elemento in trascinamento scompare */
+.persona-card.dragging {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.tavolo.dragging {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.tavolo.drag-over {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-secondary));
+}
+
+/* Form controls override per usare tema */
+.sidebar-persone .form-control,
+.detail-body .form-control,
+.detail-header .form-control {
+  background-color: var(--color-secondary-light);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.sidebar-persone .form-control:focus,
+.detail-body .form-control:focus,
+.detail-header .form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.sidebar-persone .form-check-label,
+.detail-body .form-check-label {
+  color: var(--color-text);
+}
+
+/* Buttons override */
+.empty-grid-message .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.empty-grid-message .btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.detail-body .btn-outline-primary {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.detail-body .btn-outline-primary:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.detail-body .btn-outline-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.detail-body .btn-outline-danger:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-white);
+}
+
+/* Close button */
+.btn-close {
+  filter: none;
+  opacity: 0.7;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Spinner */
+.spinner-border {
+  color: var(--color-primary);
+}
+
+/* Alert */
+.alert-danger {
+  background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  color: var(--color-danger);
+  border: none;
+}
+
+/* Text colors */
+.text-success {
+  color: var(--color-success) !important;
+}
+
+.text-muted {
+  color: var(--color-text-muted) !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sidebar-persone,
+  .sidebar-destra {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .tavoli-container {
+    height: auto;
+    overflow: visible;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .sidebar-persone {
+    height: 250px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .grid-container {
+    min-height: 400px;
+  }
+
+  .grid-area {
+    min-height: 350px;
+  }
+
+  .sidebar-destra {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    height: auto;
+    max-height: 400px;
+  }
+}

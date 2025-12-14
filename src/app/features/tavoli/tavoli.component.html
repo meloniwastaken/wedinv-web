@@ -1,0 +1,335 @@
+<div class="container-fluid tavoli-container">
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ error() }}
+      <button type="button" class="btn-close" (click)="error.set(null)"></button>
+    </div>
+  }
+
+  @if (!loading() && !hasMatrimonio()) {
+    <!-- Stato: Nessun matrimonio creato -->
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-heart" style="font-size: 5rem; color: var(--color-primary-light);"></i>
+      </div>
+      <h2 class="mb-3">Crea prima il tuo Matrimonio</h2>
+      <p class="lead text-muted mb-4">
+        Per gestire la disposizione dei tavoli devi prima creare il tuo matrimonio
+      </p>
+      <a routerLink="/matrimonio" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-lg me-2"></i>
+        Crea il tuo Matrimonio
+      </a>
+    </div>
+  }
+
+  @if (!loading() && hasMatrimonio()) {
+    <div class="row h-100">
+      <!-- Sidebar con lista persone -->
+      <div class="col-3 sidebar-persone">
+        <div class="sidebar-header">
+          <h5 class="mb-3">Persone da assegnare</h5>
+
+          <!-- Filtri -->
+          <div class="mb-3">
+            <input type="text" class="form-control form-control-sm"
+              placeholder="Cerca..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)">
+          </div>
+
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="showOnlyConfermati"
+              [ngModel]="showOnlyConfermati()"
+              (ngModelChange)="showOnlyConfermati.set($event)">
+            <label class="form-check-label" for="showOnlyConfermati">
+              Solo confermati
+            </label>
+          </div>
+        </div>
+
+        <div class="persone-list">
+          @for (persona of filteredPersone(); track persona.id) {
+            <div class="persona-card"
+              [class.confermato]="persona.confermato"
+              [class.accompagnatore]="persona.accompagnatore"
+              [class.dragging]="draggingPersonaId() === persona.id"
+              draggable="true"
+              (dragstart)="onPersonaDragStart($event, persona)"
+              (dragend)="onDragEnd()">
+              <div class="persona-iniziali">{{ persona.iniziali }}</div>
+              <div class="persona-info">
+                <div class="persona-nome">{{ persona.nome }} {{ persona.cognome }}</div>
+                @if (persona.accompagnatore && persona.invitatorePrincipale) {
+                  <div class="persona-invitatore">({{ persona.invitatorePrincipale }})</div>
+                }
+              </div>
+              @if (persona.confermato) {
+                <span class="badge bg-success badge-confermato">Confermato</span>
+              }
+            </div>
+          } @empty {
+            <div class="text-muted text-center py-3">
+              @if (showOnlyConfermati()) {
+                Nessun invitato confermato da assegnare
+              } @else {
+                Nessuna persona da assegnare
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Area griglia tavoli -->
+      <div class="col-6 grid-container">
+        <div class="grid-header">
+          <h5 class="mb-0">Disposizione Tavoli</h5>
+        </div>
+
+        <div class="grid-area" #gridArea
+          (dragover)="onGridDragOver($event)"
+          (drop)="onGridDrop($event)"
+          (click)="onGridClick($event)">
+
+          @for (tavolo of tavoli(); track tavolo.id) {
+            <div class="tavolo"
+              [class.selected]="selectedTavolo()?.id === tavolo.id"
+              [class.circolare]="tavolo.tipoTavolo === TipoTavolo.CIRCOLARE"
+              [class.rettangolare]="tavolo.tipoTavolo === TipoTavolo.RETTANGOLARE"
+              [class.dragging]="draggingTavoloId() === tavolo.id"
+              [class.over-capacity]="(tavolo.persone?.length || 0) > (tavolo.numeroPosti || 0)"
+              [ngStyle]="getTavoloStyle(tavolo)"
+              draggable="true"
+              (dragstart)="onTavoloDragStart($event, tavolo)"
+              (dragover)="onTavoloDragOver($event)"
+              (drop)="onTavoloDrop($event, tavolo)"
+              (dragend)="onDragEnd()"
+              (click)="selectTavolo(tavolo, $event)">
+
+              <!-- Nome tavolo -->
+              <div class="tavolo-nome">
+                {{ tavolo.nome || 'Tavolo' }}
+              </div>
+
+              <!-- Posti -->
+              <div class="tavolo-posti">
+                {{ tavolo.persone?.length || 0 }}/{{ tavolo.numeroPosti || '?' }}
+              </div>
+
+              <!-- Persone assegnate -->
+              @for (persona of tavolo.persone; track persona.id; let i = $index) {
+                <div class="persona-tavolo"
+                  [class.confermato]="persona.confermato"
+                  [ngStyle]="getPersonaPosition(persona, i, tavolo.persone.length, tavolo)"
+                  [title]="getDisplayName(persona)">
+                  {{ persona.iniziali }}
+                </div>
+              }
+            </div>
+          }
+
+          @if (tavoli().length === 0) {
+            <div class="empty-grid-message">
+              <i class="bi bi-grid-3x3-gap display-4 text-muted"></i>
+              <p class="mt-3 text-muted">Nessun tavolo creato</p>
+              <button class="btn btn-primary" (click)="openNewTavoloModal()">
+                Crea il primo tavolo
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sidebar destra -->
+      <div class="col-3 sidebar-destra">
+        <div class="sidebar-header">
+          <button class="btn btn-primary w-100" (click)="openNewTavoloModal()">
+            <i class="bi bi-plus-lg me-1"></i>Nuovo Tavolo
+          </button>
+        </div>
+
+        <!-- Dettaglio tavolo selezionato -->
+        @if (selectedTavolo()) {
+          <div class="tavolo-detail-content">
+            <div class="detail-header">
+              <h6>
+                @if (editingTavoloNome()) {
+                  <input type="text" class="form-control form-control-sm"
+                    [ngModel]="tempNomeTavolo()"
+                    (ngModelChange)="tempNomeTavolo.set($event)"
+                    (keyup.enter)="saveNomeTavolo()"
+                    (keyup.escape)="cancelEditNome()">
+                } @else {
+                  {{ selectedTavolo()!.nome || 'Tavolo senza nome' }}
+                  <button class="btn btn-link btn-sm p-0 ms-2" (click)="startEditNome()">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                }
+              </h6>
+              <button class="btn-close btn-close-sm" (click)="deselectTavolo()"></button>
+            </div>
+
+            <div class="detail-body">
+              <p class="mb-2">
+                <strong>Tipo:</strong>
+                {{ selectedTavolo()!.tipoTavolo === TipoTavolo.CIRCOLARE ? 'Circolare' : 'Rettangolare' }}
+              </p>
+              <p class="mb-2">
+                <strong>Posti:</strong>
+                {{ selectedTavolo()!.persone?.length || 0 }}/{{ selectedTavolo()!.numeroPosti || 0 }}
+              </p>
+              <p class="mb-3">
+                <strong>Dimensioni:</strong>
+                @if (selectedTavolo()!.tipoTavolo === TipoTavolo.CIRCOLARE) {
+                  {{ selectedTavolo()!.larghezza || 120 }}px (diametro)
+                } @else {
+                  {{ selectedTavolo()!.larghezza || 180 }}px x {{ selectedTavolo()!.altezza || 100 }}px
+                }
+              </p>
+
+              <h6 class="persone-title">Persone assegnate:</h6>
+              @if (selectedTavolo()!.persone && selectedTavolo()!.persone.length > 0) {
+                <ul class="list-group list-group-flush">
+                  @for (persona of selectedTavolo()!.persone; track persona.id) {
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                      <span [class.text-success]="persona.confermato">
+                        {{ persona.nome }} {{ persona.cognome }}
+                        @if (persona.accompagnatore && persona.invitatorePrincipale) {
+                          <small class="text-muted">({{ persona.invitatorePrincipale }})</small>
+                        }
+                      </span>
+                      <button class="btn btn-outline-danger btn-sm"
+                        (click)="removePersonaFromTavolo(persona, selectedTavolo()!)">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="text-muted">Nessuna persona assegnata</p>
+              }
+
+              <hr>
+
+              @if (selectedTavolo()!.persone && selectedTavolo()!.persone.length > 1) {
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2"
+                  (click)="distribuisciPersone(selectedTavolo()!)">
+                  <i class="bi bi-arrows-angle-expand me-1"></i>Distribuisci uniformemente
+                </button>
+              }
+
+              <button class="btn btn-outline-danger btn-sm w-100"
+                (click)="deleteTavolo(selectedTavolo()!)">
+                <i class="bi bi-trash me-1"></i>Elimina tavolo
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Modal nuovo tavolo -->
+  @if (showNewTavoloModal()) {
+    <div class="modal-backdrop fade show" (click)="closeNewTavoloModal()"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Nuovo Tavolo</h5>
+            <button type="button" class="btn-close" (click)="closeNewTavoloModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nome tavolo (opzionale)</label>
+              <input type="text" class="form-control"
+                placeholder="Es. Tavolo degli sposi"
+                [ngModel]="newTavoloNome()"
+                (ngModelChange)="newTavoloNome.set($event)">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tipo tavolo</label>
+              <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="tipoTavolo" id="tipoCircolare"
+                  [value]="TipoTavolo.CIRCOLARE"
+                  [ngModel]="newTavoloTipo()"
+                  (ngModelChange)="newTavoloTipo.set($event)">
+                <label class="btn btn-outline-primary" for="tipoCircolare">
+                  <i class="bi bi-circle me-1"></i>Circolare
+                </label>
+
+                <input type="radio" class="btn-check" name="tipoTavolo" id="tipoRettangolare"
+                  [value]="TipoTavolo.RETTANGOLARE"
+                  [ngModel]="newTavoloTipo()"
+                  (ngModelChange)="newTavoloTipo.set($event)">
+                <label class="btn btn-outline-primary" for="tipoRettangolare">
+                  <i class="bi bi-square me-1"></i>Rettangolare
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Numero posti</label>
+              <input type="number" class="form-control"
+                min="1" max="20"
+                [ngModel]="newTavoloPosti()"
+                (ngModelChange)="newTavoloPosti.set($event)">
+            </div>
+
+            <!-- Dimensioni tavolo circolare -->
+            @if (newTavoloTipo() === TipoTavolo.CIRCOLARE) {
+              <div class="mb-3">
+                <label class="form-label">Diametro (px)</label>
+                <input type="number" class="form-control"
+                  min="60" max="300" step="10"
+                  [ngModel]="newTavoloDiametro()"
+                  (ngModelChange)="newTavoloDiametro.set($event)">
+                <div class="form-text">Dimensione del tavolo circolare nella griglia</div>
+              </div>
+            }
+
+            <!-- Dimensioni tavolo rettangolare -->
+            @if (newTavoloTipo() === TipoTavolo.RETTANGOLARE) {
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <label class="form-label">Larghezza (px)</label>
+                  <input type="number" class="form-control"
+                    min="60" max="400" step="10"
+                    [ngModel]="newTavoloLarghezza()"
+                    (ngModelChange)="newTavoloLarghezza.set($event)">
+                </div>
+                <div class="col-6 mb-3">
+                  <label class="form-label">Altezza (px)</label>
+                  <input type="number" class="form-control"
+                    min="40" max="200" step="10"
+                    [ngModel]="newTavoloAltezza()"
+                    (ngModelChange)="newTavoloAltezza.set($event)">
+                </div>
+              </div>
+              <div class="form-text mb-3">Dimensioni del tavolo rettangolare nella griglia</div>
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeNewTavoloModal()">
+              Annulla
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createTavolo()">
+              Crea tavolo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

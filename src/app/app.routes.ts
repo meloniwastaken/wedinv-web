@@ -106,6 +106,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/lista-nozze/lista-nozze.component').then(m => m.ListaNozzeComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'tavoli',
+    loadComponent: () => import('./features/tavoli/tavoli.component').then(m => m.TavoliComponent),
+    canActivate: [authGuard]
+  },
 
   // 404
   {
