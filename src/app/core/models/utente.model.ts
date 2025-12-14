@@ -33,3 +33,12 @@ export interface CheckoutSessionResponse {
   sessionId: string;
   checkoutUrl: string;
 }
+
+export interface RichiestaResetPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  nuovaPassword: string;
+}

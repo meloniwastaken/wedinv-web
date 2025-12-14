@@ -25,6 +25,15 @@ export const routes: Routes = [
     path: 'verifica-email/:token',
     loadComponent: () => import('./features/auth/verifica-email/verifica-email.component').then(m => m.VerificaEmailComponent)
   },
+  {
+    path: 'password-dimenticata',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    canActivate: [guestGuard]
+  },
+  {
+    path: 'reset-password/:token',
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
 
   // Route pubbliche per invito
   {

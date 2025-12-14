@@ -7,7 +7,9 @@ import {
   LoginRequest,
   LoginResponse,
   RegistrazioneUtenteRequest,
-  UtenteSession
+  UtenteSession,
+  RichiestaResetPasswordRequest,
+  ResetPasswordRequest
 } from '../models';
 import { IdResponse } from '../models';
 
@@ -105,5 +107,17 @@ export class AuthService {
 
   verificaEmail(token: string): Observable<void> {
     return this.http.get<void>(`${this.apiUrl}/verifica-email/${token}`);
+  }
+
+  richiestaResetPassword(request: RichiestaResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/richiesta-reset-password`, request);
+  }
+
+  verificaTokenResetPassword(token: string): Observable<void> {
+    return this.http.get<void>(`${this.apiUrl}/verifica-token-reset/${token}`);
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/reset-password`, request);
   }
 }
