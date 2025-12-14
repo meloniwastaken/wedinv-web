@@ -102,4 +102,8 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
+
+  verificaEmail(token: string): Observable<void> {
+    return this.http.get<void>(`${this.apiUrl}/verifica-email/${token}`);
+  }
 }

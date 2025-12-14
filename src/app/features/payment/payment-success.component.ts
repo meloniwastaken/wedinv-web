@@ -9,36 +9,37 @@ import { PaymentService, AuthService } from '../../core/services';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="page-container">
-      <div class="container">
-        <div class="success-card text-center">
-          @if (loading()) {
-            <div class="spinner-border text-primary mb-4" style="width: 4rem; height: 4rem;"></div>
-            <h2>Verifica pagamento in corso...</h2>
-            <p class="text-muted">Attendere prego</p>
-          } @else if (error()) {
-            <i class="bi bi-exclamation-circle text-warning" style="font-size: 5rem;"></i>
-            <h2 class="mt-4">Verifica in corso</h2>
-            <p class="text-muted mb-4">
-              Il pagamento potrebbe richiedere qualche istante per essere confermato.
-              Se hai completato il pagamento, riprova tra qualche secondo.
-            </p>
-            <button class="btn btn-primary" (click)="checkStatus()">
-              <i class="bi bi-arrow-clockwise me-2"></i>
-              Riprova
-            </button>
-          } @else {
-            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-            <h2 class="mt-4">Pagamento completato!</h2>
-            <p class="text-muted mb-4">
-              Il tuo account è stato attivato con successo.
-              Ora puoi iniziare a gestire gli inviti del tuo matrimonio.
-            </p>
-            <a routerLink="/dashboard" class="btn btn-primary btn-lg">
-              <i class="bi bi-house me-2"></i>
-              Vai alla Dashboard
-            </a>
-          }
-        </div>
+      <div class="success-card text-center">
+        @if (loading()) {
+          <div class="spinner-border text-primary mb-4" style="width: 4rem; height: 4rem;"></div>
+          <h2>Verifica pagamento in corso...</h2>
+          <p class="text-muted">Attendere prego</p>
+        } @else if (error()) {
+          <i class="bi bi-exclamation-circle text-warning" style="font-size: 5rem;"></i>
+          <h2 class="mt-4">Verifica in corso</h2>
+          <p class="text-muted mb-4">
+            Il pagamento potrebbe richiedere qualche istante per essere confermato.
+            Se hai completato il pagamento, riprova tra qualche secondo.
+          </p>
+          <button class="btn btn-primary" (click)="checkStatus()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Riprova
+          </button>
+        } @else {
+          <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+          <h2 class="mt-4">Pagamento completato!</h2>
+          <p class="text-muted mb-4">
+            Il tuo account è stato attivato con successo.
+            Verrai reindirizzato alla dashboard tra pochi secondi...
+          </p>
+          <p class="text-muted small mb-4">
+            Reindirizzamento in {{ countdown() }} secondi
+          </p>
+          <a routerLink="/dashboard" class="btn btn-primary btn-lg">
+            <i class="bi bi-house me-2"></i>
+            Vai alla Dashboard
+          </a>
+        }
       </div>
     </div>
   `,
@@ -55,6 +56,7 @@ import { PaymentService, AuthService } from '../../core/services';
       border-radius: 1rem;
       padding: 3rem;
       max-width: 500px;
+      width: 100%;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     }
     h2 {
@@ -66,6 +68,9 @@ import { PaymentService, AuthService } from '../../core/services';
 export class PaymentSuccessComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
+  countdown = signal(3);
+
+  private countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private paymentService: PaymentService,
@@ -86,6 +91,7 @@ export class PaymentSuccessComponent implements OnInit {
         this.loading.set(false);
         if (isActive) {
           this.authService.updateUserActiveStatus(true);
+          this.startCountdownAndRedirect();
         } else {
           this.error.set(true);
         }
@@ -95,5 +101,26 @@ export class PaymentSuccessComponent implements OnInit {
         this.error.set(true);
       }
     });
+  }
+
+  private startCountdownAndRedirect(): void {
+    this.countdown.set(3);
+    this.countdownInterval = setInterval(() => {
+      const current = this.countdown();
+      if (current <= 1) {
+        if (this.countdownInterval) {
+          clearInterval(this.countdownInterval);
+        }
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.countdown.set(current - 1);
+      }
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
 }

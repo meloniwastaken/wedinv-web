@@ -21,6 +21,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
     canActivate: [guestGuard]
   },
+  {
+    path: 'verifica-email/:token',
+    loadComponent: () => import('./features/auth/verifica-email/verifica-email.component').then(m => m.VerificaEmailComponent)
+  },
 
   // Route pubbliche per invito
   {

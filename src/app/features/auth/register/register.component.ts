@@ -69,10 +69,8 @@ export class RegisterComponent {
 
     this.authService.registrazione(request).subscribe({
       next: () => {
+        this.loading.set(false);
         this.success.set(true);
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
       },
       error: (err) => {
         this.loading.set(false);
