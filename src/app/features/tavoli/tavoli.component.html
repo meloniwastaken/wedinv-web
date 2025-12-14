@@ -1,4 +1,16 @@
 <div class="container-fluid tavoli-container">
+  <!-- Mobile Block Overlay -->
+  @if (isMobile()) {
+    <div class="mobile-block-overlay">
+      <div class="mobile-block-content">
+        <i class="bi bi-display"></i>
+        <h3>Funzionalità solo Desktop</h3>
+        <p>La gestione dei tavoli è disponibile solo su dispositivi desktop per garantire la migliore esperienza di utilizzo.</p>
+        <small>Accedi da un computer per utilizzare questa funzionalità</small>
+      </div>
+    </div>
+  }
+
   <!-- Loading -->
   @if (loading()) {
     <div class="text-center py-5">

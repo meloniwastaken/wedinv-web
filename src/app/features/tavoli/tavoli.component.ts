@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -22,6 +22,10 @@ interface DragData {
 })
 export class TavoliComponent implements OnInit {
   @ViewChild('gridArea') gridArea!: ElementRef<HTMLDivElement>;
+
+  // Breakpoint mobile (992px = Bootstrap lg)
+  private readonly MOBILE_BREAKPOINT = 992;
+  isMobile = signal(false);
 
   loading = signal(true);
   error = signal<string | null>(null);
@@ -70,8 +74,18 @@ export class TavoliComponent implements OnInit {
 
   constructor(private tavoloService: TavoloService) {}
 
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkMobile();
+  }
+
   ngOnInit(): void {
+    this.checkMobile();
     this.loadData();
+  }
+
+  private checkMobile(): void {
+    this.isMobile.set(window.innerWidth < this.MOBILE_BREAKPOINT);
   }
 
   loadData(): void {
