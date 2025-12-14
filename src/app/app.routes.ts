@@ -2,6 +2,14 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, paymentGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  // Home page (landing per guest)
+  {
+    path: '',
+    loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
+    canActivate: [guestGuard],
+    pathMatch: 'full'
+  },
+
   // Route pubbliche (guest)
   {
     path: 'login',
@@ -84,13 +92,6 @@ export const routes: Routes = [
     path: 'lista-nozze',
     loadComponent: () => import('./features/lista-nozze/lista-nozze.component').then(m => m.ListaNozzeComponent),
     canActivate: [authGuard]
-  },
-
-  // Redirect default
-  {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
   },
 
   // 404

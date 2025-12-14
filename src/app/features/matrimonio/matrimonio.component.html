@@ -153,33 +153,25 @@
                     <small class="text-muted d-block">Contatto di riferimento</small>
                     <span>{{ matrimonio()!.contattoRiferimento || '-' }}</span>
                   </div>
-                  <div class="col-md-4 mb-3">
-                    <small class="text-muted d-block">IBAN</small>
-                    <span>{{ matrimonio()!.iban || '-' }}</span>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <small class="text-muted d-block">Link Lista Nozze</small>
-                    @if (matrimonio()!.linkListaNozze) {
-                      <a [href]="matrimonio()!.linkListaNozze" target="_blank" class="text-primary">
-                        <i class="bi bi-gift me-1"></i>Apri
-                      </a>
-                    } @else {
-                      <span>-</span>
-                    }
-                  </div>
+                  @if (isPremium()) {
+                    <div class="col-md-4 mb-3">
+                      <small class="text-muted d-block">IBAN</small>
+                      <span>{{ matrimonio()!.iban || '-' }}</span>
+                    </div>
+                  }
                   @if (matrimonio()!.note) {
                     <div class="col-12 mb-3">
                       <small class="text-muted d-block">Note per gli invitati</small>
                       <span>{{ matrimonio()!.note }}</span>
                     </div>
                   }
-                  @if (matrimonio()!.messaggioInvito) {
+                  @if (isPremium() && matrimonio()!.messaggioInvito) {
                     <div class="col-12 mb-3">
                       <small class="text-muted d-block">Messaggio di invito</small>
                       <span>{{ matrimonio()!.messaggioInvito }}</span>
                     </div>
                   }
-                  @if (matrimonio()!.messaggioIban) {
+                  @if (isPremium() && matrimonio()!.messaggioIban) {
                     <div class="col-12">
                       <small class="text-muted d-block">Messaggio per contributo IBAN</small>
                       <span>{{ matrimonio()!.messaggioIban }}</span>
@@ -368,36 +360,35 @@
                     <input type="text" class="form-control" id="contattoRiferimento"
                       formControlName="contattoRiferimento" placeholder="es. +39 123 456 7890">
                   </div>
-                  <div class="col-md-4">
-                    <label for="iban" class="form-label">IBAN (per regali)</label>
-                    <input type="text" class="form-control" id="iban"
-                      formControlName="iban" placeholder="IT00X0000000000000000000000">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="linkListaNozze" class="form-label">Link Lista Nozze</label>
-                    <input type="url" class="form-control" id="linkListaNozze"
-                      formControlName="linkListaNozze" placeholder="https://...">
-                  </div>
+                  @if (isPremium()) {
+                    <div class="col-md-4">
+                      <label for="iban" class="form-label">IBAN (per regali)</label>
+                      <input type="text" class="form-control" id="iban"
+                        formControlName="iban" placeholder="IT00X0000000000000000000000">
+                    </div>
+                  }
                   <div class="col-12">
                     <label for="note" class="form-label">Note per gli invitati</label>
                     <textarea class="form-control" id="note" rows="3"
                       formControlName="note"
                       placeholder="Informazioni aggiuntive che verranno mostrate nell'invito..."></textarea>
                   </div>
-                  <div class="col-12">
-                    <label for="messaggioInvito" class="form-label">Messaggio di invito personalizzato</label>
-                    <textarea class="form-control" id="messaggioInvito" rows="2"
-                      formControlName="messaggioInvito"
-                      placeholder="es. Saremmo onorati della tua presenza nel giorno più importante della nostra vita."></textarea>
-                    <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito</div>
-                  </div>
-                  <div class="col-12">
-                    <label for="messaggioIban" class="form-label">Messaggio per contributo IBAN</label>
-                    <textarea class="form-control" id="messaggioIban" rows="2"
-                      formControlName="messaggioIban"
-                      placeholder="es. Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario."></textarea>
-                    <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito nella pagina di contributo IBAN</div>
-                  </div>
+                  @if (isPremium()) {
+                    <div class="col-12">
+                      <label for="messaggioInvito" class="form-label">Messaggio di invito personalizzato</label>
+                      <textarea class="form-control" id="messaggioInvito" rows="2"
+                        formControlName="messaggioInvito"
+                        placeholder="es. Saremmo onorati della tua presenza nel giorno più importante della nostra vita."></textarea>
+                      <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito</div>
+                    </div>
+                    <div class="col-12">
+                      <label for="messaggioIban" class="form-label">Messaggio per contributo IBAN</label>
+                      <textarea class="form-control" id="messaggioIban" rows="2"
+                        formControlName="messaggioIban"
+                        placeholder="es. Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario."></textarea>
+                      <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito nella pagina di contributo IBAN</div>
+                    </div>
+                  }
                 </div>
               </div>
             </div>

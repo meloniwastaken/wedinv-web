@@ -20,7 +20,6 @@ export class App {
   private themeService = inject(ThemeService); // Initialize theme from cookie
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
-  isActive = computed(() => this.authService.isActive());
 
   private currentUrl = toSignal(
     this.router.events.pipe(
@@ -34,8 +33,8 @@ export class App {
     const url = this.currentUrl();
     const isPublicRoute = url.startsWith('/login') ||
                           url.startsWith('/registrazione') ||
-                          url.startsWith('/invito/') ||
-                          url.startsWith('/pagamento');
-    return this.isAuthenticated() && this.isActive() && !isPublicRoute;
+                          url.startsWith('/invito/');
+    // Con il modello freemium, mostra la navbar per tutti gli utenti autenticati (FREE e Premium)
+    return this.isAuthenticated() && !isPublicRoute;
   });
 }

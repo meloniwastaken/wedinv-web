@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ListaNozzeService } from '../../core/services';
+import { ListaNozzeService, AuthService } from '../../core/services';
 import { ElementoListaNozzeDTO, CreaElementoListaNozzeRequest } from '../../core/models';
 
 @Component({
@@ -20,6 +20,8 @@ export class ListaNozzeComponent implements OnInit {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
 
+  isPremium = computed(() => this.authService.isActive());
+
   // Modal per nuovo/modifica elemento
   showModal = signal(false);
   modalMode = signal<'create' | 'edit'>('create');
@@ -30,9 +32,16 @@ export class ListaNozzeComponent implements OnInit {
   formDescrizione = signal('');
   formLink = signal('');
 
-  constructor(private listaNozzeService: ListaNozzeService) {}
+  constructor(
+    private listaNozzeService: ListaNozzeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    if (!this.isPremium()) {
+      this.loading.set(false);
+      return;
+    }
     this.loadElementi();
   }
 

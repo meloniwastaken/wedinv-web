@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { InvitatoService } from '../../../core/services';
+import { InvitatoService, AuthService } from '../../../core/services';
 import { InvitatoDTO, CreaInvitatoRequest, AggiornaInvitatoRequest, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
 
 @Component({
@@ -30,9 +30,13 @@ export class DettaglioInvitatoComponent implements OnInit {
     { id: StatoInvito.RIFIUTATO, descrizione: 'Rifiutato' }
   ];
 
+  isPremium = computed(() => this.authService.isActive());
+  canCreate = signal(true);
+
   constructor(
     private fb: FormBuilder,
     private invitatoService: InvitatoService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -48,8 +52,29 @@ export class DettaglioInvitatoComponent implements OnInit {
       this.loadInvitato(this.invitatoId);
     } else {
       this.editMode.set(true); // New guest starts in edit mode
-      this.loading.set(false);
+      // Check if FREE user can create more invites
+      if (!this.isPremium()) {
+        this.checkCanCreate();
+      } else {
+        this.loading.set(false);
+      }
     }
+  }
+
+  private checkCanCreate(): void {
+    this.invitatoService.getInvitatiRiepilogo().subscribe({
+      next: (data) => {
+        const count = data.invitati?.length || 0;
+        if (count >= 3) {
+          this.canCreate.set(false);
+          this.error.set('Hai raggiunto il limite di 3 invitati per il piano gratuito. Passa a Premium per invitare più ospiti.');
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
   }
 
   private createForm(): FormGroup {

@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatrimonioService, ThemeService } from '../../core/services';
+import { MatrimonioService, ThemeService, AuthService } from '../../core/services';
 import { MatrimonioDTO, CreaMatrimonioRequest, AggiornaMatrimonioRequest } from '../../core/models';
 
 @Component({
@@ -24,10 +24,13 @@ export class MatrimonioComponent implements OnInit {
   showDeleteConfirm = signal(false);
   matrimonio = signal<MatrimonioDTO | null>(null);
 
+  isPremium = computed(() => this.authService.isActive());
+
   constructor(
     private fb: FormBuilder,
     private matrimonioService: MatrimonioService,
     private themeService: ThemeService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.matrimonioForm = this.createForm();
@@ -58,7 +61,6 @@ export class MatrimonioComponent implements OnInit {
       dataDeadlineConferma: [''],
       contattoRiferimento: [''],
       iban: [''],
-      linkListaNozze: [''],
       note: [''],
       messaggioInvito: [''],
       messaggioIban: ['']
@@ -107,7 +109,6 @@ export class MatrimonioComponent implements OnInit {
       dataDeadlineConferma: matrimonio.dataDeadlineConferma || '',
       contattoRiferimento: matrimonio.contattoRiferimento || '',
       iban: matrimonio.iban || '',
-      linkListaNozze: matrimonio.linkListaNozze || '',
       note: matrimonio.note || '',
       messaggioInvito: matrimonio.messaggioInvito || '',
       messaggioIban: matrimonio.messaggioIban || ''
@@ -155,7 +156,6 @@ export class MatrimonioComponent implements OnInit {
       dataDeadlineConferma: formValue.dataDeadlineConferma || null,
       contattoRiferimento: formValue.contattoRiferimento || null,
       iban: formValue.iban || null,
-      linkListaNozze: formValue.linkListaNozze || null,
       note: formValue.note || null,
       messaggioInvito: formValue.messaggioInvito || null,
       messaggioIban: formValue.messaggioIban || null,

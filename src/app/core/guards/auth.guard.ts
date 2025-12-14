@@ -3,7 +3,7 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services';
 
 /**
- * Guard per route protette: richiede autenticazione E account attivo
+ * Guard per route protette: richiede solo autenticazione (FREE e Premium)
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -11,11 +11,6 @@ export const authGuard: CanActivateFn = () => {
 
   if (!authService.isAuthenticated()) {
     router.navigate(['/login']);
-    return false;
-  }
-
-  if (!authService.isActive()) {
-    router.navigate(['/pagamento']);
     return false;
   }
 
@@ -33,12 +28,7 @@ export const guestGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Se autenticato ma non attivo, vai a pagamento
-  if (!authService.isActive()) {
-    router.navigate(['/pagamento']);
-    return false;
-  }
-
+  // Utente autenticato (FREE o Premium) va alla dashboard
   router.navigate(['/dashboard']);
   return false;
 };

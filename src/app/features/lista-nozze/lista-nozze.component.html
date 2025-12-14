@@ -6,6 +6,23 @@
           <span class="visually-hidden">Caricamento...</span>
         </div>
       </div>
+    } @else if (!isPremium()) {
+      <!-- Stato: Funzionalità Premium -->
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="bi bi-star" style="font-size: 5rem; color: var(--color-primary-light);"></i>
+        </div>
+        <h2 class="mb-3">Funzionalità Premium</h2>
+        <p class="lead text-muted mb-4">
+          La Lista Nozze è disponibile solo per gli utenti Premium.
+        </p>
+        <p class="text-muted mb-4">
+          Passa a Premium per creare la tua lista nozze digitale!
+        </p>
+        <a routerLink="/pagamento" class="btn btn-premium btn-lg">
+          <i class="bi bi-star-fill me-2"></i>Passa a Premium
+        </a>
+      </div>
     } @else if (!hasMatrimonio()) {
       <!-- Stato: Nessun matrimonio creato -->
       <div class="text-center py-5">

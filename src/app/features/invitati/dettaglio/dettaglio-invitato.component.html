@@ -6,6 +6,32 @@
           <span class="visually-hidden">Caricamento...</span>
         </div>
       </div>
+    } @else if (!canCreate() && !isEdit()) {
+      <!-- Limit reached for FREE users -->
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center py-5">
+            <div class="mb-4">
+              <i class="bi bi-lock" style="font-size: 5rem; color: var(--color-primary-light);"></i>
+            </div>
+            <h2 class="mb-3">Limite raggiunto</h2>
+            <p class="lead text-muted mb-4">
+              Hai raggiunto il limite di 3 invitati per il piano gratuito.
+            </p>
+            <p class="text-muted mb-4">
+              Passa a Premium per invitare tutti i tuoi ospiti senza limiti!
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+              <button class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>Torna alla lista
+              </button>
+              <a routerLink="/pagamento" class="btn btn-premium btn-lg">
+                <i class="bi bi-star-fill me-2"></i>Passa a Premium
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     } @else {
       <div class="row justify-content-center">
         <div class="col-lg-8">

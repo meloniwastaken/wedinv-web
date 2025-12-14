@@ -30,14 +30,21 @@
             {{ data()?.totaleInvitati ?? 0 }} invitati totali
           </p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
           <button class="btn btn-outline-primary" (click)="openSendModal()"
             [disabled]="(data()?.totaleInvitati ?? 0) === 0">
             <i class="bi bi-envelope me-2"></i>Invia Inviti
           </button>
-          <a routerLink="/invitati/nuovo" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>Nuovo Invitato
-          </a>
+          @if (canCreateInvitato()) {
+            <a routerLink="/invitati/nuovo" class="btn btn-primary">
+              <i class="bi bi-plus-lg me-2"></i>Nuovo Invitato
+            </a>
+          } @else {
+            <span class="text-muted small me-2">{{ invitatiCount() }}/3 invitati</span>
+            <a routerLink="/pagamento" class="btn btn-premium">
+              <i class="bi bi-star-fill me-1"></i>Passa a Premium
+            </a>
+          }
         </div>
       </div>
 

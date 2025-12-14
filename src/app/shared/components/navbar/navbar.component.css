@@ -31,3 +31,29 @@
   background-color: var(--color-secondary-light);
   color: var(--color-text);
 }
+
+/* Premium upgrade button */
+.btn-premium {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a1a1a !important;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  color: #1a1a1a !important;
+}
+
+.btn-premium i {
+  color: #1a1a1a;
+}

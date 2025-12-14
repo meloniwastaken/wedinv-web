@@ -27,15 +27,24 @@
             <i class="bi bi-people me-1"></i>Invitati
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/lista-nozze" routerLinkActive="active"
-            (click)="closeMenu()">
-            <i class="bi bi-gift me-1"></i>Lista Nozze
-          </a>
-        </li>
+        @if (isPremium()) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/lista-nozze" routerLinkActive="active"
+              (click)="closeMenu()">
+              <i class="bi bi-gift me-1"></i>Lista Nozze
+            </a>
+          </li>
+        }
       </ul>
 
       <ul class="navbar-nav align-items-center">
+        @if (isAuthenticated() && !isPremium()) {
+          <li class="nav-item me-3">
+            <a class="btn btn-premium" routerLink="/pagamento" (click)="closeMenu()">
+              <i class="bi bi-star-fill me-1"></i>Passa a Premium
+            </a>
+          </li>
+        }
         <li class="nav-item me-2">
           <button class="btn btn-link nav-link theme-toggle" (click)="toggleLightDark()"
             [title]="isDarkTheme() ? 'Passa al tema chiaro' : 'Passa al tema scuro'">

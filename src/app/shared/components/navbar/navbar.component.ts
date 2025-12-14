@@ -18,6 +18,7 @@ export class NavbarComponent {
 
   user = computed(() => this.authService.user());
   isAuthenticated = computed(() => this.authService.isAuthenticated());
+  isPremium = computed(() => this.authService.isActive());
 
   userName = computed(() => {
     const u = this.user();

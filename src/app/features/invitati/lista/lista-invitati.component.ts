@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { InvitatoService } from '../../../core/services';
+import { InvitatoService, AuthService } from '../../../core/services';
 import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse } from '../../../core/models';
 
 @Component({
@@ -57,7 +57,19 @@ export class ListaInvitatiComponent implements OnInit {
 
   hasMatrimonio = computed(() => this.data()?.hasMatrimonio ?? true);
 
-  constructor(private invitatoService: InvitatoService) {}
+  isPremium = computed(() => this.authService.isActive());
+
+  invitatiCount = computed(() => this.data()?.invitati?.length || 0);
+
+  canCreateInvitato = computed(() => {
+    if (this.isPremium()) return true;
+    return this.invitatiCount() < 3;
+  });
+
+  constructor(
+    private invitatoService: InvitatoService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadInvitati();
