@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { InvitoPubblicoService, ThemeService, ListaNozzeService } from '../../../core/services';
+import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
 import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 
@@ -61,6 +61,7 @@ export class InvitoPubblicoComponent implements OnInit {
     private invitoPubblicoService: InvitoPubblicoService,
     private listaNozzeService: ListaNozzeService,
     private themeService: ThemeService,
+    private titleService: TitleService,
     private route: ActivatedRoute
   ) {}
 
@@ -91,6 +92,8 @@ export class InvitoPubblicoComponent implements OnInit {
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
+        // Imposta il titolo della pagina con i nomi degli sposi
+        this.titleService.setTitleWithSposi(invito.nomeSposoA, invito.nomeSposoB);
         // Verifica se ci sono elementi nella lista nozze
         this.checkListaNozze();
       },

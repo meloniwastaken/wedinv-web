@@ -1,11 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, effect } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter, map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { ErrorModalComponent } from './shared/components/error-modal/error-modal.component';
-import { AuthService, ThemeService } from './core/services';
+import { AuthService, ThemeService, MatrimonioService, TitleService } from './core/services';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,9 @@ import { AuthService, ThemeService } from './core/services';
 export class App {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private themeService = inject(ThemeService); // Initialize theme from cookie
+  private themeService = inject(ThemeService);
+  private matrimonioService = inject(MatrimonioService);
+  private titleService = inject(TitleService);
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
 
@@ -37,4 +39,22 @@ export class App {
     // Con il modello freemium, mostra la navbar per tutti gli utenti autenticati (FREE e Premium)
     return this.isAuthenticated() && !isPublicRoute;
   });
+
+  constructor() {
+    // Aggiorna il titolo in base al matrimonio
+    effect(() => {
+      const url = this.currentUrl();
+      // Non aggiornare il titolo per le pagine pubbliche (gestite dai componenti)
+      if (url.startsWith('/invito/')) {
+        return;
+      }
+
+      const matrimonio = this.matrimonioService.matrimonio();
+      if (matrimonio) {
+        this.titleService.setTitleWithSposi(matrimonio.nomeSposoA, matrimonio.nomeSposoB);
+      } else {
+        this.titleService.setBaseTitle();
+      }
+    });
+  }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { InvitoPubblicoService, ThemeService, ListaNozzeService } from '../../../core/services';
+import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
 import { InvitoPubblicoResponse } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 
@@ -29,6 +29,7 @@ export class MatrimonioPubblicoComponent implements OnInit {
     private invitoPubblicoService: InvitoPubblicoService,
     private listaNozzeService: ListaNozzeService,
     private themeService: ThemeService,
+    private titleService: TitleService,
     private route: ActivatedRoute
   ) {}
 
@@ -47,6 +48,7 @@ export class MatrimonioPubblicoComponent implements OnInit {
       next: (invito) => {
         this.invito.set(invito);
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
+        this.titleService.setTitleWithSposi(invito.nomeSposoA, invito.nomeSposoB);
         this.checkListaNozze();
       },
       error: (err) => {

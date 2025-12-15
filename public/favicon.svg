@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#daa520"/>
+      <stop offset="50%" style="stop-color:#b8860b"/>
+      <stop offset="100%" style="stop-color:#8b6914"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#goldGradient)"/>
+  <!-- Letter W -->
+  <path d="M16 18 L22 46 L32 30 L42 46 L48 18 L43 18 L39 38 L32 26 L25 38 L21 18 Z"
+        fill="#ffffff"
+        stroke="#ffffff"
+        stroke-width="1"
+        stroke-linejoin="round"/>
+  <!-- Small heart decoration -->
+  <path d="M32 50 C32 50 28 47 28 44.5 C28 43 29 42 30.5 42 C31.3 42 32 42.5 32 42.5 C32 42.5 32.7 42 33.5 42 C35 42 36 43 36 44.5 C36 47 32 50 32 50 Z"
+        fill="#ffffff"/>
+</svg>
