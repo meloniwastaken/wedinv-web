@@ -191,11 +191,15 @@
     <!-- Send Modal -->
     @if (showSendModal()) {
       <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered" [class.modal-lg]="modalStep() === 'whatsapp'">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
-                <i class="bi bi-send me-2"></i>Invia Inviti
+                @if (modalStep() === 'whatsapp') {
+                  <i class="bi bi-whatsapp me-2 text-success"></i>Invia su WhatsApp
+                } @else {
+                  <i class="bi bi-send me-2"></i>Invia Inviti
+                }
               </h5>
               <button type="button" class="btn-close" (click)="closeSendModal()"
                 [disabled]="sending()"></button>
@@ -221,6 +225,12 @@
                     <span>+</span>
                     <i class="bi bi-phone fs-5"></i>
                     <span class="ms-1">Entrambi</span>
+                  </button>
+                  <hr class="my-2">
+                  <button class="btn btn-success d-flex align-items-center justify-content-center gap-2"
+                    (click)="openWhatsappView()">
+                    <i class="bi bi-whatsapp fs-5"></i>
+                    <span>WhatsApp (manuale)</span>
                   </button>
                 </div>
               }
@@ -304,9 +314,65 @@
                   }
                 </div>
               }
+
+              <!-- WhatsApp View -->
+              @if (modalStep() === 'whatsapp') {
+                <p class="text-muted mb-3">
+                  Clicca sull'icona WhatsApp per aprire una chat con il messaggio precompilato.
+                </p>
+
+                <!-- Search -->
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca per nome o telefono..."
+                    [ngModel]="whatsappSearchTerm()" (ngModelChange)="whatsappSearchTerm.set($event)">
+                </div>
+
+                @if (whatsappInvitati().length === 0) {
+                  <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Nessun invitato con numero di telefono trovato.
+                  </div>
+                } @else {
+                  <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                      <thead class="sticky-top bg-white">
+                        <tr>
+                          <th>Nome</th>
+                          <th>Telefono</th>
+                          <th>Stato</th>
+                          <th class="text-center" style="width: 60px;">Invia</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (invitato of whatsappInvitati(); track invitato.id) {
+                          <tr>
+                            <td>{{ invitato.nome }} {{ invitato.cognome }}</td>
+                            <td>{{ invitato.telefono }}</td>
+                            <td>
+                              <span class="badge" [class]="getStatoBadgeClass(invitato.statoInvito)">
+                                {{ invitato.statoInvitoDescrizione ?? 'Da inviare' }}
+                              </span>
+                            </td>
+                            <td class="text-center">
+                              <a [href]="getWhatsappLink(invitato)" target="_blank"
+                                class="btn btn-success btn-sm" title="Invia su WhatsApp">
+                                <i class="bi bi-whatsapp"></i>
+                              </a>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="text-muted small mt-2 mb-0">
+                    {{ whatsappInvitati().length }} invitati con numero di telefono
+                  </p>
+                }
+              }
             </div>
             <div class="modal-footer">
-              @if (modalStep() === 2) {
+              @if (modalStep() === 2 || modalStep() === 'whatsapp') {
                 <button type="button" class="btn btn-outline-secondary" (click)="backToChannelSelection()"
                   [disabled]="sending()">
                   <i class="bi bi-arrow-left me-1"></i>Indietro

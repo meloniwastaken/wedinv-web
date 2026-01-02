@@ -32,6 +32,7 @@ export interface InvitatoRiepilogoDTO {
   nome: string;
   cognome: string;
   email: string | null;
+  telefono: string | null;
   statoInvito: number | null;
   statoInvitoDescrizione: string | null;
   numeroPlusConsentiti: number | null;

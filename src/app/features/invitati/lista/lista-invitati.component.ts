@@ -22,9 +22,10 @@ export class ListaInvitatiComponent implements OnInit {
   selectedIds = signal<Set<string>>(new Set());
   showSendModal = signal(false);
   sendResult = signal<InvioInvitiResponse | null>(null);
-  modalStep = signal<1 | 2 | 3>(1); // 1=select channel, 2=select recipients, 3=result
+  modalStep = signal<1 | 2 | 3 | 'whatsapp'>(1); // 1=select channel, 2=select recipients, 3=result, 'whatsapp'=whatsapp view
   selectedCanale = signal<CanaleInvio | null>(null);
   validationErrors = signal<string[]>([]);
+  whatsappSearchTerm = signal('');
 
   StatoInvito = StatoInvito;
   CanaleInvio = CanaleInvio;
@@ -68,6 +69,22 @@ export class ListaInvitatiComponent implements OnInit {
   canCreateInvitato = computed(() => {
     if (this.isPremium()) return true;
     return this.invitatiCount() < 3;
+  });
+
+  // Invitati filtrati per la vista WhatsApp (solo quelli con telefono)
+  whatsappInvitati = computed(() => {
+    const invitati = this.data()?.invitati || [];
+    const term = this.whatsappSearchTerm().toLowerCase();
+
+    const withPhone = invitati.filter(inv => inv.telefono);
+
+    if (!term) return withPhone;
+
+    return withPhone.filter(inv =>
+      inv.nome.toLowerCase().includes(term) ||
+      inv.cognome.toLowerCase().includes(term) ||
+      (inv.telefono?.includes(term) ?? false)
+    );
   });
 
   constructor(
@@ -236,5 +253,31 @@ export class ListaInvitatiComponent implements OnInit {
         this.error.set(err.error?.message || 'Errore durante l\'eliminazione');
       }
     });
+  }
+
+  openWhatsappView(): void {
+    this.modalStep.set('whatsapp');
+    this.whatsappSearchTerm.set('');
+  }
+
+  getWhatsappLink(invitato: InvitatoRiepilogoDTO): string {
+    if (!invitato.telefono) return '';
+
+    // Normalizza il numero (rimuovi spazi, trattini, parentesi)
+    let phone = invitato.telefono.replace(/[\s\-\(\)]/g, '');
+
+    // Se inizia con 0, sostituisci con +39 (Italia)
+    if (phone.startsWith('0')) {
+      phone = '+39' + phone.substring(1);
+    }
+    // Se non ha prefisso internazionale, aggiungi +39
+    if (!phone.startsWith('+')) {
+      phone = '+39' + phone;
+    }
+
+    // Messaggio precompilato
+    const message = `Ciao ${invitato.nome}! 🎉\n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento.`;
+
+    return `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
   }
 }
