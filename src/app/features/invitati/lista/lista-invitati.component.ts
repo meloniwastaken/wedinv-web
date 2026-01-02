@@ -275,8 +275,11 @@ export class ListaInvitatiComponent implements OnInit {
       phone = '+39' + phone;
     }
 
-    // Messaggio precompilato
-    const message = `Ciao ${invitato.nome}! 🎉\n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento.`;
+    // Costruisci il link all'invito
+    const invitationUrl = `${window.location.origin}/invito/${invitato.id}`;
+
+    // Messaggio precompilato con link
+    const message = `Ciao ${invitato.nome}! \n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
 
     return `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
   }
