@@ -148,7 +148,7 @@
                     <td>
                       <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
                     </td>
-                    <td>{{ invitato.email }}</td>
+                    <td>{{ invitato.email || '-' }}</td>
                     <td>
                       <span class="badge" [class]="getStatoBadgeClass(invitato.statoInvito)">
                         {{ invitato.statoInvitoDescrizione ?? 'Da inviare' }}
@@ -195,39 +195,60 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
-                <i class="bi bi-envelope me-2"></i>Invia Inviti
+                <i class="bi bi-send me-2"></i>Invia Inviti
               </h5>
               <button type="button" class="btn-close" (click)="closeSendModal()"
                 [disabled]="sending()"></button>
             </div>
             <div class="modal-body">
-              @if (sendResult()) {
-                <div class="text-center py-3">
-                  @if (sendResult()!.totaleFalliti === 0) {
-                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3">Invio completato!</h5>
-                    <p class="text-muted">{{ sendResult()!.totaleInviati }} inviti inviati con successo</p>
-                  } @else {
-                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3">Invio parziale</h5>
-                    <p class="text-muted">
-                      {{ sendResult()!.totaleInviati }} inviati,
-                      {{ sendResult()!.totaleFalliti }} falliti
-                    </p>
-                    @if (sendResult()!.errori.length > 0) {
-                      <div class="alert alert-danger text-start mt-3">
-                        <strong>Errori:</strong>
-                        <ul class="mb-0 mt-2">
-                          @for (errore of sendResult()!.errori; track errore) {
-                            <li>{{ errore }}</li>
-                          }
-                        </ul>
-                      </div>
-                    }
-                  }
+              <!-- Step 1: Selezione canale -->
+              @if (modalStep() === 1) {
+                <p class="mb-3">Come vuoi inviare gli inviti?</p>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2"
+                    (click)="selectCanale(CanaleInvio.EMAIL)">
+                    <i class="bi bi-envelope fs-5"></i>
+                    <span>Email</span>
+                  </button>
+                  <button class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2"
+                    (click)="selectCanale(CanaleInvio.SMS)">
+                    <i class="bi bi-phone fs-5"></i>
+                    <span>SMS</span>
+                  </button>
+                  <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2"
+                    (click)="selectCanale(CanaleInvio.ENTRAMBI)">
+                    <i class="bi bi-envelope fs-5"></i>
+                    <span>+</span>
+                    <i class="bi bi-phone fs-5"></i>
+                    <span class="ms-1">Entrambi</span>
+                  </button>
                 </div>
-              } @else {
-                <p>Scegli come inviare gli inviti:</p>
+              }
+
+              <!-- Step 2: Selezione destinatari -->
+              @if (modalStep() === 2) {
+                <p class="mb-3">
+                  Canale: <strong>
+                    @switch (selectedCanale()) {
+                      @case (CanaleInvio.EMAIL) { Email }
+                      @case (CanaleInvio.SMS) { SMS }
+                      @case (CanaleInvio.ENTRAMBI) { Email + SMS }
+                    }
+                  </strong>
+                </p>
+
+                @if (validationErrors().length > 0) {
+                  <div class="alert alert-warning">
+                    <strong><i class="bi bi-exclamation-triangle me-2"></i>Attenzione</strong>
+                    <p class="mb-2 mt-2">Alcuni invitati non hanno i dati di contatto necessari:</p>
+                    <ul class="mb-0">
+                      @for (errore of validationErrors(); track errore) {
+                        <li>{{ errore }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+
                 <div class="d-grid gap-2">
                   @if (someSelected()) {
                     <button class="btn btn-outline-primary" (click)="sendToSelected()"
@@ -255,11 +276,45 @@
                   }
                 </div>
               }
+
+              <!-- Step 3: Risultato -->
+              @if (modalStep() === 3 && sendResult()) {
+                <div class="text-center py-3">
+                  @if (sendResult()!.totaleFalliti === 0) {
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Invio completato!</h5>
+                    <p class="text-muted">{{ sendResult()!.totaleInviati }} inviti inviati con successo</p>
+                  } @else {
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Invio parziale</h5>
+                    <p class="text-muted">
+                      {{ sendResult()!.totaleInviati }} inviati,
+                      {{ sendResult()!.totaleFalliti }} falliti
+                    </p>
+                    @if (sendResult()!.errori.length > 0) {
+                      <div class="alert alert-danger text-start mt-3">
+                        <strong>Errori:</strong>
+                        <ul class="mb-0 mt-2">
+                          @for (errore of sendResult()!.errori; track errore) {
+                            <li>{{ errore }}</li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  }
+                </div>
+              }
             </div>
             <div class="modal-footer">
+              @if (modalStep() === 2) {
+                <button type="button" class="btn btn-outline-secondary" (click)="backToChannelSelection()"
+                  [disabled]="sending()">
+                  <i class="bi bi-arrow-left me-1"></i>Indietro
+                </button>
+              }
               <button type="button" class="btn btn-secondary" (click)="closeSendModal()"
                 [disabled]="sending()">
-                {{ sendResult() ? 'Chiudi' : 'Annulla' }}
+                {{ modalStep() === 3 ? 'Chiudi' : 'Annulla' }}
               </button>
             </div>
           </div>

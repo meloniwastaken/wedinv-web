@@ -81,7 +81,7 @@ export class DettaglioInvitatoComponent implements OnInit {
     return this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(2)]],
       cognome: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.email]],
       telefono: [''],
       numeroPlusConsentiti: [0, [Validators.min(0)]],
       statoInvito: [StatoInvito.DA_INVIARE],
@@ -218,7 +218,7 @@ export class DettaglioInvitatoComponent implements OnInit {
     const request: CreaInvitatoRequest = {
       nome: formValue.nome,
       cognome: formValue.cognome,
-      email: formValue.email,
+      email: formValue.email || null,
       telefono: formValue.telefono || null,
       numeroPlusConsentiti: formValue.numeroPlusConsentiti || null,
       note: formValue.note || null
@@ -248,7 +248,7 @@ export class DettaglioInvitatoComponent implements OnInit {
     const request: AggiornaInvitatoRequest = {
       nome: formValue.nome,
       cognome: formValue.cognome,
-      email: formValue.email,
+      email: formValue.email || null,
       telefono: formValue.telefono || null,
       numeroPlusConsentiti: formValue.numeroPlusConsentiti || null,
       statoInvito: formValue.statoInvito,

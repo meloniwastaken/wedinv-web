@@ -12,7 +12,7 @@ export interface InvitatoDTO {
   matrimonio: string;
   nome: string;
   cognome: string;
-  email: string;
+  email: string | null;
   telefono: string | null;
   numeroPlusConsentiti: number | null;
   plusConfermati: number | null;
@@ -31,7 +31,7 @@ export interface InvitatoRiepilogoDTO {
   id: string;
   nome: string;
   cognome: string;
-  email: string;
+  email: string | null;
   statoInvito: number | null;
   statoInvitoDescrizione: string | null;
   numeroPlusConsentiti: number | null;
@@ -50,7 +50,7 @@ export interface ListaInvitatiResponse {
 export interface CreaInvitatoRequest {
   nome: string;
   cognome: string;
-  email: string;
+  email?: string | null;
   telefono?: string | null;
   numeroPlusConsentiti?: number | null;
   note?: string | null;
@@ -59,7 +59,7 @@ export interface CreaInvitatoRequest {
 export interface AggiornaInvitatoRequest {
   nome: string;
   cognome: string;
-  email: string;
+  email?: string | null;
   telefono?: string | null;
   numeroPlusConsentiti?: number | null;
   statoInvito?: number | null;
@@ -69,9 +69,16 @@ export interface AggiornaInvitatoRequest {
   accompagnatori?: AccompagnatoreDTO[];
 }
 
+export enum CanaleInvio {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  ENTRAMBI = 'ENTRAMBI'
+}
+
 export interface InviaInvitiRequest {
   invitatoIds?: string[];
   tuttiNonInviati?: boolean;
+  canale: CanaleInvio;
 }
 
 export interface InvioInvitiResponse {

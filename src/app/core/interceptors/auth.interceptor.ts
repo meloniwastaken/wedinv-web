@@ -1,12 +1,11 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { AuthService } from '../services';
+import { AuthService, MatrimonioService } from '../services';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
+  const matrimonioService = inject(MatrimonioService);
 
   const token = authService.getToken();
 
@@ -27,9 +26,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      // Gestisci 401 solo per richieste autenticate (non pubbliche)
+      if (error.status === 401 && !isPublicUrl) {
+        // Pulisci la cache del matrimonio
+        matrimonioService.clearCache();
+        // Effettua logout (include già il redirect a /login)
         authService.logout();
-        router.navigate(['/login']);
       }
       return throwError(() => error);
     })

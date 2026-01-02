@@ -88,7 +88,7 @@
                   </div>
                   <div class="col-md-6 mb-3 mb-md-0">
                     <small class="text-muted d-block">Email</small>
-                    <strong>{{ invitato()!.email }}</strong>
+                    <strong>{{ invitato()!.email || '-' }}</strong>
                   </div>
                   <div class="col-md-6">
                     <small class="text-muted d-block">Telefono</small>
@@ -238,17 +238,13 @@
                       }
                     </div>
                     <div class="col-md-6">
-                      <label for="email" class="form-label">Email *</label>
+                      <label for="email" class="form-label">Email</label>
                       <input type="email" class="form-control" id="email"
                         formControlName="email"
                         [class.is-invalid]="f['email'].touched && f['email'].invalid">
-                      @if (f['email'].touched && f['email'].errors) {
+                      @if (f['email'].touched && f['email'].errors?.['email']) {
                         <div class="invalid-feedback">
-                          @if (f['email'].errors['required']) {
-                            L'email è obbligatoria
-                          } @else if (f['email'].errors['email']) {
-                            Inserisci un'email valida
-                          }
+                          Inserisci un'email valida
                         </div>
                       }
                     </div>

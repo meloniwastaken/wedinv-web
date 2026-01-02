@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitatoService, AuthService } from '../../../core/services';
-import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse } from '../../../core/models';
+import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse, CanaleInvio } from '../../../core/models';
 
 @Component({
   selector: 'app-lista-invitati',
@@ -22,8 +22,12 @@ export class ListaInvitatiComponent implements OnInit {
   selectedIds = signal<Set<string>>(new Set());
   showSendModal = signal(false);
   sendResult = signal<InvioInvitiResponse | null>(null);
+  modalStep = signal<1 | 2 | 3>(1); // 1=select channel, 2=select recipients, 3=result
+  selectedCanale = signal<CanaleInvio | null>(null);
+  validationErrors = signal<string[]>([]);
 
   StatoInvito = StatoInvito;
+  CanaleInvio = CanaleInvio;
 
   filteredInvitati = computed(() => {
     const invitati = this.data()?.invitati || [];
@@ -34,7 +38,7 @@ export class ListaInvitatiComponent implements OnInit {
     return invitati.filter(inv =>
       inv.nome.toLowerCase().includes(term) ||
       inv.cognome.toLowerCase().includes(term) ||
-      inv.email.toLowerCase().includes(term)
+      (inv.email?.toLowerCase().includes(term) ?? false)
     );
   });
 
@@ -132,50 +136,87 @@ export class ListaInvitatiComponent implements OnInit {
   openSendModal(): void {
     this.showSendModal.set(true);
     this.sendResult.set(null);
+    this.modalStep.set(1);
+    this.selectedCanale.set(null);
+    this.validationErrors.set([]);
   }
 
   closeSendModal(): void {
     this.showSendModal.set(false);
     this.sendResult.set(null);
+    this.modalStep.set(1);
+    this.selectedCanale.set(null);
+    this.validationErrors.set([]);
+  }
+
+  selectCanale(canale: CanaleInvio): void {
+    this.selectedCanale.set(canale);
+    this.modalStep.set(2);
+    this.validationErrors.set([]);
+  }
+
+  backToChannelSelection(): void {
+    this.modalStep.set(1);
+    this.validationErrors.set([]);
   }
 
   sendToSelected(): void {
+    const canale = this.selectedCanale();
+    if (!canale) return;
+
     this.sending.set(true);
     this.error.set(null);
+    this.validationErrors.set([]);
 
     this.invitatoService.inviaInviti({
-      invitatoIds: Array.from(this.selectedIds())
+      invitatoIds: Array.from(this.selectedIds()),
+      canale
     }).subscribe({
       next: (result) => {
         this.sendResult.set(result);
+        this.modalStep.set(3);
         this.sending.set(false);
         this.selectedIds.set(new Set());
         this.loadInvitati();
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Errore durante l\'invio');
         this.sending.set(false);
-        this.showSendModal.set(false);
+        if (err.status === 422 && err.error?.errors) {
+          this.validationErrors.set(err.error.errors);
+        } else {
+          this.error.set(err.error?.message || 'Errore durante l\'invio');
+          this.showSendModal.set(false);
+        }
       }
     });
   }
 
   sendToAllNonInviati(): void {
+    const canale = this.selectedCanale();
+    if (!canale) return;
+
     this.sending.set(true);
     this.error.set(null);
+    this.validationErrors.set([]);
 
     this.invitatoService.inviaInviti({
-      tuttiNonInviati: true
+      tuttiNonInviati: true,
+      canale
     }).subscribe({
       next: (result) => {
         this.sendResult.set(result);
+        this.modalStep.set(3);
         this.sending.set(false);
         this.loadInvitati();
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Errore durante l\'invio');
         this.sending.set(false);
-        this.showSendModal.set(false);
+        if (err.status === 422 && err.error?.errors) {
+          this.validationErrors.set(err.error.errors);
+        } else {
+          this.error.set(err.error?.message || 'Errore durante l\'invio');
+          this.showSendModal.set(false);
+        }
       }
     });
   }
