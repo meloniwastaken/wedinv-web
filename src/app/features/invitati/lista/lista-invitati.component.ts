@@ -1,9 +1,9 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitatoService, AuthService } from '../../../core/services';
-import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse, CanaleInvio } from '../../../core/models';
+import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse, CanaleInvio, ImportaInvitatiResponse } from '../../../core/models';
 
 @Component({
   selector: 'app-lista-invitati',
@@ -28,6 +28,11 @@ export class ListaInvitatiComponent implements OnInit {
   whatsappSearchTerm = signal('');
   whatsappSentIds = signal<Set<string>>(new Set());
   confirmingIds = signal<Set<string>>(new Set());
+  importing = signal(false);
+  showImportModal = signal(false);
+  importResult = signal<ImportaInvitatiResponse | null>(null);
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   StatoInvito = StatoInvito;
   CanaleInvio = CanaleInvio;
@@ -334,5 +339,48 @@ export class ListaInvitatiComponent implements OnInit {
         this.error.set(err.error?.message || 'Errore durante la conferma dell\'invio');
       }
     });
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.importaInvitati(file);
+
+    // Reset input per permettere di selezionare lo stesso file
+    input.value = '';
+  }
+
+  importaInvitati(file: File): void {
+    this.importing.set(true);
+    this.error.set(null);
+    this.importResult.set(null);
+    this.showImportModal.set(true);
+
+    this.invitatoService.importaInvitati(file).subscribe({
+      next: (result) => {
+        this.importResult.set(result);
+        this.importing.set(false);
+        this.loadInvitati();
+      },
+      error: (err) => {
+        this.importing.set(false);
+        this.importResult.set({
+          totaleImportati: 0,
+          totaleFalliti: 0,
+          errori: [err.error?.message || 'Errore durante l\'importazione']
+        });
+      }
+    });
+  }
+
+  closeImportModal(): void {
+    this.showImportModal.set(false);
+    this.importResult.set(null);
   }
 }

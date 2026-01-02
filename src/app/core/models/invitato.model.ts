@@ -88,6 +88,12 @@ export interface InvioInvitiResponse {
   errori: string[];
 }
 
+export interface ImportaInvitatiResponse {
+  totaleImportati: number;
+  totaleFalliti: number;
+  errori: string[];
+}
+
 export enum StatoInvito {
   DA_INVIARE = 1,
   INVIATO = 2,

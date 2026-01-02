@@ -8,7 +8,8 @@ import {
   CreaInvitatoRequest,
   AggiornaInvitatoRequest,
   InviaInvitiRequest,
-  InvioInvitiResponse
+  InvioInvitiResponse,
+  ImportaInvitatiResponse
 } from '../models';
 import { IdResponse } from '../models';
 
@@ -55,6 +56,12 @@ export class InvitatoService {
 
   confermaInvioWhatsapp(id: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${id}/conferma-invio-whatsapp`, {});
+  }
+
+  importaInvitati(file: File): Observable<ImportaInvitatiResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ImportaInvitatiResponse>(`${this.apiUrl}/importa`, formData);
   }
 
   clearCache(): void {
