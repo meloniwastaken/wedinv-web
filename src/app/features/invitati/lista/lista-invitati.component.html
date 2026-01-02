@@ -341,7 +341,7 @@
                           <th>Nome</th>
                           <th>Telefono</th>
                           <th>Stato</th>
-                          <th class="text-center" style="width: 60px;">Invia</th>
+                          <th class="text-center" style="width: 100px;">Azioni</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -355,10 +355,31 @@
                               </span>
                             </td>
                             <td class="text-center">
-                              <a [href]="getWhatsappLink(invitato)" target="_blank"
-                                class="btn btn-success btn-sm" title="Invia su WhatsApp">
-                                <i class="bi bi-whatsapp"></i>
-                              </a>
+                              <div class="btn-group btn-group-sm">
+                                @if (!whatsappSentIds().has(invitato.id)) {
+                                  <a [href]="getWhatsappLink(invitato)" target="_blank"
+                                    class="btn btn-success" title="Invia su WhatsApp"
+                                    (click)="markWhatsappSent(invitato.id)">
+                                    <i class="bi bi-whatsapp"></i>
+                                  </a>
+                                } @else {
+                                  @if (invitato.statoInvito === StatoInvito.DA_INVIARE) {
+                                    <button class="btn btn-primary" title="Conferma invio"
+                                      (click)="confermaInvioWhatsapp(invitato.id)"
+                                      [disabled]="confirmingIds().has(invitato.id)">
+                                      @if (confirmingIds().has(invitato.id)) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                      } @else {
+                                        <i class="bi bi-check-lg"></i>
+                                      }
+                                    </button>
+                                  } @else {
+                                    <span class="btn btn-outline-success disabled">
+                                      <i class="bi bi-check-circle"></i>
+                                    </span>
+                                  }
+                                }
+                              </div>
                             </td>
                           </tr>
                         }

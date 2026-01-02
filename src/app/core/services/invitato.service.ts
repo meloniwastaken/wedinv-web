@@ -53,6 +53,10 @@ export class InvitatoService {
     return this.http.post<InvioInvitiResponse>(`${this.apiUrl}/invia`, request);
   }
 
+  confermaInvioWhatsapp(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/conferma-invio-whatsapp`, {});
+  }
+
   clearCache(): void {
     this.invitatiSignal.set(null);
   }

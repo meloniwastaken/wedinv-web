@@ -26,6 +26,8 @@ export class ListaInvitatiComponent implements OnInit {
   selectedCanale = signal<CanaleInvio | null>(null);
   validationErrors = signal<string[]>([]);
   whatsappSearchTerm = signal('');
+  whatsappSentIds = signal<Set<string>>(new Set());
+  confirmingIds = signal<Set<string>>(new Set());
 
   StatoInvito = StatoInvito;
   CanaleInvio = CanaleInvio;
@@ -258,6 +260,8 @@ export class ListaInvitatiComponent implements OnInit {
   openWhatsappView(): void {
     this.modalStep.set('whatsapp');
     this.whatsappSearchTerm.set('');
+    this.whatsappSentIds.set(new Set());
+    this.confirmingIds.set(new Set());
   }
 
   getWhatsappLink(invitato: InvitatoRiepilogoDTO): string {
@@ -282,5 +286,38 @@ export class ListaInvitatiComponent implements OnInit {
     const message = `Ciao ${invitato.nome}! \n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
 
     return `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+  }
+
+  markWhatsappSent(id: string): void {
+    const current = new Set(this.whatsappSentIds());
+    current.add(id);
+    this.whatsappSentIds.set(current);
+  }
+
+  confermaInvioWhatsapp(id: string): void {
+    // Aggiungi all'elenco dei "in conferma"
+    const confirming = new Set(this.confirmingIds());
+    confirming.add(id);
+    this.confirmingIds.set(confirming);
+
+    this.invitatoService.confermaInvioWhatsapp(id).subscribe({
+      next: () => {
+        // Rimuovi da confirming
+        const updated = new Set(this.confirmingIds());
+        updated.delete(id);
+        this.confirmingIds.set(updated);
+
+        // Ricarica i dati per aggiornare lo stato
+        this.loadInvitati();
+      },
+      error: (err) => {
+        // Rimuovi da confirming
+        const updated = new Set(this.confirmingIds());
+        updated.delete(id);
+        this.confirmingIds.set(updated);
+
+        this.error.set(err.error?.message || 'Errore durante la conferma dell\'invio');
+      }
+    });
   }
 }
