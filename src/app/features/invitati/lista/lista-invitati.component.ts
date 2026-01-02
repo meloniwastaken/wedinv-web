@@ -36,13 +36,21 @@ export class ListaInvitatiComponent implements OnInit {
     const invitati = this.data()?.invitati || [];
     const term = this.searchTerm().toLowerCase();
 
-    if (!term) return invitati;
+    let filtered = invitati;
+    if (term) {
+      filtered = invitati.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.email?.toLowerCase().includes(term) ?? false)
+      );
+    }
 
-    return invitati.filter(inv =>
-      inv.nome.toLowerCase().includes(term) ||
-      inv.cognome.toLowerCase().includes(term) ||
-      (inv.email?.toLowerCase().includes(term) ?? false)
-    );
+    // Ordinamento alfabetico per nome e cognome
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
   });
 
   allSelected = computed(() => {
@@ -78,15 +86,22 @@ export class ListaInvitatiComponent implements OnInit {
     const invitati = this.data()?.invitati || [];
     const term = this.whatsappSearchTerm().toLowerCase();
 
-    const withPhone = invitati.filter(inv => inv.telefono);
+    let filtered = invitati.filter(inv => inv.telefono);
 
-    if (!term) return withPhone;
+    if (term) {
+      filtered = filtered.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.telefono?.includes(term) ?? false)
+      );
+    }
 
-    return withPhone.filter(inv =>
-      inv.nome.toLowerCase().includes(term) ||
-      inv.cognome.toLowerCase().includes(term) ||
-      (inv.telefono?.includes(term) ?? false)
-    );
+    // Ordinamento alfabetico per nome e cognome
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
   });
 
   constructor(
