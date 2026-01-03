@@ -1,3 +1,5 @@
+import { EtichettaPersonaDTO } from './etichetta.model';
+
 export interface PersonaTavoloDTO {
   id: string;
   nome: string;
@@ -9,6 +11,7 @@ export interface PersonaTavoloDTO {
   invitatorePrincipaleId: string | null;
   posX: number | null;
   posY: number | null;
+  etichette?: EtichettaPersonaDTO[];
 }
 
 export interface TavoloDTO {
@@ -62,4 +65,13 @@ export enum TipoTavolo {
 export interface ListaTavoliResponse {
   hasMatrimonio: boolean;
   tavoli: TavoloDTO[];
+}
+
+export interface SuggerimentoTavoloDTO {
+  tavoloId: string;
+  tavoloNome: string;
+  postiDisponibili: number;
+  persone: PersonaTavoloDTO[];
+  etichettaPrincipale: string | null;
+  etichettaColore: string | null;
 }

@@ -103,6 +103,38 @@
   background-color: var(--color-success) !important;
 }
 
+/* Filtro etichette */
+.etichette-filter {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+}
+
+.etichette-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.etichetta-chip {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+}
+
+.etichetta-chip:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.etichetta-chip.active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Grid container */
 .grid-container {
   height: 100%;
@@ -246,6 +278,17 @@
 
 .persona-tavolo.confermato {
   background: var(--color-success);
+}
+
+/* Persona con etichetta - il colore viene applicato inline */
+.persona-tavolo.has-etichetta {
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.persona-iniziali.has-etichetta {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* Sidebar destra */
@@ -505,4 +548,83 @@
   color: var(--color-primary);
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+/* Suggerimenti Modal */
+.suggerimenti-options {
+  background: var(--color-background-alt) !important;
+  border: 1px solid var(--color-border);
+}
+
+.suggerimenti-options .form-check-label {
+  color: var(--color-text);
+}
+
+.suggerimenti-options small {
+  font-size: 0.85rem;
+}
+
+.suggerimenti-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.suggerimento-card {
+  background: var(--color-background-alt);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+}
+
+.suggerimento-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.suggerimento-tavolo {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.suggerimento-etichetta {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.suggerimento-etichetta-none {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-border);
+}
+
+.suggerimento-persone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggerimento-persona {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  background: var(--color-secondary);
+  border-left: 3px solid;
+  color: var(--color-text);
+}
+
+.suggerimento-persona small {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
 }

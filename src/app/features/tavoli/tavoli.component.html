@@ -68,6 +68,26 @@
               Solo confermati
             </label>
           </div>
+
+          <!-- Filtro per etichetta -->
+          @if (etichette().length > 0) {
+            <div class="etichette-filter mb-3">
+              <small class="text-muted d-block mb-2">Filtra per etichetta:</small>
+              <div class="etichette-chips">
+                @for (etichetta of etichette(); track etichetta.id) {
+                  <button type="button"
+                    class="etichetta-chip"
+                    [class.active]="isEtichettaSelected(etichetta.id)"
+                    [style.borderColor]="getEtichettaColor(etichetta)"
+                    [style.backgroundColor]="isEtichettaSelected(etichetta.id) ? getEtichettaColor(etichetta) : 'transparent'"
+                    [style.color]="isEtichettaSelected(etichetta.id) ? 'white' : getEtichettaColor(etichetta)"
+                    (click)="toggleEtichettaFilter(etichetta.id)">
+                    {{ etichetta.nome }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
         </div>
 
         <div class="persone-list">
@@ -79,7 +99,10 @@
               draggable="true"
               (dragstart)="onPersonaDragStart($event, persona)"
               (dragend)="onDragEnd()">
-              <div class="persona-iniziali">{{ persona.iniziali }}</div>
+              <div class="persona-iniziali"
+                [class.has-etichetta]="!!getPersonaEtichettaColor(persona)"
+                [style.backgroundColor]="getPersonaEtichettaColor(persona)"
+                [title]="getPersonaEtichettaNome(persona)">{{ persona.iniziali }}</div>
               <div class="persona-info">
                 <div class="persona-nome">{{ persona.nome }} {{ persona.cognome }}</div>
                 @if (persona.accompagnatore && persona.invitatorePrincipale) {
@@ -141,9 +164,11 @@
               <!-- Persone assegnate -->
               @for (persona of tavolo.persone; track persona.id; let i = $index) {
                 <div class="persona-tavolo"
-                  [class.confermato]="persona.confermato"
+                  [class.confermato]="persona.confermato && !getPersonaEtichettaColor(persona)"
+                  [class.has-etichetta]="!!getPersonaEtichettaColor(persona)"
                   [ngStyle]="getPersonaPosition(persona, i, tavolo.persone.length, tavolo)"
-                  [title]="getDisplayName(persona)">
+                  [style.backgroundColor]="getPersonaEtichettaColor(persona)"
+                  [title]="getDisplayName(persona) + (getPersonaEtichettaNome(persona) ? ' - ' + getPersonaEtichettaNome(persona) : '')">
                   {{ persona.iniziali }}
                 </div>
               }
@@ -165,8 +190,11 @@
       <!-- Sidebar destra -->
       <div class="col-3 sidebar-destra">
         <div class="sidebar-header">
-          <button class="btn btn-primary w-100" (click)="openNewTavoloModal()">
+          <button class="btn btn-primary w-100 mb-2" (click)="openNewTavoloModal()">
             <i class="bi bi-plus-lg me-1"></i>Nuovo Tavolo
+          </button>
+          <button class="btn btn-outline-primary w-100" (click)="openSuggerimentiModal()">
+            <i class="bi bi-magic me-1"></i>Suggerisci disposizione
           </button>
         </div>
 
@@ -339,6 +367,104 @@
             <button type="button" class="btn btn-primary" (click)="createTavolo()">
               Crea tavolo
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal suggerimenti -->
+  @if (showSuggerimentiModal()) {
+    <div class="modal-backdrop fade show" (click)="closeSuggerimentiModal()"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-magic me-2"></i>Suggerimenti Disposizione
+            </h5>
+            <button type="button" class="btn-close" (click)="closeSuggerimentiModal()"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Opzione redistribuisci tutti -->
+            <div class="suggerimenti-options mb-3 p-3 bg-light rounded">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="redistribuireTutti"
+                  [ngModel]="redistribuireTutti()"
+                  (ngModelChange)="redistribuireTutti.set($event)">
+                <label class="form-check-label" for="redistribuireTutti">
+                  <strong>Ridistribuire tutti</strong>
+                </label>
+              </div>
+              <small class="text-muted d-block mt-1">
+                @if (redistribuireTutti()) {
+                  Verranno ridistribuite <strong>tutte le persone</strong>, rimuovendo le assegnazioni esistenti.
+                } @else {
+                  Verranno distribuite solo le <strong>persone non ancora assegnate</strong> ai tavoli.
+                }
+              </small>
+              <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="loadSuggerimenti()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Genera suggerimenti
+              </button>
+            </div>
+
+            @if (loadingSuggerimenti()) {
+              <div class="text-center py-4">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Caricamento...</span>
+                </div>
+                <p class="mt-2 text-muted">Analisi in corso...</p>
+              </div>
+            } @else if (suggerimenti().length === 0) {
+              <div class="text-center py-4">
+                <i class="bi bi-info-circle display-4 text-muted"></i>
+                <p class="mt-2 text-muted">Clicca su "Genera suggerimenti" per vedere le proposte di disposizione.</p>
+              </div>
+            } @else {
+              <p class="text-muted mb-3">
+                L'algoritmo ha raggruppato gli invitati per etichetta e suggerisce le seguenti assegnazioni:
+              </p>
+              <div class="suggerimenti-list">
+                @for (suggerimento of suggerimenti(); track suggerimento.tavoloId) {
+                  <div class="suggerimento-card">
+                    <div class="suggerimento-header">
+                      <span class="suggerimento-tavolo">
+                        <i class="bi bi-table me-1"></i>{{ suggerimento.tavoloNome }}
+                      </span>
+                      @if (suggerimento.etichettaPrincipale) {
+                        <span class="suggerimento-etichetta"
+                          [style.backgroundColor]="getSuggerimentoColor(suggerimento)">
+                          {{ suggerimento.etichettaPrincipale }}
+                        </span>
+                      } @else {
+                        <span class="suggerimento-etichetta-none">Senza etichetta</span>
+                      }
+                    </div>
+                    <div class="suggerimento-persone">
+                      @for (persona of suggerimento.persone; track persona.id) {
+                        <span class="suggerimento-persona"
+                          [style.borderColor]="getSuggerimentoColor(suggerimento)">
+                          {{ persona.nome }} {{ persona.cognome }}
+                          @if (persona.accompagnatore) {
+                            <small>(acc.)</small>
+                          }
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeSuggerimentiModal()">
+              Annulla
+            </button>
+            @if (suggerimenti().length > 0) {
+              <button type="button" class="btn btn-primary" (click)="applySuggerimenti()">
+                <i class="bi bi-check-lg me-1"></i>Applica suggerimenti
+              </button>
+            }
           </div>
         </div>
       </div>

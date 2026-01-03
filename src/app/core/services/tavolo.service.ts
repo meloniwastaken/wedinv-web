@@ -8,7 +8,8 @@ import {
   CreaTavoloRequest,
   AggiornaTavoloRequest,
   AssegnaPersonaTavoloRequest,
-  ListaTavoliResponse
+  ListaTavoliResponse,
+  SuggerimentoTavoloDTO
 } from '../models';
 import { IdResponse } from '../models';
 
@@ -88,6 +89,12 @@ export class TavoloService {
 
   getTutteLePersone(): Observable<PersonaTavoloDTO[]> {
     return this.http.get<PersonaTavoloDTO[]>(`${this.apiUrl}/persone/tutte`);
+  }
+
+  suggerisciDisposizione(redistribuireTutti: boolean = false): Observable<SuggerimentoTavoloDTO[]> {
+    return this.http.get<SuggerimentoTavoloDTO[]>(`${this.apiUrl}/suggerisci-disposizione`, {
+      params: { redistribuireTutti: redistribuireTutti.toString() }
+    });
   }
 
   clearCache(): void {

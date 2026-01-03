@@ -4,6 +4,13 @@ export interface EtichettaDTO {
   nome: string;
   priorita: number;
   dataCreazione: string;
+  colore?: string;
+}
+
+export interface EtichettaPersonaDTO {
+  id: string;
+  nome: string;
+  colore?: string;
 }
 
 export interface InvitatoEtichettaDTO {

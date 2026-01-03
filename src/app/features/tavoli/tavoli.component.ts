@@ -2,8 +2,8 @@ import { Component, OnInit, signal, computed, ElementRef, ViewChild, HostListene
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TavoloService } from '../../core/services';
-import { TavoloDTO, PersonaTavoloDTO, TipoTavolo, CreaTavoloRequest } from '../../core/models';
+import { TavoloService, EtichettaService } from '../../core/services';
+import { TavoloDTO, PersonaTavoloDTO, TipoTavolo, CreaTavoloRequest, EtichettaDTO, SuggerimentoTavoloDTO } from '../../core/models';
 
 interface DragData {
   type: 'persona' | 'tavolo';
@@ -32,6 +32,8 @@ export class TavoliComponent implements OnInit {
   hasMatrimonio = signal(true);
   tavoli = signal<TavoloDTO[]>([]);
   personeAssegnabili = signal<PersonaTavoloDTO[]>([]);
+  etichette = signal<EtichettaDTO[]>([]);
+  selectedEtichetteIds = signal<string[]>([]);
   searchTerm = signal('');
   showOnlyConfermati = signal(true);
 
@@ -47,6 +49,12 @@ export class TavoliComponent implements OnInit {
   newTavoloLarghezza = signal<number>(180); // Per tavoli rettangolari
   newTavoloAltezza = signal<number>(100); // Per tavoli rettangolari
 
+  // Suggerimenti automatici
+  showSuggerimentiModal = signal(false);
+  suggerimenti = signal<SuggerimentoTavoloDTO[]>([]);
+  loadingSuggerimenti = signal(false);
+  redistribuireTutti = signal(false);
+
   TipoTavolo = TipoTavolo;
 
   // Tracciamento elemento in trascinamento
@@ -59,6 +67,7 @@ export class TavoliComponent implements OnInit {
     const persone = this.personeAssegnabili();
     const term = this.searchTerm().toLowerCase();
     const onlyConfermati = this.showOnlyConfermati();
+    const selectedEtichette = this.selectedEtichetteIds();
 
     return persone.filter(p => {
       const matchSearch = !term ||
@@ -68,11 +77,18 @@ export class TavoliComponent implements OnInit {
 
       const matchConfermato = !onlyConfermati || p.confermato;
 
-      return matchSearch && matchConfermato;
+      // Filtro per etichetta: se ci sono etichette selezionate, la persona deve avere almeno una di queste
+      const matchEtichetta = selectedEtichette.length === 0 ||
+        (p.etichette && p.etichette.some(e => selectedEtichette.includes(e.id)));
+
+      return matchSearch && matchConfermato && matchEtichetta;
     });
   });
 
-  constructor(private tavoloService: TavoloService) {}
+  constructor(
+    private tavoloService: TavoloService,
+    private etichettaService: EtichettaService
+  ) {}
 
   @HostListener('window:resize')
   onResize(): void {
@@ -96,11 +112,13 @@ export class TavoliComponent implements OnInit {
 
     Promise.all([
       this.tavoloService.getTavoli().toPromise(),
-      this.tavoloService.getPersoneAssegnabili().toPromise()
-    ]).then(([tavoliResponse, persone]) => {
+      this.tavoloService.getPersoneAssegnabili().toPromise(),
+      this.etichettaService.getEtichette().toPromise()
+    ]).then(([tavoliResponse, persone, etichette]) => {
       this.hasMatrimonio.set(tavoliResponse?.hasMatrimonio ?? false);
       this.tavoli.set(tavoliResponse?.tavoli || []);
       this.personeAssegnabili.set(persone || []);
+      this.etichette.set(etichette || []);
 
       // Aggiorna il tavolo selezionato con i nuovi dati
       if (selectedId) {
@@ -292,6 +310,94 @@ export class TavoliComponent implements OnInit {
 
   closeNewTavoloModal(): void {
     this.showNewTavoloModal.set(false);
+  }
+
+  // Suggerimenti automatici
+  openSuggerimentiModal(): void {
+    this.showSuggerimentiModal.set(true);
+    this.suggerimenti.set([]);
+    // Non carichiamo subito, aspettiamo che l'utente scelga l'opzione
+  }
+
+  loadSuggerimenti(): void {
+    this.loadingSuggerimenti.set(true);
+
+    this.tavoloService.suggerisciDisposizione(this.redistribuireTutti()).subscribe({
+      next: (suggerimenti) => {
+        this.suggerimenti.set(suggerimenti);
+        this.loadingSuggerimenti.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Errore nel caricamento dei suggerimenti');
+        this.loadingSuggerimenti.set(false);
+      }
+    });
+  }
+
+  closeSuggerimentiModal(): void {
+    this.showSuggerimentiModal.set(false);
+    this.suggerimenti.set([]);
+    this.redistribuireTutti.set(false);
+  }
+
+  async applySuggerimenti(): Promise<void> {
+    const suggerimenti = this.suggerimenti();
+    if (suggerimenti.length === 0) {
+      this.closeSuggerimentiModal();
+      return;
+    }
+
+    try {
+      // Se redistribuireTutti è true, prima rimuovi tutte le assegnazioni esistenti
+      if (this.redistribuireTutti()) {
+        const tavoli = this.tavoli();
+        const rimozioniPromises: Promise<void>[] = [];
+
+        for (const tavolo of tavoli) {
+          if (tavolo.persone && tavolo.persone.length > 0) {
+            for (const persona of tavolo.persone) {
+              rimozioniPromises.push(
+                this.tavoloService.rimuoviPersonaDaTavolo(tavolo.id, persona.id, persona.accompagnatore)
+                  .toPromise()
+                  .then(() => {})
+              );
+            }
+          }
+        }
+
+        await Promise.all(rimozioniPromises);
+      }
+
+      // Applica tutti i suggerimenti
+      const assegnazioniPromises: Promise<void>[] = [];
+
+      for (const suggerimento of suggerimenti) {
+        for (const persona of suggerimento.persone) {
+          assegnazioniPromises.push(
+            this.tavoloService.assegnaPersonaATavolo(suggerimento.tavoloId, {
+              personaId: persona.id,
+              accompagnatore: persona.accompagnatore
+            }).toPromise().then(() => {})
+          );
+        }
+      }
+
+      await Promise.all(assegnazioniPromises);
+      this.closeSuggerimentiModal();
+      this.loadData();
+    } catch (err: any) {
+      this.error.set(err.error?.message || 'Errore nell\'applicazione dei suggerimenti');
+    }
+  }
+
+  getSuggerimentoColor(suggerimento: SuggerimentoTavoloDTO): string {
+    if (suggerimento.etichettaColore) {
+      return suggerimento.etichettaColore;
+    }
+    if (suggerimento.etichettaPrincipale) {
+      return this.generateColorFromName(suggerimento.etichettaPrincipale);
+    }
+    return 'var(--color-text-muted)';
   }
 
   createTavolo(): void {
@@ -511,5 +617,67 @@ export class TavoliComponent implements OnInit {
       return `${persona.nome} ${persona.cognome} (${persona.invitatorePrincipale})`;
     }
     return `${persona.nome} ${persona.cognome}`;
+  }
+
+  /**
+   * Toggle del filtro per etichetta.
+   */
+  toggleEtichettaFilter(etichettaId: string): void {
+    this.selectedEtichetteIds.update(ids => {
+      if (ids.includes(etichettaId)) {
+        return ids.filter(id => id !== etichettaId);
+      }
+      return [...ids, etichettaId];
+    });
+  }
+
+  /**
+   * Restituisce il colore di un'etichetta.
+   */
+  getEtichettaColor(etichetta: EtichettaDTO): string {
+    return etichetta.colore || this.generateColorFromName(etichetta.nome);
+  }
+
+  /**
+   * Verifica se un'etichetta è selezionata nel filtro.
+   */
+  isEtichettaSelected(etichettaId: string): boolean {
+    return this.selectedEtichetteIds().includes(etichettaId);
+  }
+
+  /**
+   * Genera un colore HSL deterministico dal nome dell'etichetta.
+   * Lo stesso nome produrrà sempre lo stesso colore.
+   */
+  generateColorFromName(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+  }
+
+  /**
+   * Restituisce il colore della prima etichetta della persona.
+   * Se l'etichetta ha un colore definito, lo usa; altrimenti genera dal nome.
+   * Se non ha etichette, restituisce null.
+   */
+  getPersonaEtichettaColor(persona: PersonaTavoloDTO): string | null {
+    if (!persona.etichette || persona.etichette.length === 0) {
+      return null;
+    }
+    const etichetta = persona.etichette[0];
+    return etichetta.colore || this.generateColorFromName(etichetta.nome);
+  }
+
+  /**
+   * Restituisce il nome della prima etichetta della persona per il tooltip.
+   */
+  getPersonaEtichettaNome(persona: PersonaTavoloDTO): string | null {
+    if (!persona.etichette || persona.etichette.length === 0) {
+      return null;
+    }
+    return persona.etichette[0].nome;
   }
 }
