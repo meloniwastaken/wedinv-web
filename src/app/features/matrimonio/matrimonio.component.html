@@ -9,8 +9,8 @@
     } @else {
       <div class="row justify-content-center">
         <div class="col-lg-10">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
+          <div class="page-header mb-4">
+            <div class="page-header-title">
               @if (!isEdit()) {
                 <h2>Crea il tuo Matrimonio</h2>
                 <p class="text-muted mb-0">Inserisci i dettagli della cerimonia e del ricevimento</p>
@@ -22,9 +22,11 @@
                 <p class="text-muted mb-0">Modifica i dettagli del tuo evento</p>
               }
             </div>
-            <button class="btn btn-outline-secondary" (click)="goBack()">
-              <i class="bi bi-arrow-left me-2"></i>Dashboard
-            </button>
+            <div class="page-header-actions">
+              <button class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>Dashboard
+              </button>
+            </div>
           </div>
 
           @if (success()) {
@@ -182,7 +184,7 @@
             </div>
 
             <!-- Buttons View Mode -->
-            <div class="d-flex justify-content-end gap-2">
+            <div class="page-footer-actions">
               <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
                 <i class="bi bi-arrow-left me-2"></i>Torna alla dashboard
               </button>
@@ -394,8 +396,8 @@
             </div>
 
             <!-- Buttons -->
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
+            <div class="page-footer-actions-split">
+              <div class="page-footer-left">
                 @if (isEdit()) {
                   <button type="button" class="btn btn-outline-danger" (click)="confirmDelete()"
                     [disabled]="deleting()">
@@ -403,13 +405,13 @@
                   </button>
                 }
               </div>
-              <div>
+              <div class="page-footer-right">
                 @if (isEdit()) {
-                  <button type="button" class="btn btn-outline-secondary me-2" (click)="cancelEdit()">
+                  <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
                     Annulla
                   </button>
                 } @else {
-                  <button type="button" class="btn btn-outline-secondary me-2" (click)="goBack()">
+                  <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
                     Annulla
                   </button>
                 }

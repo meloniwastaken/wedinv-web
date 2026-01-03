@@ -1,5 +1,79 @@
 /* Dettaglio invitato component specific styles */
 
+/* Header responsive */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Footer actions */
+.page-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Center actions (for limit reached screen) */
+.page-center-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Mobile: layout impilato con bottoni full-width */
+@media (max-width: 767px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header-title {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .page-header-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .page-header-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-footer-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-footer-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-center-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-center-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* Force dark text for warning card header (allergie section) */
 .card-header.bg-warning-subtle {
   color: #212529 !important;

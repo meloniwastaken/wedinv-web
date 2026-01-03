@@ -21,7 +21,7 @@
             <p class="text-muted mb-4">
               Passa a Premium per invitare tutti i tuoi ospiti senza limiti!
             </p>
-            <div class="d-flex justify-content-center gap-3">
+            <div class="page-center-actions">
               <button class="btn btn-outline-secondary" (click)="goBack()">
                 <i class="bi bi-arrow-left me-2"></i>Torna alla lista
               </button>
@@ -36,8 +36,8 @@
       <div class="row justify-content-center">
         <div class="col-lg-8">
           <!-- Header -->
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
+          <div class="page-header mb-4">
+            <div class="page-header-title">
               @if (!isEdit()) {
                 <h2>Nuovo Invitato</h2>
                 <p class="text-muted mb-0">Aggiungi un nuovo invitato alla lista</p>
@@ -49,9 +49,11 @@
                 <p class="text-muted mb-0">Modifica i dati dell'invitato</p>
               }
             </div>
-            <button class="btn btn-outline-secondary" (click)="goBack()">
-              <i class="bi bi-arrow-left me-2"></i>Torna alla lista
-            </button>
+            <div class="page-header-actions">
+              <button class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>Torna alla lista
+              </button>
+            </div>
           </div>
 
           @if (success()) {
@@ -203,7 +205,7 @@
             </div>
 
             <!-- Buttons View Mode -->
-            <div class="d-flex justify-content-end gap-2">
+            <div class="page-footer-actions">
               <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
                 <i class="bi bi-arrow-left me-2"></i>Torna alla lista
               </button>
@@ -378,7 +380,7 @@
               </div>
 
               <!-- Buttons Edit Mode -->
-              <div class="d-flex justify-content-end gap-2">
+              <div class="page-footer-actions">
                 @if (isEdit()) {
                   <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
                     Annulla

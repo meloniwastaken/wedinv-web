@@ -17,3 +17,23 @@
 .btn-outline-secondary:hover {
   transform: scale(1.1);
 }
+
+/* Footer actions */
+.page-footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Mobile: bottoni full-width */
+@media (max-width: 767px) {
+  .page-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-footer-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

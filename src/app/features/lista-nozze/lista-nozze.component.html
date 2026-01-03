@@ -40,16 +40,18 @@
       </div>
     } @else {
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+      <div class="page-header mb-4">
+        <div class="page-header-title">
           <h2>Lista Nozze</h2>
           <p class="text-muted mb-0">
             {{ elementi().length }} elementi nella lista
           </p>
         </div>
-        <button class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-lg me-2"></i>Aggiungi Elemento
-        </button>
+        <div class="page-header-actions">
+          <button class="btn btn-primary" (click)="openCreateModal()">
+            <i class="bi bi-plus-lg me-2"></i>Aggiungi Elemento
+          </button>
+        </div>
       </div>
 
       @if (success()) {

@@ -1,1 +1,88 @@
 /* Matrimonio component specific styles */
+
+/* Header responsive */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Footer actions (view mode) */
+.page-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Footer actions split (edit mode with delete on left) */
+.page-footer-actions-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-footer-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Mobile: layout impilato con bottoni full-width */
+@media (max-width: 767px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header-title {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .page-header-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .page-header-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-footer-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-footer-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-footer-actions-split {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-footer-left,
+  .page-footer-right {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .page-footer-left .btn,
+  .page-footer-right .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
