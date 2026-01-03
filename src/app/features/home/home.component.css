@@ -6,7 +6,15 @@
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-primary) 85%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary-dark) 90%, transparent) 100%
+    ),
+    url('/images/sfondo-hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--color-white);
   padding: 4rem 0;
   flex: 0 0 auto;
@@ -75,7 +83,15 @@
 /* Features Section */
 .features-section {
   padding: 5rem 0;
-  background-color: var(--color-background-alt);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-background-alt) 90%, transparent) 0%,
+      color-mix(in srgb, var(--color-background-alt) 85%, transparent) 100%
+    ),
+    url('/images/sfondo-features.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   flex: 1 0 auto;
 }
 
@@ -141,7 +157,15 @@
 
 /* CTA Section */
 .cta-section {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-primary) 85%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary-dark) 90%, transparent) 100%
+    ),
+    url('/images/sfondo-cta.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--color-white);
   padding: 4rem 0;
   flex: 0 0 auto;
@@ -178,7 +202,15 @@
 
 /* Contact Section */
 .contact-section {
-  background-color: var(--color-background-alt);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-background-alt) 90%, transparent) 0%,
+      color-mix(in srgb, var(--color-background-alt) 85%, transparent) 100%
+    ),
+    url('/images/sfondo-contact.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 3rem 0;
   border-top: 1px solid var(--color-border);
   flex: 0 0 auto;

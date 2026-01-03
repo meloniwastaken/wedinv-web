@@ -30,9 +30,25 @@
         <p class="section-subtitle">Funzionalità pensate per rendere l'organizzazione del tuo matrimonio semplice e senza stress</p>
       </div>
 
-      <div class="row g-4">
-        @for (feature of features; track feature.title) {
-          <div class="col-md-6 col-lg-4">
+      <!-- Prima riga - 4 card -->
+      <div class="row g-4 mb-4">
+        @for (feature of featuresRow1; track feature.title) {
+          <div class="col-md-6 col-lg-3">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="bi {{ feature.icon }}"></i>
+              </div>
+              <h3 class="feature-title">{{ feature.title }}</h3>
+              <p class="feature-description">{{ feature.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Seconda riga - 3 card centrate sugli spazi della riga sopra -->
+      <div class="row g-4 justify-content-center">
+        @for (feature of featuresRow2; track feature.title) {
+          <div class="col-md-6 col-lg-3">
             <div class="feature-card">
               <div class="feature-icon">
                 <i class="bi {{ feature.icon }}"></i>
