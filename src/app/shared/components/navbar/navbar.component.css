@@ -57,3 +57,29 @@
 .btn-premium i {
   color: #1a1a1a;
 }
+
+/* Link Contattaci più piccolo */
+.nav-link-small {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+}
+
+.nav-link-small:hover {
+  opacity: 1;
+}
+
+.nav-link-small.active {
+  opacity: 1;
+  color: var(--color-primary) !important;
+}
+
+/* Separatore verticale nella navbar */
+.nav-divider {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+  margin: 0 0.75rem;
+  vertical-align: middle;
+}

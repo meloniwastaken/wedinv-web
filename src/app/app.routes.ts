@@ -111,6 +111,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tavoli/tavoli.component').then(m => m.TavoliComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'contatti',
+    loadComponent: () => import('./features/contatti/contatti.component').then(m => m.ContattiComponent),
+    canActivate: [authGuard]
+  },
 
   // 404
   {

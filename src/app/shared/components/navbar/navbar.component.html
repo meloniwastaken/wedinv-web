@@ -44,6 +44,16 @@
       </ul>
 
       <ul class="navbar-nav align-items-center">
+        <!-- Link Contattaci separato -->
+        <li class="nav-item me-2">
+          <a class="nav-link nav-link-small text-muted" routerLink="/contatti"
+            routerLinkActive="active" (click)="closeMenu()">
+            <i class="bi bi-envelope me-1"></i>Contattaci
+          </a>
+        </li>
+        <li class="nav-item d-none d-lg-block">
+          <span class="nav-divider"></span>
+        </li>
         @if (isAuthenticated() && !isPremium()) {
           <li class="nav-item me-3">
             <a class="btn btn-premium" routerLink="/pagamento" (click)="closeMenu()">

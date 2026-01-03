@@ -1,0 +1,142 @@
+<div class="page-container">
+  <div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <h1 class="mb-3">Contattaci</h1>
+      <p class="lead text-muted">
+        Siamo qui per aiutarti. Contattaci per qualsiasi domanda o supporto.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Informazioni di Contatto -->
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h4 class="card-title mb-4">
+              <i class="bi bi-building me-2 text-primary"></i>
+              Informazioni Aziendali
+            </h4>
+
+            <div class="mb-4">
+              <h5 class="fw-semibold">{{ azienda.nome }}</h5>
+              <p class="text-muted mb-0">
+                {{ azienda.indirizzo }}<br>
+                {{ azienda.cap }} {{ azienda.citta }}<br>
+                {{ azienda.paese }}
+              </p>
+            </div>
+
+            <div class="mb-4">
+              <p class="mb-2">
+                <i class="bi bi-envelope me-2 text-primary"></i>
+                <strong>Email:</strong>
+                <a [href]="'mailto:' + azienda.email" class="ms-1">{{ azienda.email }}</a>
+              </p>
+              <p class="mb-2">
+                <i class="bi bi-headset me-2 text-primary"></i>
+                <strong>Supporto:</strong>
+                <a [href]="'mailto:' + azienda.emailSupporto" class="ms-1">{{ azienda.emailSupporto }}</a>
+              </p>
+              <p class="mb-0">
+                <i class="bi bi-receipt me-2 text-primary"></i>
+                <strong>P.IVA:</strong>
+                <span class="ms-1">{{ azienda.piva }}</span>
+              </p>
+            </div>
+
+            <!-- Social Links -->
+            <div class="pt-3 border-top">
+              <h6 class="mb-3">Seguici sui social</h6>
+              <div class="d-flex gap-3">
+                <a [href]="azienda.social.instagram" target="_blank" rel="noopener"
+                  class="btn btn-outline-secondary btn-sm" title="Instagram">
+                  <i class="bi bi-instagram"></i>
+                </a>
+                <a [href]="azienda.social.facebook" target="_blank" rel="noopener"
+                  class="btn btn-outline-secondary btn-sm" title="Facebook">
+                  <i class="bi bi-facebook"></i>
+                </a>
+                <a [href]="azienda.social.linkedin" target="_blank" rel="noopener"
+                  class="btn btn-outline-secondary btn-sm" title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supporto e FAQ -->
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h4 class="card-title mb-4">
+              <i class="bi bi-question-circle me-2 text-primary"></i>
+              Supporto
+            </h4>
+
+            <div class="mb-4">
+              <h6 class="fw-semibold mb-3">Come possiamo aiutarti?</h6>
+
+              <div class="d-grid gap-3">
+                <div class="support-item p-3 rounded-3 bg-light">
+                  <div class="d-flex align-items-start">
+                    <i class="bi bi-envelope-check fs-4 text-primary me-3"></i>
+                    <div>
+                      <strong>Assistenza Generale</strong>
+                      <p class="text-muted mb-0 small">
+                        Per domande generali sul servizio, scrivi a
+                        <a [href]="'mailto:' + azienda.email">{{ azienda.email }}</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="support-item p-3 rounded-3 bg-light">
+                  <div class="d-flex align-items-start">
+                    <i class="bi bi-tools fs-4 text-primary me-3"></i>
+                    <div>
+                      <strong>Supporto Tecnico</strong>
+                      <p class="text-muted mb-0 small">
+                        Per problemi tecnici o bug, contatta
+                        <a [href]="'mailto:' + azienda.emailSupporto">{{ azienda.emailSupporto }}</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="support-item p-3 rounded-3 bg-light">
+                  <div class="d-flex align-items-start">
+                    <i class="bi bi-credit-card fs-4 text-primary me-3"></i>
+                    <div>
+                      <strong>Pagamenti e Abbonamenti</strong>
+                      <p class="text-muted mb-0 small">
+                        Per questioni relative a pagamenti e abbonamenti Premium
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-top">
+              <h6 class="mb-3">Tempi di risposta</h6>
+              <p class="text-muted small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Rispondiamo generalmente entro 24-48 ore lavorative.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Torna indietro -->
+    <div class="text-center mt-5">
+      <a routerLink="/dashboard" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left me-2"></i>Torna alla Dashboard
+      </a>
+    </div>
+  </div>
+</div>
