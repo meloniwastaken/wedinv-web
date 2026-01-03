@@ -134,9 +134,15 @@
 
     <!-- Torna indietro -->
     <div class="page-footer-actions mt-5">
-      <a routerLink="/dashboard" class="btn btn-outline-primary">
-        <i class="bi bi-arrow-left me-2"></i>Torna alla Dashboard
-      </a>
+      @if (isAuthenticated()) {
+        <a routerLink="/dashboard" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left me-2"></i>Torna alla Dashboard
+        </a>
+      } @else {
+        <a routerLink="/" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left me-2"></i>Torna alla Home
+        </a>
+      }
     </div>
   </div>
 </div>

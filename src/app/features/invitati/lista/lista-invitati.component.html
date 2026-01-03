@@ -35,6 +35,10 @@
           <input type="file" #fileInput class="d-none" accept=".xlsx,.xls"
             (change)="onFileSelected($event)">
 
+          <button class="btn btn-outline-danger" (click)="openDeleteAllModal()"
+            [disabled]="(data()?.totaleInvitati ?? 0) === 0">
+            <i class="bi bi-trash me-2"></i>Elimina tutti
+          </button>
           <button class="btn btn-outline-success" (click)="openImportModal()"
             [disabled]="importing()">
             <i class="bi bi-file-earmark-excel me-2"></i>Importa
@@ -575,6 +579,46 @@
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 }
                 Elimina
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Delete All Confirmation Modal -->
+    @if (showDeleteAllModal()) {
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Elimina tutti gli invitati
+              </h5>
+              @if (!deletingAll()) {
+                <button type="button" class="btn-close" (click)="closeDeleteAllModal()"></button>
+              }
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-danger mb-3">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                <strong>Attenzione!</strong> Questa azione eliminerà tutti i <strong>{{ invitatiCount() }}</strong> invitati.
+              </div>
+              <p class="mb-0">
+                Sei sicuro di voler procedere? Questa azione non può essere annullata.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeDeleteAllModal()"
+                [disabled]="deletingAll()">
+                Annulla
+              </button>
+              <button type="button" class="btn btn-danger" (click)="confirmDeleteAll()"
+                [disabled]="deletingAll()">
+                @if (deletingAll()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Elimina tutti
               </button>
             </div>
           </div>

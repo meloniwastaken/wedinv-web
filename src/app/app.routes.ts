@@ -113,8 +113,8 @@ export const routes: Routes = [
   },
   {
     path: 'contatti',
-    loadComponent: () => import('./features/contatti/contatti.component').then(m => m.ContattiComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/contatti/contatti.component').then(m => m.ContattiComponent)
+    // Route pubblica - nessuna guardia
   },
 
   // 404

@@ -50,6 +50,10 @@ export class InvitatoService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  eliminaTuttiInvitati(): Observable<void> {
+    return this.http.delete<void>(this.apiUrl);
+  }
+
   inviaInviti(request: InviaInvitiRequest): Observable<InvioInvitiResponse> {
     return this.http.post<InvioInvitiResponse>(`${this.apiUrl}/invia`, request);
   }

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-contatti',
@@ -10,6 +11,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './contatti.component.css'
 })
 export class ContattiComponent {
+  private authService = inject(AuthService);
+  isAuthenticated = this.authService.isAuthenticated;
   // Dati aziendali (placeholder - da sostituire con i dati reali)
   azienda = {
     nome: 'WedInv S.r.l.',

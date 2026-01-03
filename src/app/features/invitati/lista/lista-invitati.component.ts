@@ -37,6 +37,8 @@ export class ListaInvitatiComponent implements OnInit {
   showDeleteModal = signal(false);
   deleteTarget = signal<{ id: string; nome: string; cognome: string } | null>(null);
   deleting = signal(false);
+  showDeleteAllModal = signal(false);
+  deletingAll = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -296,6 +298,33 @@ export class ListaInvitatiComponent implements OnInit {
     this.showDeleteModal.set(false);
     this.deleteTarget.set(null);
     this.deleting.set(false);
+  }
+
+  openDeleteAllModal(): void {
+    this.showDeleteAllModal.set(true);
+  }
+
+  closeDeleteAllModal(): void {
+    this.showDeleteAllModal.set(false);
+    this.deletingAll.set(false);
+  }
+
+  confirmDeleteAll(): void {
+    this.deletingAll.set(true);
+
+    this.invitatoService.eliminaTuttiInvitati().subscribe({
+      next: () => {
+        this.success.set('Tutti gli invitati sono stati eliminati');
+        this.closeDeleteAllModal();
+        this.loadInvitati();
+        setTimeout(() => this.success.set(null), 3000);
+      },
+      error: (err) => {
+        this.deletingAll.set(false);
+        this.error.set(err.error?.message || 'Errore durante l\'eliminazione');
+        this.closeDeleteAllModal();
+      }
+    });
   }
 
   openWhatsappView(): void {
