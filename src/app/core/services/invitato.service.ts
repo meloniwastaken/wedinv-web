@@ -64,6 +64,24 @@ export class InvitatoService {
     return this.http.post<ImportaInvitatiResponse>(`${this.apiUrl}/importa`, formData);
   }
 
+  downloadTemplateImportazione(): void {
+    this.http.get(`${this.apiUrl}/template-importazione`, {
+      responseType: 'blob'
+    }).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'template_invitati.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Errore durante il download del template:', err);
+      }
+    });
+  }
+
   clearCache(): void {
     this.invitatiSignal.set(null);
   }

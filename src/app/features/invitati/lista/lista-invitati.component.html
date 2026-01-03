@@ -35,14 +35,9 @@
           <input type="file" #fileInput class="d-none" accept=".xlsx,.xls"
             (change)="onFileSelected($event)">
 
-          <button class="btn btn-outline-success" (click)="triggerFileInput()"
+          <button class="btn btn-outline-success" (click)="openImportModal()"
             [disabled]="importing()">
-            @if (importing()) {
-              <span class="spinner-border spinner-border-sm me-2"></span>
-            } @else {
-              <i class="bi bi-file-earmark-excel me-2"></i>
-            }
-            Importa
+            <i class="bi bi-file-earmark-excel me-2"></i>Importa
           </button>
           <button class="btn btn-outline-primary" (click)="openSendModal()"
             [disabled]="(data()?.totaleInvitati ?? 0) === 0">
@@ -422,63 +417,126 @@
       </div>
     }
 
-    <!-- Import Result Modal -->
+    <!-- Import Modal -->
     @if (showImportModal()) {
       <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
-                <i class="bi bi-file-earmark-excel me-2 text-success"></i>Importazione Invitati
+                <i class="bi bi-file-earmark-excel me-2 text-success"></i>Importa Invitati
               </h5>
               @if (!importing()) {
                 <button type="button" class="btn-close" (click)="closeImportModal()"></button>
               }
             </div>
             <div class="modal-body">
-              @if (importing()) {
-                <div class="text-center py-4">
-                  <div class="spinner-border text-success mb-3" role="status">
-                    <span class="visually-hidden">Importazione in corso...</span>
-                  </div>
-                  <p class="text-muted mb-0">Importazione in corso...</p>
-                </div>
-              } @else if (importResult()) {
-                <div class="text-center py-3">
-                  @if (importResult()!.totaleFalliti === 0) {
-                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3">Importazione completata!</h5>
-                    <p class="text-muted">{{ importResult()!.totaleImportati }} invitati importati con successo</p>
-                  } @else if (importResult()!.totaleImportati === 0) {
-                    <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3">Importazione fallita</h5>
-                    <p class="text-muted">Nessun invitato importato</p>
-                  } @else {
-                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3">Importazione parziale</h5>
-                    <p class="text-muted">
-                      {{ importResult()!.totaleImportati }} importati,
-                      {{ importResult()!.totaleFalliti }} falliti
-                    </p>
-                  }
-                  @if (importResult()!.errori && importResult()!.errori.length > 0) {
-                    <div class="alert alert-danger text-start mt-3">
-                      <strong>Errori:</strong>
-                      <ul class="mb-0 mt-2" style="max-height: 200px; overflow-y: auto;">
-                        @for (errore of importResult()!.errori; track errore) {
-                          <li>{{ errore }}</li>
-                        }
-                      </ul>
+              <!-- Step 1: File Selection -->
+              @if (importModalStep() === 1) {
+                <p class="text-muted mb-3">
+                  Carica un file Excel con le colonne: Nome, Cognome, Email, Telefono, Plus, Note
+                </p>
+
+                <!-- Drag & Drop Zone -->
+                <div class="drop-zone p-4 text-center rounded-3 mb-3"
+                  [class.drop-zone-active]="isDragging()"
+                  [class.drop-zone-has-file]="selectedFile()"
+                  (click)="triggerFileInput()"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event)"
+                  style="border: 2px dashed #dee2e6; cursor: pointer; transition: all 0.2s;">
+                  @if (selectedFile()) {
+                    <div class="d-flex align-items-center justify-content-center gap-3">
+                      <i class="bi bi-file-earmark-excel text-success" style="font-size: 2.5rem;"></i>
+                      <div class="text-start">
+                        <div class="fw-semibold">{{ selectedFile()!.name }}</div>
+                        <small class="text-muted">{{ (selectedFile()!.size / 1024).toFixed(1) }} KB</small>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger ms-2"
+                        (click)="removeSelectedFile(); $event.stopPropagation()">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
                     </div>
+                  } @else {
+                    <i class="bi bi-cloud-arrow-up text-muted mb-2" style="font-size: 3rem;"></i>
+                    <p class="mb-1">
+                      @if (isDragging()) {
+                        <strong class="text-primary">Rilascia il file qui</strong>
+                      } @else {
+                        <strong>Trascina qui il file Excel</strong>
+                      }
+                    </p>
+                    <small class="text-muted">oppure clicca per selezionare</small>
                   }
                 </div>
+
+                <!-- Download Template Button -->
+                <div class="text-center">
+                  <button type="button" class="btn btn-link text-decoration-none"
+                    (click)="downloadTemplate(); $event.stopPropagation()">
+                    <i class="bi bi-download me-1"></i>
+                    Scarica file di esempio
+                  </button>
+                </div>
+              }
+
+              <!-- Step 2: Import Result -->
+              @if (importModalStep() === 2) {
+                @if (importing()) {
+                  <div class="text-center py-4">
+                    <div class="spinner-border text-success mb-3" role="status">
+                      <span class="visually-hidden">Importazione in corso...</span>
+                    </div>
+                    <p class="text-muted mb-0">Importazione in corso...</p>
+                  </div>
+                } @else if (importResult()) {
+                  <div class="text-center py-3">
+                    @if (importResult()!.totaleFalliti === 0 && importResult()!.totaleImportati > 0) {
+                      <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">Importazione completata!</h5>
+                      <p class="text-muted">{{ importResult()!.totaleImportati }} invitati importati con successo</p>
+                    } @else if (importResult()!.totaleImportati === 0) {
+                      <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">Importazione fallita</h5>
+                      <p class="text-muted">Nessun invitato importato</p>
+                    } @else {
+                      <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">Importazione parziale</h5>
+                      <p class="text-muted">
+                        {{ importResult()!.totaleImportati }} importati,
+                        {{ importResult()!.totaleFalliti }} falliti
+                      </p>
+                    }
+                    @if (importResult()!.errori && importResult()!.errori.length > 0) {
+                      <div class="alert alert-danger text-start mt-3">
+                        <strong>Errori:</strong>
+                        <ul class="mb-0 mt-2" style="max-height: 200px; overflow-y: auto;">
+                          @for (errore of importResult()!.errori; track errore) {
+                            <li>{{ errore }}</li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </div>
+                }
               }
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeImportModal()"
-                [disabled]="importing()">
-                Chiudi
-              </button>
+              @if (importModalStep() === 1) {
+                <button type="button" class="btn btn-secondary" (click)="closeImportModal()">
+                  Annulla
+                </button>
+                <button type="button" class="btn btn-success" (click)="proceedWithImport()"
+                  [disabled]="!selectedFile()">
+                  <i class="bi bi-upload me-1"></i>Avanti
+                </button>
+              } @else {
+                <button type="button" class="btn btn-secondary" (click)="closeImportModal()"
+                  [disabled]="importing()">
+                  Chiudi
+                </button>
+              }
             </div>
           </div>
         </div>

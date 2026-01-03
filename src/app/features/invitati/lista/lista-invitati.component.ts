@@ -31,6 +31,9 @@ export class ListaInvitatiComponent implements OnInit {
   importing = signal(false);
   showImportModal = signal(false);
   importResult = signal<ImportaInvitatiResponse | null>(null);
+  importModalStep = signal<1 | 2>(1); // 1 = file selection, 2 = result
+  selectedFile = signal<File | null>(null);
+  isDragging = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -341,6 +344,14 @@ export class ListaInvitatiComponent implements OnInit {
     });
   }
 
+  openImportModal(): void {
+    this.showImportModal.set(true);
+    this.importModalStep.set(1);
+    this.selectedFile.set(null);
+    this.importResult.set(null);
+    this.isDragging.set(false);
+  }
+
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
@@ -350,17 +361,53 @@ export class ListaInvitatiComponent implements OnInit {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    this.importaInvitati(file);
+    this.selectedFile.set(file);
 
     // Reset input per permettere di selezionare lo stesso file
     input.value = '';
   }
 
-  importaInvitati(file: File): void {
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      // Verifica che sia un file Excel
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        this.selectedFile.set(file);
+      } else {
+        this.error.set('Seleziona un file Excel (.xlsx o .xls)');
+      }
+    }
+  }
+
+  removeSelectedFile(): void {
+    this.selectedFile.set(null);
+  }
+
+  proceedWithImport(): void {
+    const file = this.selectedFile();
+    if (!file) return;
+
     this.importing.set(true);
     this.error.set(null);
     this.importResult.set(null);
-    this.showImportModal.set(true);
+    this.importModalStep.set(2);
 
     this.invitatoService.importaInvitati(file).subscribe({
       next: (result) => {
@@ -379,8 +426,14 @@ export class ListaInvitatiComponent implements OnInit {
     });
   }
 
+  downloadTemplate(): void {
+    this.invitatoService.downloadTemplateImportazione();
+  }
+
   closeImportModal(): void {
     this.showImportModal.set(false);
     this.importResult.set(null);
+    this.selectedFile.set(null);
+    this.importModalStep.set(1);
   }
 }

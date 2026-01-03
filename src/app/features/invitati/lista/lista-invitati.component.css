@@ -37,3 +37,27 @@
 .btn-premium i {
   color: #1a1a1a;
 }
+
+/* Drop zone for file upload */
+.drop-zone {
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6 !important;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: #198754 !important;
+  background-color: #f0fff4;
+}
+
+.drop-zone-active {
+  border-color: #198754 !important;
+  background-color: #d1f7c4 !important;
+  transform: scale(1.01);
+}
+
+.drop-zone-has-file {
+  border-style: solid !important;
+  border-color: #198754 !important;
+  background-color: #f0fff4;
+}
