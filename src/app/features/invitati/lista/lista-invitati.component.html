@@ -138,11 +138,11 @@
                       [checked]="allSelected()"
                       (change)="toggleAll()">
                   </th>
-                  <th>Nome</th>
-                  <th>Email</th>
-                  <th>Stato</th>
-                  <th>Plus</th>
-                  <th style="width: 120px;">Azioni</th>
+                  <th style="width: 25%;">Nome</th>
+                  <th style="width: 35%;">Email</th>
+                  <th style="width: 15%;">Stato</th>
+                  <th style="width: 10%;">Plus</th>
+                  <th style="width: 15%;">Azioni</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,8 +165,10 @@
                     <td>
                       @if (invitato.statoInvito === StatoInvito.CONFERMATO) {
                         {{ invitato.plusConfermati ?? 0 }}/{{ invitato.numeroPlusConsentiti ?? 0 }}
+                      } @else if ((invitato.numeroPlusConsentiti ?? 0) > 0) {
+                        {{ invitato.numeroPlusConsentiti }} max
                       } @else {
-                        {{ invitato.numeroPlusConsentiti ?? 0 }} max
+                        -
                       }
                     </td>
                     <td>
@@ -537,6 +539,43 @@
                   Chiudi
                 </button>
               }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal()) {
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Conferma eliminazione
+              </h5>
+              @if (!deleting()) {
+                <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+              }
+            </div>
+            <div class="modal-body">
+              <p class="mb-0">
+                Sei sicuro di voler eliminare <strong>{{ deleteTarget()?.nome }} {{ deleteTarget()?.cognome }}</strong>?
+              </p>
+              <p class="text-muted small mt-2 mb-0">Questa azione non può essere annullata.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()"
+                [disabled]="deleting()">
+                Annulla
+              </button>
+              <button type="button" class="btn btn-danger" (click)="confirmDelete()"
+                [disabled]="deleting()">
+                @if (deleting()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Elimina
+              </button>
             </div>
           </div>
         </div>

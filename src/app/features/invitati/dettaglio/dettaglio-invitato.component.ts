@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { InvitatoService, AuthService } from '../../../core/services';
 import { InvitatoDTO, CreaInvitatoRequest, AggiornaInvitatoRequest, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
@@ -88,12 +88,35 @@ export class DettaglioInvitatoComponent implements OnInit {
       plusConfermati: [0, [Validators.min(0)]],
       note: [''],
       intolleranzeAlimentari: [''],
-      accompagnatori: this.fb.array([])
+      accompagnatori: this.fb.array([]),
+      etichette: this.fb.array([])
     });
   }
 
   get accompagnatoriFormArray(): FormArray {
     return this.invitatoForm.get('accompagnatori') as FormArray;
+  }
+
+  get etichetteFormArray(): FormArray {
+    return this.invitatoForm.get('etichette') as FormArray;
+  }
+
+  addEtichetta(): void {
+    this.etichetteFormArray.push(new FormControl(''));
+  }
+
+  removeEtichetta(index: number): void {
+    this.etichetteFormArray.removeAt(index);
+  }
+
+  normalizeEtichetta(index: number): void {
+    const control = this.etichetteFormArray.at(index);
+    if (control) {
+      let value = control.value || '';
+      // Rimuovi spazi multipli e porta tutto in maiuscolo
+      value = value.replace(/\s+/g, ' ').trim().toUpperCase();
+      control.setValue(value);
+    }
   }
 
   createAccompagnatoreGroup(acc?: AccompagnatoreDTO): FormGroup {
@@ -193,6 +216,14 @@ export class DettaglioInvitatoComponent implements OnInit {
         this.accompagnatoriFormArray.push(this.createAccompagnatoreGroup(acc));
       });
     }
+
+    // Popola FormArray etichette
+    this.etichetteFormArray.clear();
+    if (invitato.etichette && invitato.etichette.length > 0) {
+      invitato.etichette.forEach(e => {
+        this.etichetteFormArray.push(new FormControl(e.etichettaNome || ''));
+      });
+    }
   }
 
   onSubmit(): void {
@@ -215,13 +246,19 @@ export class DettaglioInvitatoComponent implements OnInit {
   }
 
   private createInvitato(formValue: any): void {
+    // Prepara etichette (solo nomi non vuoti)
+    const etichette = (formValue.etichette || [])
+      .filter((e: string) => e?.trim())
+      .map((e: string) => e.trim().toUpperCase().replace(/\s+/g, ' '));
+
     const request: CreaInvitatoRequest = {
       nome: formValue.nome,
       cognome: formValue.cognome,
       email: formValue.email || null,
       telefono: formValue.telefono || null,
       numeroPlusConsentiti: formValue.numeroPlusConsentiti || null,
-      note: formValue.note || null
+      note: formValue.note || null,
+      etichette: etichette.length > 0 ? etichette : undefined
     };
 
     this.invitatoService.creaInvitato(request).subscribe({
@@ -245,6 +282,11 @@ export class DettaglioInvitatoComponent implements OnInit {
       ?.filter((a: any) => a.nome?.trim() && a.cognome?.trim())
       ?.map((a: any) => ({ nome: a.nome.trim(), cognome: a.cognome.trim() })) || [];
 
+    // Prepara etichette (solo nomi non vuoti)
+    const etichette = (formValue.etichette || [])
+      .filter((e: string) => e?.trim())
+      .map((e: string) => e.trim().toUpperCase().replace(/\s+/g, ' '));
+
     const request: AggiornaInvitatoRequest = {
       nome: formValue.nome,
       cognome: formValue.cognome,
@@ -255,7 +297,8 @@ export class DettaglioInvitatoComponent implements OnInit {
       plusConfermati: formValue.plusConfermati || null,
       note: formValue.note || null,
       intolleranzeAlimentari: formValue.intolleranzeAlimentari || null,
-      accompagnatori: accompagnatori
+      accompagnatori: accompagnatori,
+      etichette: etichette
     };
 
     this.invitatoService.aggiornaInvitato(this.invitatoId!, request).subscribe({

@@ -1,3 +1,5 @@
+import { InvitatoEtichettaDTO } from './etichetta.model';
+
 export interface AccompagnatoreDTO {
   id?: string;
   invitato?: string;
@@ -25,6 +27,7 @@ export interface InvitatoDTO {
   dataCreazione: string;
   dataModifica: string;
   accompagnatori?: AccompagnatoreDTO[];
+  etichette?: InvitatoEtichettaDTO[];
 }
 
 export interface InvitatoRiepilogoDTO {
@@ -55,6 +58,7 @@ export interface CreaInvitatoRequest {
   telefono?: string | null;
   numeroPlusConsentiti?: number | null;
   note?: string | null;
+  etichette?: string[];
 }
 
 export interface AggiornaInvitatoRequest {
@@ -68,6 +72,7 @@ export interface AggiornaInvitatoRequest {
   note?: string | null;
   intolleranzeAlimentari?: string | null;
   accompagnatori?: AccompagnatoreDTO[];
+  etichette?: string[];
 }
 
 export enum CanaleInvio {

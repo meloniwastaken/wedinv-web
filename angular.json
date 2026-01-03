@@ -76,6 +76,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "remote": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.remote.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -88,6 +99,9 @@
             },
             "development": {
               "buildTarget": "wedinv-web:build:development"
+            },
+            "remote": {
+              "buildTarget": "wedinv-web:build:remote"
             }
           },
           "defaultConfiguration": "development"

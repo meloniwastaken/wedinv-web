@@ -61,3 +61,29 @@
   border-color: #198754 !important;
   background-color: #f0fff4;
 }
+
+/* Placeholder visibile in dark mode */
+.form-control::placeholder {
+  color: var(--color-text-muted, #6c757d);
+  opacity: 0.7;
+}
+
+/* Tabella con larghezze fisse - solo desktop */
+@media (min-width: 768px) {
+  .table {
+    table-layout: fixed;
+  }
+
+  .table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Mobile: tabella scorrevole con larghezza minima */
+@media (max-width: 767px) {
+  .table {
+    min-width: 600px;
+  }
+}

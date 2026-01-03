@@ -157,6 +157,22 @@
               </div>
             }
 
+            <!-- Etichette -->
+            @if (invitato()?.etichette && invitato()!.etichette!.length > 0) {
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-tags me-2"></i>Etichette
+                </div>
+                <div class="card-body">
+                  <div class="d-flex flex-wrap gap-2">
+                    @for (etichetta of invitato()!.etichette!; track etichetta.etichettaId) {
+                      <span class="badge bg-primary">{{ etichetta.etichettaNome }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
             <!-- Informazioni -->
             <div class="card mb-4">
               <div class="card-header">
@@ -328,6 +344,36 @@
                       <div class="form-text">Questo campo viene normalmente compilato dall'invitato durante la conferma</div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <!-- Etichette -->
+              <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span><i class="bi bi-tags me-2"></i>Etichette</span>
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addEtichetta()">
+                    <i class="bi bi-plus me-1"></i>Aggiungi
+                  </button>
+                </div>
+                <div class="card-body">
+                  @if (etichetteFormArray.length === 0) {
+                    <p class="text-muted mb-0">Nessuna etichetta. Clicca "Aggiungi" per inserirne una.</p>
+                  } @else {
+                    <div formArrayName="etichette">
+                      @for (etichetta of etichetteFormArray.controls; track $index) {
+                        <div class="input-group mb-2">
+                          <input type="text" class="form-control text-uppercase"
+                            [formControlName]="$index"
+                            placeholder="Es. AMICI, PARENTI SPOSA..."
+                            (blur)="normalizeEtichetta($index)">
+                          <button type="button" class="btn btn-outline-danger" (click)="removeEtichetta($index)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                  <div class="form-text">Le etichette servono per categorizzare gli invitati (es. AMICI, PARENTI SPOSA, COLLEGHI)</div>
                 </div>
               </div>
 

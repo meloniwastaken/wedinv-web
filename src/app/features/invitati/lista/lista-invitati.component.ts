@@ -34,6 +34,9 @@ export class ListaInvitatiComponent implements OnInit {
   importModalStep = signal<1 | 2>(1); // 1 = file selection, 2 = result
   selectedFile = signal<File | null>(null);
   isDragging = signal(false);
+  showDeleteModal = signal(false);
+  deleteTarget = signal<{ id: string; nome: string; cognome: string } | null>(null);
+  deleting = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -264,20 +267,35 @@ export class ListaInvitatiComponent implements OnInit {
   }
 
   deleteInvitato(id: string, nome: string, cognome: string): void {
-    if (!confirm(`Sei sicuro di voler eliminare ${nome} ${cognome}?`)) {
-      return;
-    }
+    this.deleteTarget.set({ id, nome, cognome });
+    this.showDeleteModal.set(true);
+  }
 
-    this.invitatoService.eliminaInvitato(id).subscribe({
+  confirmDelete(): void {
+    const target = this.deleteTarget();
+    if (!target) return;
+
+    this.deleting.set(true);
+
+    this.invitatoService.eliminaInvitato(target.id).subscribe({
       next: () => {
         this.success.set('Invitato eliminato con successo');
+        this.closeDeleteModal();
         this.loadInvitati();
         setTimeout(() => this.success.set(null), 3000);
       },
       error: (err) => {
+        this.deleting.set(false);
         this.error.set(err.error?.message || 'Errore durante l\'eliminazione');
+        this.closeDeleteModal();
       }
     });
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal.set(false);
+    this.deleteTarget.set(null);
+    this.deleting.set(false);
   }
 
   openWhatsappView(): void {
