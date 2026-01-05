@@ -330,6 +330,12 @@ a:hover {
 }
 
 /* Modal */
+/* Nasconde la scrollbar della pagina quando una modale è aperta */
+body:has(.modal.show),
+body:has(.modal.d-block) {
+  overflow: hidden;
+}
+
 .modal-content {
   border: none;
   border-radius: var(--radius-lg);
@@ -597,4 +603,48 @@ a:hover {
   .stat-number {
     font-size: 2rem;
   }
+}
+
+/* Custom Scrollbar - adattiva al tema */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-light) var(--color-background-alt);
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-alt);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-light);
+  border-radius: 5px;
+  border: 2px solid var(--color-background-alt);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Scrollbar per elementi con sfondo scuro (es. modal, card) */
+.modal-body::-webkit-scrollbar-track,
+.card-body::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.card-body::-webkit-scrollbar-thumb {
+  border-color: var(--color-secondary);
+}
+
+/* Scrollbar corner (angolo quando ci sono entrambe le scrollbar) */
+::-webkit-scrollbar-corner {
+  background: var(--color-background-alt);
 }
