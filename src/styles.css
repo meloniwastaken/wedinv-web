@@ -233,6 +233,34 @@ a:hover {
   padding: 1.5rem;
 }
 
+.card-body h6 {
+  color: var(--color-text);
+}
+
+/* List group theming */
+.list-group-item {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.list-group-item.bg-transparent {
+  background-color: transparent;
+  color: var(--color-text);
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+  background-color: var(--color-background-alt);
+  color: var(--color-text);
+}
+
+.list-group-item-action.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
 /* Tables */
 .table {
   font-size: 0.95rem;
@@ -521,6 +549,20 @@ body:has(.modal.d-block) {
 
 .invitation-header .ornament {
   color: var(--color-primary-light);
+}
+
+.intolleranze-famiglia {
+  background-color: var(--color-background-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.intolleranze-famiglia h5 {
+  color: var(--color-primary);
+}
+
+.intolleranze-famiglia i {
+  color: var(--color-primary);
 }
 
 .invitation-body {
