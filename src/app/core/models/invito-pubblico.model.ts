@@ -40,9 +40,8 @@ export interface InvitoPubblicoResponse {
   messaggioInvito: string | null;
   messaggioIban: string | null;
   stileCodice: string | null;
-  // Foto invito
-  hasFotoInvito?: boolean | null;
-  matrimonioId?: string | null;
+  // Foto invito (base64)
+  fotoInvitoBase64?: string | null;
   intolleranzeAlimentari: string | null;
   accompagnatori?: AccompagnatoreDTO[];
   // Gruppo familiare

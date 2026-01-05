@@ -25,14 +25,27 @@ export class MatrimonioComponent implements OnInit {
   matrimonio = signal<MatrimonioDTO | null>(null);
 
   // Foto invito
-  uploadingFoto = signal(false);
-  deletingFoto = signal(false);
   fotoPreview = signal<string | null>(null);
-  selectedFoto = signal<File | null>(null);
+  showFotoModal = signal(false);
+  isDragging = signal(false);
+  pendingFotoBase64 = signal<string | null | undefined>(undefined); // undefined = no change, null = delete, string = new photo
 
   isPremium = computed(() => this.authService.isActive());
 
-  hasFotoInvito = computed(() => this.matrimonio()?.hasFotoInvito === true);
+  hasFotoInvito = computed(() => {
+    // Check pending change first
+    const pending = this.pendingFotoBase64();
+    if (pending === null) return false;
+    if (pending !== undefined) return true;
+    // Otherwise check existing
+    return !!this.matrimonio()?.fotoInvitoBase64;
+  });
+
+  currentFotoBase64 = computed(() => {
+    const pending = this.pendingFotoBase64();
+    if (pending !== undefined) return pending;
+    return this.matrimonio()?.fotoInvitoBase64 ?? null;
+  });
 
   constructor(
     private fb: FormBuilder,
@@ -144,6 +157,15 @@ export class MatrimonioComponent implements OnInit {
   }
 
   private prepareRequest(formValue: any): CreaMatrimonioRequest {
+    const pending = this.pendingFotoBase64();
+    // undefined = no change (empty string to backend), null = delete, string = new photo
+    let fotoInvitoBase64: string | null | undefined;
+    if (pending === undefined) {
+      fotoInvitoBase64 = ''; // No change - send empty string
+    } else {
+      fotoInvitoBase64 = pending; // null to delete or base64 string for new photo
+    }
+
     return {
       nomeSposoA: formValue.nomeSposoA,
       cognomeSposoA: formValue.cognomeSposoA,
@@ -167,7 +189,8 @@ export class MatrimonioComponent implements OnInit {
       note: formValue.note || null,
       messaggioInvito: formValue.messaggioInvito || null,
       messaggioIban: formValue.messaggioIban || null,
-      stileCodice: this.themeService.currentTheme().id
+      stileCodice: this.themeService.currentTheme().id,
+      fotoInvitoBase64: fotoInvitoBase64
     };
   }
 
@@ -194,6 +217,7 @@ export class MatrimonioComponent implements OnInit {
         this.success.set('Modifiche salvate con successo!');
         this.saving.set(false);
         this.editMode.set(false);
+        this.pendingFotoBase64.set(undefined); // Reset pending photo changes
         this.loadMatrimonioData(); // Reload data
       },
       error: (err) => {
@@ -224,6 +248,7 @@ export class MatrimonioComponent implements OnInit {
     }
     this.editMode.set(false);
     this.error.set(null);
+    this.pendingFotoBase64.set(undefined); // Reset pending photo changes
   }
 
   confirmDelete(): void {
@@ -275,83 +300,80 @@ export class MatrimonioComponent implements OnInit {
   }
 
   // Foto invito methods
+  openFotoModal(): void {
+    this.showFotoModal.set(true);
+    this.fotoPreview.set(null);
+  }
+
+  closeFotoModal(): void {
+    this.showFotoModal.set(false);
+    this.fotoPreview.set(null);
+  }
+
   onFotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.error.set('Il file deve essere un\'immagine');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.error.set('L\'immagine non può superare i 5MB');
-        return;
-      }
-
-      this.selectedFoto.set(file);
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.fotoPreview.set(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      this.processFile(input.files[0]);
     }
   }
 
-  uploadFoto(): void {
-    const file = this.selectedFoto();
-    if (!file) return;
+  private processFile(file: File): void {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.error.set('Il file deve essere un\'immagine');
+      return;
+    }
 
-    this.uploadingFoto.set(true);
-    this.error.set(null);
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.error.set('L\'immagine non può superare i 5MB');
+      return;
+    }
 
-    this.matrimonioService.uploadFotoInvito(file).subscribe({
-      next: () => {
-        this.success.set('Foto caricata con successo!');
-        this.uploadingFoto.set(false);
-        this.selectedFoto.set(null);
-        this.fotoPreview.set(null);
-        this.loadMatrimonioData();
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Errore durante il caricamento della foto');
-        this.uploadingFoto.set(false);
-      }
-    });
+    // Create preview and base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.fotoPreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  confirmFotoUpload(): void {
+    const preview = this.fotoPreview();
+    if (preview) {
+      this.pendingFotoBase64.set(preview);
+      this.closeFotoModal();
+    }
   }
 
   cancelFotoUpload(): void {
-    this.selectedFoto.set(null);
     this.fotoPreview.set(null);
   }
 
   deleteFoto(): void {
-    if (!confirm('Sei sicuro di voler eliminare la foto dell\'invito?')) {
-      return;
-    }
-
-    this.deletingFoto.set(true);
-    this.error.set(null);
-
-    this.matrimonioService.deleteFotoInvito().subscribe({
-      next: () => {
-        this.success.set('Foto eliminata con successo!');
-        this.deletingFoto.set(false);
-        this.loadMatrimonioData();
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Errore durante l\'eliminazione della foto');
-        this.deletingFoto.set(false);
-      }
-    });
+    this.pendingFotoBase64.set(null);
   }
 
-  getFotoInvitoUrl(): string {
-    return this.matrimonioService.getFotoInvitoUrl();
+  // Drag & Drop handlers
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.processFile(event.dataTransfer.files[0]);
+    }
   }
 }

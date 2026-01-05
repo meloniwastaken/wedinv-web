@@ -189,17 +189,9 @@
                 <i class="bi bi-image me-2"></i>Foto Invito
               </div>
               <div class="card-body">
-                @if (hasFotoInvito()) {
+                @if (currentFotoBase64()) {
                   <div class="text-center">
-                    <img [src]="getFotoInvitoUrl()" alt="Foto invito" class="img-fluid rounded mb-3" style="max-height: 300px;">
-                    <div>
-                      <button class="btn btn-outline-danger btn-sm" (click)="deleteFoto()" [disabled]="deletingFoto()">
-                        @if (deletingFoto()) {
-                          <span class="spinner-border spinner-border-sm me-2"></span>
-                        }
-                        <i class="bi bi-trash me-1"></i>Elimina foto
-                      </button>
-                    </div>
+                    <img [src]="currentFotoBase64()" alt="Foto invito" class="img-fluid rounded" style="max-height: 300px;">
                   </div>
                 } @else {
                   <div class="text-center text-muted py-4">
@@ -423,6 +415,38 @@
               </div>
             </div>
 
+            <!-- Sezione Foto Invito (Edit Mode) - Prima dei bottoni -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-image me-2"></i>Foto Invito
+              </div>
+              <div class="card-body">
+                @if (hasFotoInvito()) {
+                  <!-- Foto presente (esistente o nuova pending) -->
+                  <div class="text-center">
+                    <img [src]="currentFotoBase64()" alt="Foto invito" class="img-fluid rounded mb-3" style="max-height: 300px;">
+                    <div class="d-flex gap-2 justify-content-center">
+                      <button type="button" class="btn btn-outline-primary btn-sm" (click)="openFotoModal()">
+                        <i class="bi bi-arrow-repeat me-1"></i>Sostituisci
+                      </button>
+                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteFoto()">
+                        <i class="bi bi-trash me-1"></i>Elimina
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Nessuna foto -->
+                  <div class="text-center py-4">
+                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-3 text-muted">Aggiungi una foto all'invito</p>
+                    <button type="button" class="btn btn-primary" (click)="openFotoModal()">
+                      <i class="bi bi-upload me-2"></i>Seleziona immagine
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
             <!-- Buttons -->
             <div class="page-footer-actions-split">
               <div class="page-footer-left">
@@ -455,64 +479,6 @@
               </div>
             </div>
           </form>
-
-          <!-- Sezione Foto Invito (Edit Mode) - Fuori dal form principale -->
-          @if (isEdit()) {
-            <div class="card mb-4">
-              <div class="card-header">
-                <i class="bi bi-image me-2"></i>Foto Invito
-              </div>
-              <div class="card-body">
-                @if (hasFotoInvito() && !fotoPreview()) {
-                  <!-- Foto esistente -->
-                  <div class="text-center">
-                    <img [src]="getFotoInvitoUrl()" alt="Foto invito" class="img-fluid rounded mb-3" style="max-height: 300px;">
-                    <div class="d-flex gap-2 justify-content-center">
-                      <label class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-arrow-repeat me-1"></i>Sostituisci
-                        <input type="file" class="d-none" accept="image/*" (change)="onFotoSelected($event)">
-                      </label>
-                      <button class="btn btn-outline-danger btn-sm" (click)="deleteFoto()" [disabled]="deletingFoto()">
-                        @if (deletingFoto()) {
-                          <span class="spinner-border spinner-border-sm me-2"></span>
-                        }
-                        <i class="bi bi-trash me-1"></i>Elimina
-                      </button>
-                    </div>
-                  </div>
-                } @else if (fotoPreview()) {
-                  <!-- Anteprima nuova foto -->
-                  <div class="text-center">
-                    <img [src]="fotoPreview()" alt="Anteprima foto" class="img-fluid rounded mb-3" style="max-height: 300px;">
-                    <div class="d-flex gap-2 justify-content-center">
-                      <button class="btn btn-success" (click)="uploadFoto()" [disabled]="uploadingFoto()">
-                        @if (uploadingFoto()) {
-                          <span class="spinner-border spinner-border-sm me-2"></span>
-                        }
-                        <i class="bi bi-upload me-1"></i>Carica foto
-                      </button>
-                      <button class="btn btn-outline-secondary" (click)="cancelFotoUpload()">
-                        Annulla
-                      </button>
-                    </div>
-                  </div>
-                } @else {
-                  <!-- Nessuna foto - upload -->
-                  <div class="text-center py-4">
-                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                    <p class="mt-2 mb-3 text-muted">Aggiungi una foto all'invito</p>
-                    <label class="btn btn-primary">
-                      <i class="bi bi-upload me-2"></i>Seleziona immagine
-                      <input type="file" class="d-none" accept="image/*" (change)="onFotoSelected($event)">
-                    </label>
-                    <p class="form-text mt-2">
-                      Dimensioni consigliate: 1200x675px (16:9). Max 5MB.
-                    </p>
-                  </div>
-                }
-              </div>
-            </div>
-          }
           }
 
           <!-- Delete Confirmation Modal -->
@@ -541,6 +507,72 @@
                       }
                       Elimina
                     </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Photo Upload Modal -->
+          @if (showFotoModal()) {
+            <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">
+                      <i class="bi bi-image me-2"></i>Carica Foto Invito
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeFotoModal()"></button>
+                  </div>
+                  <div class="modal-body">
+                    @if (!fotoPreview()) {
+                      <p class="text-muted mb-3">
+                        Carica un'immagine per l'invito. Dimensioni consigliate: <strong>1200x675px</strong> (16:9).
+                      </p>
+
+                      <!-- Drag & Drop Zone -->
+                      <div class="drop-zone p-4 text-center rounded-3"
+                        [class.drop-zone-active]="isDragging()"
+                        (click)="fotoInput.click()"
+                        (dragover)="onDragOver($event)"
+                        (dragleave)="onDragLeave($event)"
+                        (drop)="onDrop($event)"
+                        style="border: 2px dashed #dee2e6; cursor: pointer; transition: all 0.2s;">
+                        <input type="file" #fotoInput class="d-none" accept="image/*" (change)="onFotoSelected($event)">
+                        <i class="bi bi-cloud-arrow-up text-muted mb-2" style="font-size: 3rem;"></i>
+                        <p class="mb-1">
+                          @if (isDragging()) {
+                            <strong class="text-primary">Rilascia il file qui</strong>
+                          } @else {
+                            <strong>Trascina qui l'immagine</strong>
+                          }
+                        </p>
+                        <small class="text-muted">oppure clicca per selezionare (max 5MB)</small>
+                      </div>
+                    } @else {
+                      <!-- Preview -->
+                      <div class="text-center">
+                        <img [src]="fotoPreview()" alt="Anteprima foto" class="img-fluid rounded mb-3" style="max-height: 300px;">
+                        <p class="text-muted mb-0">
+                          <i class="bi bi-check-circle text-success me-1"></i>
+                          Immagine pronta per essere salvata
+                        </p>
+                      </div>
+                    }
+                  </div>
+                  <div class="modal-footer">
+                    @if (fotoPreview()) {
+                      <button type="button" class="btn btn-outline-secondary" (click)="cancelFotoUpload()">
+                        <i class="bi bi-arrow-left me-1"></i>Cambia immagine
+                      </button>
+                      <button type="button" class="btn btn-primary" (click)="confirmFotoUpload()">
+                        <i class="bi bi-check-lg me-1"></i>Conferma
+                      </button>
+                    } @else {
+                      <button type="button" class="btn btn-secondary" (click)="closeFotoModal()">
+                        Annulla
+                      </button>
+                    }
                   </div>
                 </div>
               </div>

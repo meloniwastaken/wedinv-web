@@ -28,6 +28,7 @@ export interface MatrimonioDTO {
   dataModifica: string;
   stileCodice: string | null;
   hasFotoInvito?: boolean | null;
+  fotoInvitoBase64?: string | null;
 }
 
 export interface CreaMatrimonioRequest {
@@ -55,6 +56,7 @@ export interface CreaMatrimonioRequest {
   messaggioInvito?: string | null;
   messaggioIban?: string | null;
   stileCodice?: string | null;
+  fotoInvitoBase64?: string | null;
 }
 
 export interface AggiornaMatrimonioRequest extends CreaMatrimonioRequest {}

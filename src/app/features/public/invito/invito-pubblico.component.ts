@@ -301,10 +301,4 @@ export class InvitoPubblicoComponent implements OnInit {
       window.open(link, '_blank');
     }
   }
-
-  getFotoInvitoUrl(): string {
-    const matrimonioId = this.invito()?.matrimonioId;
-    if (!matrimonioId) return '';
-    return this.invitoPubblicoService.getFotoInvitoUrl(matrimonioId);
-  }
 }

@@ -50,9 +50,9 @@
       </div>
 
       <!-- Foto invito (se presente) -->
-      @if (invito()!.hasFotoInvito && invito()!.matrimonioId) {
+      @if (invito()!.fotoInvitoBase64) {
         <div class="invitation-photo">
-          <img [src]="getFotoInvitoUrl()" alt="Foto invito" loading="lazy">
+          <img [src]="invito()!.fotoInvitoBase64" alt="Foto invito" loading="lazy">
         </div>
       }
 

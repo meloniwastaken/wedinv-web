@@ -66,11 +66,4 @@ export class InvitoPubblicoService {
       })
     );
   }
-
-  /**
-   * Costruisce l'URL per la foto dell'invito
-   */
-  getFotoInvitoUrl(matrimonioId: string): string {
-    return `${this.apiUrl}/matrimonio/${matrimonioId}/foto`;
-  }
 }
