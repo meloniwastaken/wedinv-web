@@ -157,6 +157,7 @@
                     <td>
                       @if (isFamilyMember(invitato)) {
                         <input type="checkbox" class="form-check-input" disabled
+                          [checked]="isFamilyMemberSelected(invitato)"
                           title="L'invito viene gestito dal capofamiglia">
                       } @else {
                         <input type="checkbox" class="form-check-input"

@@ -36,6 +36,7 @@ export class DettaglioInvitatoComponent implements OnInit {
 
   // Edit Gruppo Familiare
   showEditGruppoModal = signal(false);
+  showDeleteGruppoConfirm = signal(false);
   savingGruppo = signal(false);
   deletingGruppo = signal(false);
   allInvitati = signal<InvitatoRiepilogoDTO[]>([]);
@@ -95,6 +96,14 @@ export class DettaglioInvitatoComponent implements OnInit {
       if (nomeCompare !== 0) return nomeCompare;
       return a.cognome.localeCompare(b.cognome, 'it');
     });
+  });
+
+  // Nome del capofamiglia dalla lista membri
+  nomeCapofamiglia = computed(() => {
+    const membri = this.invitato()?.membriFamiglia;
+    if (!membri) return '';
+    const capogruppo = membri.find(m => m.capogruppo);
+    return capogruppo ? `${capogruppo.nome} ${capogruppo.cognome}` : '';
   });
 
   constructor(
@@ -421,7 +430,7 @@ export class DettaglioInvitatoComponent implements OnInit {
       case StatoInvito.INVIATO:
         return 'bg-info';
       default:
-        return 'bg-secondary';
+        return 'bg-dark';
     }
   }
 
@@ -535,11 +544,15 @@ export class DettaglioInvitatoComponent implements OnInit {
     });
   }
 
-  confirmDeleteGruppo(): void {
-    if (!confirm('Sei sicuro di voler eliminare questo gruppo familiare? Gli invitati torneranno ad essere indipendenti.')) {
-      return;
-    }
+  openDeleteGruppoConfirm(): void {
+    this.showDeleteGruppoConfirm.set(true);
+  }
 
+  cancelDeleteGruppo(): void {
+    this.showDeleteGruppoConfirm.set(false);
+  }
+
+  confirmDeleteGruppo(): void {
     const gruppoId = this.invitato()?.gruppoFamiliare;
     if (!gruppoId) return;
 
@@ -549,6 +562,7 @@ export class DettaglioInvitatoComponent implements OnInit {
     this.gruppoFamiliareService.eliminaGruppoFamiliare(gruppoId).subscribe({
       next: () => {
         this.success.set('Gruppo familiare eliminato');
+        this.showDeleteGruppoConfirm.set(false);
         this.closeEditGruppoModal();
         this.loadInvitato(this.invitatoId!);
         setTimeout(() => this.success.set(null), 3000);

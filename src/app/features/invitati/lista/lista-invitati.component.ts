@@ -210,10 +210,23 @@ export class ListaInvitatiComponent implements OnInit {
 
   toggleSelection(id: string): void {
     const current = new Set(this.selectedIds());
+    const invitati = this.data()?.invitati || [];
+    const invitato = invitati.find(inv => inv.id === id);
+
     if (current.has(id)) {
       current.delete(id);
+      // Se è un capogruppo, deseleziona anche i membri della famiglia
+      if (invitato?.capogruppo && invitato.gruppoFamiliare) {
+        const familyMembers = invitati.filter(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare);
+        familyMembers.forEach(member => current.delete(member.id));
+      }
     } else {
       current.add(id);
+      // Se è un capogruppo, seleziona automaticamente tutti i membri della famiglia
+      if (invitato?.capogruppo && invitato.gruppoFamiliare) {
+        const familyMembers = invitati.filter(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare);
+        familyMembers.forEach(member => current.add(member.id));
+      }
     }
     this.selectedIds.set(current);
   }
@@ -234,7 +247,7 @@ export class ListaInvitatiComponent implements OnInit {
   getStatoBadgeClass(stato: number | null): string {
     switch (stato) {
       case StatoInvito.DA_INVIARE:
-        return 'bg-secondary';
+        return 'bg-dark';
       case StatoInvito.INVIATO:
         return 'bg-info';
       case StatoInvito.CONFERMATO:
@@ -640,6 +653,14 @@ export class ListaInvitatiComponent implements OnInit {
   isFamilyMember(invitato: InvitatoRiepilogoDTO): boolean {
     // È membro di un gruppo familiare ma NON è il capogruppo
     return !!invitato.gruppoFamiliare && !invitato.capogruppo;
+  }
+
+  isFamilyMemberSelected(invitato: InvitatoRiepilogoDTO): boolean {
+    // Verifica se il capofamiglia di questo membro è selezionato
+    if (!invitato.gruppoFamiliare || invitato.capogruppo) return false;
+    const invitati = this.data()?.invitati || [];
+    const capogruppo = invitati.find(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare && inv.capogruppo);
+    return capogruppo ? this.selectedIds().has(capogruppo.id) : false;
   }
 
   getGruppoInfo(invitato: InvitatoRiepilogoDTO): string {

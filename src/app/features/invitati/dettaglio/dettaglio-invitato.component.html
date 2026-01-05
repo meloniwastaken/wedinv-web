@@ -134,8 +134,8 @@
             <!-- Intolleranze Alimentari -->
             @if (invitato()?.intolleranzeAlimentari) {
               <div class="card mb-4">
-                <div class="card-header bg-warning-subtle">
-                  <i class="bi bi-exclamation-triangle me-2"></i>Intolleranze / Allergie Alimentari
+                <div class="card-header">
+                  <i class="bi bi-exclamation-triangle text-warning me-2"></i>Intolleranze / Allergie Alimentari
                 </div>
                 <div class="card-body">
                   <p class="mb-0">{{ invitato()!.intolleranzeAlimentari }}</p>
@@ -178,7 +178,7 @@
             <!-- Gruppo Familiare -->
             @if (invitato()?.gruppoFamiliare) {
               <div class="card mb-4">
-                <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center">
                   <div>
                     <i class="bi bi-people-fill me-2"></i>Gruppo Familiare
                     @if (invitato()!.capogruppo) {
@@ -187,7 +187,7 @@
                       <span class="badge bg-secondary ms-2">Membro</span>
                     }
                   </div>
-                  <button class="btn btn-sm btn-outline-info" (click)="openEditGruppoModal()">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="openEditGruppoModal()">
                     <i class="bi bi-pencil me-1"></i>Modifica
                   </button>
                 </div>
@@ -200,43 +200,26 @@
                   } @else {
                     <p class="text-muted mb-3">
                       <i class="bi bi-info-circle me-1"></i>
-                      L'invito viene gestito dal capofamiglia <strong>{{ invitato()!.nomeCapogruppo }}</strong>.
+                      L'invito viene gestito dal capofamiglia <strong>{{ nomeCapofamiglia() }}</strong>.
                     </p>
                   }
 
                   <!-- Lista membri famiglia -->
                   <h6 class="mb-2">Componenti del gruppo:</h6>
                   <ul class="list-group list-group-flush">
-                    <!-- Capofamiglia (se non è l'invitato corrente) -->
-                    @if (!invitato()!.capogruppo && invitato()!.nomeCapogruppo) {
-                      <li class="list-group-item d-flex justify-content-between align-items-center px-3 bg-light">
-                        <div>
-                          <i class="bi bi-star-fill text-warning me-2"></i>
-                          <strong>{{ invitato()!.nomeCapogruppo }}</strong>
-                          <span class="badge bg-info ms-2">Capofamiglia</span>
-                        </div>
-                      </li>
-                    }
-                    <!-- Invitato corrente (se capofamiglia) -->
-                    @if (invitato()!.capogruppo) {
-                      <li class="list-group-item d-flex justify-content-between align-items-center px-3 bg-light">
-                        <div>
-                          <i class="bi bi-star-fill text-warning me-2"></i>
-                          <strong>{{ invitato()!.nome }} {{ invitato()!.cognome }}</strong>
-                          <span class="badge bg-info ms-2">Capofamiglia</span>
-                        </div>
-                        <span class="badge" [class]="getStatoBadgeClass(invitato()!.statoInvito)">
-                          {{ getStatoDescrizione(invitato()!.statoInvito) }}
-                        </span>
-                      </li>
-                    }
-                    <!-- Altri membri -->
                     @if (invitato()!.membriFamiglia && invitato()!.membriFamiglia!.length > 0) {
                       @for (membro of invitato()!.membriFamiglia!; track membro.id) {
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-3">
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3">
                           <div>
-                            <i class="bi bi-person me-2"></i>
+                            @if (membro.capogruppo) {
+                              <i class="bi bi-star-fill text-warning me-2"></i>
+                            } @else {
+                              <i class="bi bi-person me-2"></i>
+                            }
                             <strong>{{ membro.nome }} {{ membro.cognome }}</strong>
+                            @if (membro.capogruppo) {
+                              <span class="badge bg-info ms-2">Capofamiglia</span>
+                            }
                           </div>
                           @if (membro.statoInvitoDescrizione) {
                             <span class="badge" [class]="getStatoBadgeClass(membro.statoInvito)">
@@ -484,7 +467,8 @@
 
     <!-- Modal Modifica Gruppo Familiare -->
     @if (showEditGruppoModal()) {
-      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);"
+        [hidden]="showDeleteGruppoConfirm()">
         <div class="modal-dialog modal-dialog-centered modal-lg">
           <div class="modal-content">
             <div class="modal-header">
@@ -583,11 +567,8 @@
               </div>
             </div>
             <div class="modal-footer d-flex justify-content-between">
-              <button type="button" class="btn btn-outline-danger" (click)="confirmDeleteGruppo()"
+              <button type="button" class="btn btn-outline-danger" (click)="openDeleteGruppoConfirm()"
                 [disabled]="savingGruppo() || deletingGruppo()">
-                @if (deletingGruppo()) {
-                  <span class="spinner-border spinner-border-sm me-1"></span>
-                }
                 <i class="bi bi-trash me-1"></i>Elimina gruppo
               </button>
               <div>
@@ -607,6 +588,38 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal Conferma Eliminazione Gruppo -->
+      @if (showDeleteGruppoConfirm()) {
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+          <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Conferma eliminazione
+                </h5>
+              </div>
+              <div class="modal-body">
+                <p class="mb-0">Sei sicuro di voler eliminare questo gruppo familiare?</p>
+                <p class="text-muted small mt-2 mb-0">Gli invitati torneranno ad essere indipendenti.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cancelDeleteGruppo()"
+                  [disabled]="deletingGruppo()">
+                  Annulla
+                </button>
+                <button type="button" class="btn btn-danger" (click)="confirmDeleteGruppo()"
+                  [disabled]="deletingGruppo()">
+                  @if (deletingGruppo()) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  Elimina
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
     }
   </div>
 </div>

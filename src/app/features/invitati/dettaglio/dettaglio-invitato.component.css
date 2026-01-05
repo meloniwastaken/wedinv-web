@@ -108,3 +108,8 @@
 .btn-premium i {
   color: #1a1a1a;
 }
+
+/* Lista gruppo familiare - eredita colore testo dal tema */
+.list-group-item.bg-transparent {
+  color: inherit;
+}
