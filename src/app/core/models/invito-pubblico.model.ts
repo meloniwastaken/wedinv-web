@@ -38,6 +38,7 @@ export interface InvitoPubblicoResponse {
   linkListaNozze: string | null;
   note: string | null;
   messaggioInvito: string | null;
+  messaggioInvitoFamiglia: string | null;
   messaggioIban: string | null;
   stileCodice: string | null;
   // Foto invito (base64)

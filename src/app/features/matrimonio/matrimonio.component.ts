@@ -84,6 +84,7 @@ export class MatrimonioComponent implements OnInit {
       iban: [''],
       note: [''],
       messaggioInvito: [''],
+      messaggioInvitoFamiglia: [''],
       messaggioIban: ['']
     });
   }
@@ -132,6 +133,7 @@ export class MatrimonioComponent implements OnInit {
       iban: matrimonio.iban || '',
       note: matrimonio.note || '',
       messaggioInvito: matrimonio.messaggioInvito || '',
+      messaggioInvitoFamiglia: matrimonio.messaggioInvitoFamiglia || '',
       messaggioIban: matrimonio.messaggioIban || ''
     });
   }
@@ -188,6 +190,7 @@ export class MatrimonioComponent implements OnInit {
       iban: formValue.iban || null,
       note: formValue.note || null,
       messaggioInvito: formValue.messaggioInvito || null,
+      messaggioInvitoFamiglia: formValue.messaggioInvitoFamiglia || null,
       messaggioIban: formValue.messaggioIban || null,
       stileCodice: this.themeService.currentTheme().id,
       fotoInvitoBase64: fotoInvitoBase64

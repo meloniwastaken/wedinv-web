@@ -69,7 +69,11 @@
             }
           </p>
           <p class="text-muted">
-            {{ invito()!.messaggioInvito || 'saremmo onorati della tua presenza nel giorno più importante della nostra vita.' }}
+            @if (isCapogruppo() && hasFamiglia() && invito()!.messaggioInvitoFamiglia) {
+              {{ invito()!.messaggioInvitoFamiglia }}
+            } @else {
+              {{ invito()!.messaggioInvito || 'saremmo onorati della tua presenza nel giorno più importante della nostra vita.' }}
+            }
           </p>
         </div>
 
