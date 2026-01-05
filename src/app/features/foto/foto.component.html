@@ -6,6 +6,21 @@
           <span class="visually-hidden">Caricamento...</span>
         </div>
       </div>
+    } @else if (!hasMatrimonio()) {
+      <!-- Stato: Nessun matrimonio creato -->
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="bi bi-heart" style="font-size: 5rem; color: var(--color-primary-light);"></i>
+        </div>
+        <h2 class="mb-3">Crea prima il tuo Matrimonio</h2>
+        <p class="lead text-muted mb-4">
+          Per gestire le foto dell'evento devi prima creare il tuo matrimonio
+        </p>
+        <a routerLink="/matrimonio" class="btn btn-primary btn-lg">
+          <i class="bi bi-plus-lg me-2"></i>
+          Crea il tuo Matrimonio
+        </a>
+      </div>
     } @else {
       <!-- Header -->
       <div class="page-header">

@@ -29,6 +29,7 @@ export interface InvitatoConFoto {
 }
 
 export interface FotoEventoAdminResponse {
+  hasMatrimonio: boolean;
   fotoSposi: FotoEventoDTO[];
   totaleFotoSposi: number;
   invitatiConFoto: InvitatoConFoto[];

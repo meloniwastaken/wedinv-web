@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FotoEventoService } from '../../core/services';
 import { FotoEventoAdminResponse, FotoEventoDTO, InvitatoConFoto } from '../../core/models';
 
@@ -13,7 +14,7 @@ interface PendingUpload {
 @Component({
   selector: 'app-foto',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './foto.component.html',
   styleUrl: './foto.component.css'
 })
@@ -22,6 +23,8 @@ export class FotoComponent implements OnInit {
   fotoData = signal<FotoEventoAdminResponse | null>(null);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
+
+  hasMatrimonio = computed(() => this.fotoData()?.hasMatrimonio ?? false);
 
   // Upload modal
   showUploadModal = signal(false);
