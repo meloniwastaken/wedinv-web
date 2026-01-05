@@ -90,7 +90,7 @@
                   <tr>
                     <td>
                       {{ membro.nome }} {{ membro.cognome }}
-                      @if (membro.capogruppo) {
+                      @if (membro.id === invitoId) {
                         <span class="badge bg-info ms-1">Tu</span>
                       }
                     </td>

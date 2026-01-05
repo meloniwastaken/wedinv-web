@@ -75,9 +75,6 @@ export class InvitoPubblicoComponent implements OnInit {
   get nomeInvitato(): string {
     const inv = this.invito();
     if (!inv) return '';
-    if (inv.capogruppo && inv.membriFamiglia && inv.membriFamiglia.length > 0) {
-      return `${inv.nomeInvitato} ${inv.cognomeInvitato} e famiglia`;
-    }
     return `${inv.nomeInvitato} ${inv.cognomeInvitato}`;
   }
 
