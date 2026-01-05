@@ -9,6 +9,17 @@ export interface AccompagnatoreDTO {
   dataModifica?: string;
 }
 
+export interface MembroGruppoFamiliareDTO {
+  id: string;
+  nome: string;
+  cognome: string;
+  email: string | null;
+  telefono: string | null;
+  statoInvito: number | null;
+  statoInvitoDescrizione: string | null;
+  capogruppo: boolean;
+}
+
 export interface InvitatoDTO {
   id: string;
   matrimonio: string;
@@ -28,6 +39,11 @@ export interface InvitatoDTO {
   dataModifica: string;
   accompagnatori?: AccompagnatoreDTO[];
   etichette?: InvitatoEtichettaDTO[];
+  // Gruppo familiare
+  gruppoFamiliare?: string | null;
+  capogruppo?: boolean | null;
+  membriFamiglia?: MembroGruppoFamiliareDTO[];
+  nomeCapogruppo?: string | null;
 }
 
 export interface InvitatoRiepilogoDTO {
@@ -41,6 +57,11 @@ export interface InvitatoRiepilogoDTO {
   numeroPlusConsentiti: number | null;
   plusConfermati: number | null;
   intolleranzeAlimentari: string | null;
+  // Gruppo familiare
+  gruppoFamiliare?: string | null;
+  capogruppo?: boolean | null;
+  nomeCapogruppo?: string | null;
+  numMembriGruppo?: number | null;
 }
 
 export interface ListaInvitatiResponse {
@@ -104,4 +125,23 @@ export enum StatoInvito {
   INVIATO = 2,
   CONFERMATO = 3,
   RIFIUTATO = 4
+}
+
+// Gruppo Familiare
+export interface GruppoFamiliareDTO {
+  id: string;
+  matrimonio: string;
+  capogruppo: MembroGruppoFamiliareDTO;
+  membri: MembroGruppoFamiliareDTO[];
+  totalePersone: number;
+}
+
+export interface CreaGruppoFamiliareRequest {
+  capogruppoId: string;
+  membriIds: string[];
+}
+
+export interface AggiornaGruppoFamiliareRequest {
+  capogruppoId: string;
+  membriIds: string[];
 }

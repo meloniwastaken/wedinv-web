@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitatoService, AuthService } from '../../../core/services';
+import { GruppoFamiliareService } from '../../../core/services/gruppo-familiare.service';
 import { InvitatoRiepilogoDTO, ListaInvitatiResponse, StatoInvito, InvioInvitiResponse, CanaleInvio, ImportaInvitatiResponse } from '../../../core/models';
 
 @Component({
@@ -39,6 +40,11 @@ export class ListaInvitatiComponent implements OnInit {
   deleting = signal(false);
   showDeleteAllModal = signal(false);
   deletingAll = signal(false);
+
+  // Gruppo Familiare
+  showGruppoModal = signal(false);
+  selectedCapogruppoId = signal<string | null>(null);
+  creatingGruppo = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -117,9 +123,29 @@ export class ListaInvitatiComponent implements OnInit {
     });
   });
 
+  // Può creare gruppo familiare se almeno 2 invitati selezionati non fanno già parte di un gruppo
+  canCreateGruppoFamiliare = computed(() => {
+    const selected = Array.from(this.selectedIds());
+    if (selected.length < 2) return false;
+
+    const invitati = this.data()?.invitati || [];
+    const selectedInvitati = invitati.filter(inv => selected.includes(inv.id));
+
+    // Tutti devono non avere già un gruppo
+    return selectedInvitati.every(inv => !inv.gruppoFamiliare);
+  });
+
+  // Invitati selezionati per il modal di creazione gruppo
+  selectedInvitatiForGruppo = computed(() => {
+    const selected = Array.from(this.selectedIds());
+    const invitati = this.data()?.invitati || [];
+    return invitati.filter(inv => selected.includes(inv.id));
+  });
+
   constructor(
     private invitatoService: InvitatoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private gruppoFamiliareService: GruppoFamiliareService
   ) {}
 
   ngOnInit(): void {
@@ -353,7 +379,15 @@ export class ListaInvitatiComponent implements OnInit {
     const invitationUrl = `${window.location.origin}/invito/${invitato.id}`;
 
     // Messaggio precompilato con link
-    const message = `Ciao ${invitato.nome}! \n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
+    let message: string;
+
+    if (invitato.capogruppo && invitato.numMembriGruppo && invitato.numMembriGruppo > 1) {
+      // Messaggio per capofamiglia
+      message = `Ciao ${invitato.nome}!\n\nSiete invitati al nostro matrimonio!\n\nQuesto invito è per tutta la tua famiglia (${invitato.numMembriGruppo} persone).\n\nClicca qui per confermare la presenza di tutti e vedere i dettagli dell'evento:\n${invitationUrl}`;
+    } else {
+      // Messaggio per invitato singolo
+      message = `Ciao ${invitato.nome}!\n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
+    }
 
     return `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
   }
@@ -482,5 +516,73 @@ export class ListaInvitatiComponent implements OnInit {
     this.importResult.set(null);
     this.selectedFile.set(null);
     this.importModalStep.set(1);
+  }
+
+  // Gruppo Familiare methods
+  openGruppoModal(): void {
+    this.showGruppoModal.set(true);
+    // Imposta il primo selezionato come capogruppo di default
+    const selected = this.selectedInvitatiForGruppo();
+    if (selected.length > 0) {
+      this.selectedCapogruppoId.set(selected[0].id);
+    }
+  }
+
+  closeGruppoModal(): void {
+    this.showGruppoModal.set(false);
+    this.selectedCapogruppoId.set(null);
+    this.creatingGruppo.set(false);
+  }
+
+  selectCapogruppo(id: string): void {
+    this.selectedCapogruppoId.set(id);
+  }
+
+  confirmCreaGruppo(): void {
+    const capogruppoId = this.selectedCapogruppoId();
+    if (!capogruppoId) return;
+
+    const selected = Array.from(this.selectedIds());
+    const membriIds = selected.filter(id => id !== capogruppoId);
+
+    this.creatingGruppo.set(true);
+    this.error.set(null);
+
+    this.gruppoFamiliareService.creaGruppoFamiliare({
+      capogruppoId,
+      membriIds
+    }).subscribe({
+      next: () => {
+        this.success.set('Gruppo familiare creato con successo');
+        this.closeGruppoModal();
+        this.selectedIds.set(new Set());
+        this.loadInvitati();
+        setTimeout(() => this.success.set(null), 3000);
+      },
+      error: (err) => {
+        this.creatingGruppo.set(false);
+        this.error.set(err.error?.message || 'Errore durante la creazione del gruppo');
+      }
+    });
+  }
+
+  hasGruppoFamiliare(invitato: InvitatoRiepilogoDTO): boolean {
+    return !!invitato.gruppoFamiliare;
+  }
+
+  getGruppoInfo(invitato: InvitatoRiepilogoDTO): string {
+    if (!invitato.gruppoFamiliare) return '';
+    if (invitato.capogruppo) {
+      return `Capofamiglia (${invitato.numMembriGruppo} persone)`;
+    }
+    return `Famiglia di ${invitato.nomeCapogruppo}`;
+  }
+
+  canSendDirectInvite(invitato: InvitatoRiepilogoDTO): boolean {
+    // Può ricevere invito diretto se:
+    // 1. Non fa parte di un gruppo familiare
+    // 2. È il capogruppo
+    if (!invitato.gruppoFamiliare) return true;
+    return invitato.capogruppo === true;
   }
 }
