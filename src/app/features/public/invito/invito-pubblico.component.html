@@ -135,6 +135,23 @@
           </div>
         }
 
+        <!-- Intolleranze alimentari famiglia -->
+        @if (isCapogruppo() && hasFamiglia() && hasAnyFamilyIntollerances()) {
+          <div class="mb-4 p-4 bg-warning-subtle rounded">
+            <h5 class="mb-3">
+              <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Allergie e intolleranze segnalate
+            </h5>
+            <ul class="list-unstyled mb-0">
+              @for (membro of getMembriWithIntollerances(); track membro.id) {
+                <li class="mb-2">
+                  <strong>{{ membro.nome }} {{ membro.cognome }}:</strong>
+                  <span class="ms-1">{{ membro.intolleranzeAlimentari }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
         <!-- Sezione Cerimonia -->
         <div class="invitation-section">
           <h3><i class="bi bi-building me-2"></i>La Cerimonia</h3>

@@ -297,4 +297,17 @@ export class InvitoPubblicoComponent implements OnInit {
       window.open(link, '_blank');
     }
   }
+
+  // Helper per mostrare intolleranze famiglia
+  hasAnyFamilyIntollerances(): boolean {
+    const membri = this.invito()?.membriFamiglia;
+    if (!membri || membri.length === 0) return false;
+    return membri.some(m => m.intolleranzeAlimentari && m.intolleranzeAlimentari.trim() !== '');
+  }
+
+  getMembriWithIntollerances() {
+    const membri = this.invito()?.membriFamiglia;
+    if (!membri) return [];
+    return membri.filter(m => m.intolleranzeAlimentari && m.intolleranzeAlimentari.trim() !== '');
+  }
 }

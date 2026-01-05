@@ -7,6 +7,7 @@ export interface MembroFamigliaPubblico {
   statoInvito: number | null;
   statoInvitoDescrizione: string | null;
   capogruppo: boolean | null;
+  intolleranzeAlimentari: string | null;
 }
 
 export interface InvitoPubblicoResponse {
