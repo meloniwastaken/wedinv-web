@@ -483,6 +483,19 @@
               }
             </div>
             <div class="modal-body">
+              <!-- Nome Gruppo -->
+              <div class="mb-4">
+                <h6 class="mb-2">
+                  <i class="bi bi-tag me-1"></i>Nome del Gruppo
+                </h6>
+                <input type="text" class="form-control" placeholder="Es. Fam. Rossi"
+                  [ngModel]="editNomeGruppo()" (ngModelChange)="editNomeGruppo.set($event)"
+                  maxlength="100">
+                <div class="form-text">
+                  Questo nome apparirà nell'invito: "Cara Fam. Rossi" invece di "Caro Nome Cognome e famiglia"
+                </div>
+              </div>
+
               <!-- Selezione Capofamiglia -->
               <div class="mb-4">
                 <h6 class="mb-2">
@@ -561,19 +574,6 @@
                       }
                     </div>
                   }
-                </div>
-              </div>
-
-              <!-- Nome Gruppo -->
-              <div class="mb-4">
-                <h6 class="mb-2">
-                  <i class="bi bi-tag me-1"></i>Nome del Gruppo
-                </h6>
-                <input type="text" class="form-control" placeholder="Es. Fam. Rossi"
-                  [ngModel]="editNomeGruppo()" (ngModelChange)="editNomeGruppo.set($event)"
-                  maxlength="100">
-                <div class="form-text">
-                  Questo nome apparirà nell'invito: "Cara Fam. Rossi" invece di "Caro Nome Cognome e famiglia"
                 </div>
               </div>
 
