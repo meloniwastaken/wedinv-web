@@ -1,9 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { InvitoPubblicoService, ThemeService, TitleService, FotoEventoService } from '../../../core/services';
-import { InvitoPubblicoResponse, FotoEventoListResponse, FotoEventoDTO } from '../../../core/models';
-import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
+import { FotoEventoService } from '../../core/services';
+import { FotoEventoAdminResponse, FotoEventoDTO, InvitatoConFoto } from '../../core/models';
 
 interface PendingUpload {
   file: File;
@@ -13,28 +11,26 @@ interface PendingUpload {
 }
 
 @Component({
-  selector: 'app-foto-evento-pubblico',
+  selector: 'app-foto',
   standalone: true,
-  imports: [CommonModule, NavbarPubblicoComponent],
-  templateUrl: './foto-evento-pubblico.component.html',
-  styleUrl: './foto-evento-pubblico.component.css'
+  imports: [CommonModule],
+  templateUrl: './foto.component.html',
+  styleUrl: './foto.component.css'
 })
-export class FotoEventoPubblicoComponent implements OnInit {
+export class FotoComponent implements OnInit {
   loading = signal(true);
-  invito = signal<InvitoPubblicoResponse | null>(null);
-  fotoData = signal<FotoEventoListResponse | null>(null);
+  fotoData = signal<FotoEventoAdminResponse | null>(null);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
-  invitoId: string = '';
 
-  // Modal upload
+  // Upload modal
   showUploadModal = signal(false);
   isDragging = signal(false);
   pendingUploads = signal<PendingUpload[]>([]);
   isUploading = signal(false);
   uploadProgress = signal(0);
 
-  // Modal conferma eliminazione
+  // Delete modal
   showDeleteModal = signal(false);
   fotoToDelete = signal<FotoEventoDTO | null>(null);
   isDeleting = signal(false);
@@ -43,116 +39,36 @@ export class FotoEventoPubblicoComponent implements OnInit {
   showViewerModal = signal(false);
   viewerPhotos = signal<FotoEventoDTO[]>([]);
   viewerCurrentIndex = signal(0);
+  viewerTitle = signal('');
 
-  // Flag per navbar
-  hasListaNozze = signal(false);
+  // Invitato detail modal
+  showInvitatoModal = signal(false);
+  selectedInvitato = signal<InvitatoConFoto | null>(null);
 
-  // Grid: mostra sempre 12 slot
-  readonly MAX_SLOTS = 12;
-
-  // Array di slot per la griglia
-  gridSlots = computed(() => {
-    const foto = this.fotoData()?.foto || [];
-    const slots: (FotoEventoDTO | null)[] = [];
-
-    // Riempi con le foto esistenti
-    for (const f of foto) {
-      slots.push(f);
-    }
-
-    // Riempi con slot vuoti fino a MAX_SLOTS
-    while (slots.length < this.MAX_SLOTS) {
-      slots.push(null);
-    }
-
-    return slots;
-  });
-
-  // Numero di foto che posso ancora caricare
-  remainingUploads = computed(() => {
-    const data = this.fotoData();
-    if (!data) return 0;
-    return data.maxFotoPerInvitato - data.fotoCaricateDaMe;
-  });
-
-  constructor(
-    private invitoPubblicoService: InvitoPubblicoService,
-    private fotoEventoService: FotoEventoService,
-    private themeService: ThemeService,
-    private titleService: TitleService,
-    private route: ActivatedRoute
-  ) {}
+  constructor(private fotoEventoService: FotoEventoService) {}
 
   ngOnInit(): void {
-    this.invitoId = this.route.snapshot.paramMap.get('id') || '';
-    if (this.invitoId) {
-      this.loadData();
-    } else {
-      this.error.set('Invito non trovato');
-      this.loading.set(false);
-    }
+    this.loadData();
   }
 
   private loadData(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    // Carica invito per info generali e tema
-    this.invitoPubblicoService.getInvito(this.invitoId).subscribe({
-      next: (invito) => {
-        this.invito.set(invito);
-        this.themeService.applyThemeForPublicPage(invito.stileCodice);
-        this.titleService.setTitleWithSposi(invito.nomeSposoA, invito.nomeSposoB);
-        // Carica foto
-        this.loadFoto();
-      },
-      error: (err) => {
-        if (err.status === 404) {
-          this.error.set('Invito non trovato o non valido');
-        } else {
-          this.error.set('Errore nel caricamento dei dati');
-        }
-        this.loading.set(false);
-      }
-    });
-  }
-
-  private loadFoto(): void {
-    this.fotoEventoService.getFotoEvento(this.invitoId).subscribe({
+    this.fotoEventoService.getFotoEventoAdmin().subscribe({
       next: (data) => {
         this.fotoData.set(data);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Errore nel caricamento delle foto');
+      error: (err) => {
+        this.error.set(err.error?.message || 'Errore nel caricamento delle foto');
         this.loading.set(false);
       }
     });
   }
 
-  get nomeInvitato(): string {
-    const inv = this.invito();
-    return inv ? `${inv.nomeInvitato} ${inv.cognomeInvitato}` : '';
-  }
-
-  get hasIban(): boolean {
-    return !!this.invito()?.iban;
-  }
-
   // === Upload Modal ===
   openUploadModal(): void {
-    if (!this.fotoData()?.uploadAbilitato) {
-      this.error.set("L'upload delle foto sarà disponibile dalla data dell'evento");
-      setTimeout(() => this.error.set(null), 3000);
-      return;
-    }
-
-    if (this.remainingUploads() <= 0) {
-      this.error.set('Hai raggiunto il limite massimo di foto');
-      setTimeout(() => this.error.set(null), 3000);
-      return;
-    }
-
     this.pendingUploads.set([]);
     this.showUploadModal.set(true);
   }
@@ -197,13 +113,10 @@ export class FotoEventoPubblicoComponent implements OnInit {
   private processFiles(files: FileList): void {
     const validFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
-    const remaining = this.remainingUploads();
     const current = this.pendingUploads();
-
-    let added = 0;
     const errors: string[] = [];
 
-    for (let i = 0; i < files.length && (current.length + added) < remaining; i++) {
+    for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
       if (!validFormats.includes(file.type)) {
@@ -216,18 +129,12 @@ export class FotoEventoPubblicoComponent implements OnInit {
         continue;
       }
 
-      // Crea preview
       const preview = URL.createObjectURL(file);
       current.push({
         file,
         preview,
         status: 'pending'
       });
-      added++;
-    }
-
-    if (files.length > remaining - current.length + added) {
-      errors.push(`Puoi caricare ancora ${remaining} foto`);
     }
 
     this.pendingUploads.set([...current]);
@@ -258,7 +165,6 @@ export class FotoEventoPubblicoComponent implements OnInit {
     for (let i = 0; i < pending.length; i++) {
       const upload = pending[i];
 
-      // Aggiorna stato a uploading
       const updated = [...pending];
       updated[i] = { ...upload, status: 'uploading' };
       this.pendingUploads.set(updated);
@@ -267,13 +173,11 @@ export class FotoEventoPubblicoComponent implements OnInit {
         const base64 = await this.fileToBase64(upload.file);
         await this.uploadSinglePhoto(base64, upload.file.name);
 
-        // Aggiorna stato a done
         const done = [...this.pendingUploads()];
         done[i] = { ...done[i], status: 'done' };
         this.pendingUploads.set(done);
         successCount++;
       } catch (err: any) {
-        // Aggiorna stato a error
         const errored = [...this.pendingUploads()];
         errored[i] = { ...errored[i], status: 'error', error: err.message || 'Errore upload' };
         this.pendingUploads.set(errored);
@@ -288,12 +192,10 @@ export class FotoEventoPubblicoComponent implements OnInit {
     if (successCount > 0) {
       this.success.set(`${successCount} foto caricate con successo!`);
       setTimeout(() => this.success.set(null), 3000);
-      // Ricarica le foto
-      this.loadFoto();
+      this.loadData();
     }
 
     if (errorCount === 0) {
-      // Chiudi modal se tutto ok
       setTimeout(() => {
         this.showUploadModal.set(false);
         this.pendingUploads.set([]);
@@ -312,7 +214,7 @@ export class FotoEventoPubblicoComponent implements OnInit {
 
   private uploadSinglePhoto(base64: string, filename: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.fotoEventoService.uploadFoto(this.invitoId, {
+      this.fotoEventoService.uploadFotoSposi({
         fotoBase64: base64,
         nomeFile: filename
       }).subscribe({
@@ -340,14 +242,42 @@ export class FotoEventoPubblicoComponent implements OnInit {
 
     this.isDeleting.set(true);
 
-    this.fotoEventoService.deleteFoto(this.invitoId, foto.id).subscribe({
+    this.fotoEventoService.deleteFotoAdmin(foto.id).subscribe({
       next: () => {
         this.success.set('Foto eliminata');
         setTimeout(() => this.success.set(null), 3000);
         this.isDeleting.set(false);
         this.showDeleteModal.set(false);
         this.fotoToDelete.set(null);
-        this.loadFoto();
+        this.loadData();
+
+        // Update viewer if open
+        if (this.showViewerModal()) {
+          const photos = this.viewerPhotos().filter(p => p.id !== foto.id);
+          if (photos.length === 0) {
+            this.closeViewerModal();
+          } else {
+            this.viewerPhotos.set(photos);
+            if (this.viewerCurrentIndex() >= photos.length) {
+              this.viewerCurrentIndex.set(photos.length - 1);
+            }
+          }
+        }
+
+        // Update invitato modal if open
+        if (this.showInvitatoModal() && this.selectedInvitato()) {
+          const invitato = this.selectedInvitato()!;
+          const updatedFoto = invitato.foto.filter(p => p.id !== foto.id);
+          if (updatedFoto.length === 0) {
+            this.closeInvitatoModal();
+          } else {
+            this.selectedInvitato.set({
+              ...invitato,
+              foto: updatedFoto,
+              numeroFoto: updatedFoto.length
+            });
+          }
+        }
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Errore durante l\'eliminazione');
@@ -356,30 +286,11 @@ export class FotoEventoPubblicoComponent implements OnInit {
     });
   }
 
-  // Verifica se una foto è mia (posso eliminarla)
-  isMyPhoto(foto: FotoEventoDTO): boolean {
-    const inv = this.invito();
-    if (!inv) return false;
-    return foto.nomeInvitato === inv.nomeInvitato && foto.cognomeInvitato === inv.cognomeInvitato;
-  }
-
-  formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('it-IT', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
   // === Image Viewer Modal ===
-  openViewerModal(index: number): void {
-    const photos = this.fotoData()?.foto || [];
+  openViewerModal(photos: FotoEventoDTO[], index: number, title: string): void {
     this.viewerPhotos.set(photos);
     this.viewerCurrentIndex.set(index);
+    this.viewerTitle.set(title);
     this.showViewerModal.set(true);
   }
 
@@ -404,5 +315,39 @@ export class FotoEventoPubblicoComponent implements OnInit {
     const photos = this.viewerPhotos();
     const index = this.viewerCurrentIndex();
     return photos[index] || null;
+  }
+
+  // Open viewer for sposi photos
+  openSposiViewer(index: number): void {
+    const photos = this.fotoData()?.fotoSposi || [];
+    this.openViewerModal(photos, index, 'Le nostre foto');
+  }
+
+  // Open viewer for invitato photos
+  openInvitatoViewer(invitato: InvitatoConFoto, index: number): void {
+    this.openViewerModal(invitato.foto, index, `Foto di ${invitato.nome} ${invitato.cognome}`);
+  }
+
+  // === Invitato Detail Modal ===
+  openInvitatoModal(invitato: InvitatoConFoto): void {
+    this.selectedInvitato.set(invitato);
+    this.showInvitatoModal.set(true);
+  }
+
+  closeInvitatoModal(): void {
+    this.showInvitatoModal.set(false);
+    this.selectedInvitato.set(null);
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('it-IT', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 }

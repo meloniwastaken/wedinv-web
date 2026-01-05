@@ -1,105 +1,122 @@
-<app-navbar-pubblico
-  [invitatoId]="invitoId"
-  [nomeInvitato]="nomeInvitato"
-  [showListaNozze]="hasListaNozze()"
-  [showIban]="hasIban">
-</app-navbar-pubblico>
-
-<div class="foto-container">
-  @if (loading()) {
-    <div class="loading-container">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Caricamento...</span>
+<div class="page-container">
+  <div class="container">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
       </div>
-    </div>
-  } @else if (error() && !invito()) {
-    <div class="foto-card">
-      <div class="text-center py-5">
-        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
-        <h3 class="mt-4">{{ error() }}</h3>
-        <p class="text-muted">Verifica che il link sia corretto o contatta gli sposi.</p>
-      </div>
-    </div>
-  } @else if (invito()) {
-    <div class="foto-card">
+    } @else {
       <!-- Header -->
-      <div class="foto-header">
-        <div class="foto-header-content">
-          <h2><i class="bi bi-images me-2"></i>Foto dell'Evento</h2>
-          <p class="text-muted mb-0">
-            Condividi i tuoi scatti del matrimonio di {{ invito()!.nomeSposoA }} e {{ invito()!.nomeSposoB }}
-          </p>
-        </div>
-        <div class="foto-header-actions">
-          @if (fotoData()?.uploadAbilitato) {
-            <button class="btn btn-primary" (click)="openUploadModal()" [disabled]="remainingUploads() <= 0">
-              <i class="bi bi-plus-lg me-2"></i>Aggiungi foto
-            </button>
-          } @else {
-            <span class="badge bg-secondary">
-              <i class="bi bi-clock me-1"></i>Upload disponibile dalla data dell'evento
-            </span>
-          }
-        </div>
+      <div class="page-header">
+        <h1 class="display-title">
+          <i class="bi bi-images me-2"></i>Foto dell'Evento
+        </h1>
+        <p class="text-muted">Gestisci le foto del vostro matrimonio</p>
       </div>
 
       <!-- Alerts -->
       @if (error()) {
-        <div class="alert alert-danger mx-4 mt-4">
+        <div class="alert alert-danger">
           <i class="bi bi-exclamation-circle me-2"></i>{{ error() }}
         </div>
       }
       @if (success()) {
-        <div class="alert alert-success mx-4 mt-4">
+        <div class="alert alert-success">
           <i class="bi bi-check-circle me-2"></i>{{ success() }}
         </div>
       }
 
-      <!-- Info upload -->
-      @if (fotoData()) {
-        <div class="foto-info mx-4 mt-4">
-          <span class="badge bg-light text-dark">
-            <i class="bi bi-images me-1"></i>
-            {{ fotoData()!.totale }} foto totali
-          </span>
-          <span class="badge bg-primary">
-            <i class="bi bi-person me-1"></i>
-            {{ fotoData()!.fotoCaricateDaMe }} / {{ fotoData()!.maxFotoPerInvitato }} tue foto
-          </span>
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4 col-6">
+          <div class="stat-card">
+            <div class="stat-number">{{ fotoData()?.totaleFotoSposi ?? 0 }}</div>
+            <div class="stat-label">Le vostre foto</div>
+          </div>
         </div>
-      }
+        <div class="col-md-4 col-6">
+          <div class="stat-card">
+            <div class="stat-number">{{ fotoData()?.totaleFotoInvitati ?? 0 }}</div>
+            <div class="stat-label">Foto degli invitati</div>
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="stat-card">
+            <div class="stat-number">{{ fotoData()?.totaleInvitatiConFoto ?? 0 }}</div>
+            <div class="stat-label">Invitati che hanno caricato</div>
+          </div>
+        </div>
+      </div>
 
-      <!-- Grid foto -->
-      <div class="foto-grid">
-        @for (slot of gridSlots(); track $index) {
-          <div class="foto-slot" [class.foto-slot-empty]="!slot">
-            @if (slot) {
-              <!-- Foto esistente -->
-              <div class="foto-item" (click)="openViewerModal($index)">
-                <img [src]="slot.fotoBase64" [alt]="slot.nomeFile || 'Foto evento'" loading="lazy">
+      <!-- Le nostre foto -->
+      <div class="foto-section">
+        <div class="section-header">
+          <h2><i class="bi bi-heart me-2"></i>Le nostre foto</h2>
+          <button class="btn btn-primary" (click)="openUploadModal()">
+            <i class="bi bi-plus-lg me-2"></i>Aggiungi foto
+          </button>
+        </div>
+
+        @if (fotoData()?.fotoSposi?.length) {
+          <div class="foto-grid">
+            @for (foto of fotoData()!.fotoSposi; track foto.id; let i = $index) {
+              <div class="foto-item" (click)="openSposiViewer(i)">
+                <img [src]="foto.fotoBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
                 <div class="foto-overlay">
-                  <div class="foto-info-overlay">
-                    <small>{{ slot.nomeInvitato }} {{ slot.cognomeInvitato }}</small>
-                    <small>{{ formatDate(slot.dataCaricamento) }}</small>
-                  </div>
-                  @if (isMyPhoto(slot)) {
-                    <button class="btn-delete" (click)="openDeleteModal(slot); $event.stopPropagation()" title="Elimina foto">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                  }
+                  <small>{{ formatDate(foto.dataCaricamento) }}</small>
+                  <button class="btn-delete" (click)="openDeleteModal(foto); $event.stopPropagation()" title="Elimina">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </div>
-              </div>
-            } @else {
-              <!-- Slot vuoto -->
-              <div class="foto-empty" (click)="openUploadModal()">
-                <i class="bi bi-plus-lg"></i>
               </div>
             }
           </div>
+        } @else {
+          <div class="empty-state">
+            <i class="bi bi-camera"></i>
+            <p>Non avete ancora caricato foto</p>
+            <button class="btn btn-outline-primary" (click)="openUploadModal()">
+              <i class="bi bi-plus-lg me-2"></i>Carica la prima foto
+            </button>
+          </div>
         }
       </div>
-    </div>
-  }
+
+      <!-- Foto degli invitati -->
+      <div class="foto-section">
+        <div class="section-header">
+          <h2><i class="bi bi-people me-2"></i>Foto degli invitati</h2>
+        </div>
+
+        @if (fotoData()?.invitatiConFoto?.length) {
+          <div class="invitati-grid">
+            @for (invitato of fotoData()!.invitatiConFoto; track invitato.invitatoId) {
+              <div class="invitato-card" (click)="openInvitatoModal(invitato)">
+                <div class="invitato-preview">
+                  @if (invitato.foto.length > 0) {
+                    <img [src]="invitato.foto[0].fotoBase64" alt="Preview">
+                    @if (invitato.numeroFoto > 1) {
+                      <div class="foto-count">+{{ invitato.numeroFoto - 1 }}</div>
+                    }
+                  }
+                </div>
+                <div class="invitato-info">
+                  <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
+                  <small>{{ invitato.numeroFoto }} foto</small>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>Nessun invitato ha ancora caricato foto</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>
 
 <!-- Upload Modal -->
@@ -115,10 +132,8 @@
         </div>
         <div class="modal-body">
           @if (pendingUploads().length === 0) {
-            <!-- Drop zone -->
             <p class="text-muted mb-3 text-center">
-              Puoi caricare fino a <strong>{{ remainingUploads() }}</strong> foto.
-              Formati: JPEG, PNG, GIF, WebP. Max 5MB per foto.
+              Formati supportati: JPEG, PNG, GIF, WebP. Max 5MB per foto.
             </p>
             <div class="drop-zone p-5 text-center rounded-3"
               [class.drop-zone-active]="isDragging()"
@@ -141,7 +156,6 @@
               <small class="text-muted">oppure clicca per selezionare</small>
             </div>
           } @else {
-            <!-- Preview uploads -->
             <div class="pending-uploads">
               @if (isUploading()) {
                 <div class="progress mb-3">
@@ -232,11 +246,48 @@
   </div>
 }
 
+<!-- Invitato Detail Modal -->
+@if (showInvitatoModal() && selectedInvitato()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-person me-2"></i>
+            Foto di {{ selectedInvitato()!.nome }} {{ selectedInvitato()!.cognome }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeInvitatoModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="foto-grid">
+            @for (foto of selectedInvitato()!.foto; track foto.id; let i = $index) {
+              <div class="foto-item" (click)="openInvitatoViewer(selectedInvitato()!, i)">
+                <img [src]="foto.fotoBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
+                <div class="foto-overlay">
+                  <small>{{ formatDate(foto.dataCaricamento) }}</small>
+                  <button class="btn-delete" (click)="openDeleteModal(foto); $event.stopPropagation()" title="Elimina">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeInvitatoModal()">
+            Chiudi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- Image Viewer Modal -->
 @if (showViewerModal() && viewerCurrentPhoto) {
   <div class="viewer-modal" (click)="closeViewerModal()">
     <div class="viewer-header">
-      <span class="viewer-title">Foto dell'Evento</span>
+      <span class="viewer-title">{{ viewerTitle() }}</span>
       <span class="viewer-counter">{{ viewerCurrentIndex() + 1 }} / {{ viewerPhotos().length }}</span>
       <button class="viewer-close" (click)="closeViewerModal()">
         <i class="bi bi-x-lg"></i>
@@ -256,15 +307,10 @@
       </button>
     </div>
     <div class="viewer-footer" (click)="$event.stopPropagation()">
-      <div class="viewer-info">
-        <small>{{ viewerCurrentPhoto.nomeInvitato }} {{ viewerCurrentPhoto.cognomeInvitato }}</small>
-        <small class="text-white-50">{{ formatDate(viewerCurrentPhoto.dataCaricamento) }}</small>
-      </div>
-      @if (isMyPhoto(viewerCurrentPhoto)) {
-        <button class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(viewerCurrentPhoto)">
-          <i class="bi bi-trash me-1"></i>Elimina
-        </button>
-      }
+      <small class="text-white-50">{{ formatDate(viewerCurrentPhoto.dataCaricamento) }}</small>
+      <button class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(viewerCurrentPhoto)">
+        <i class="bi bi-trash me-1"></i>Elimina
+      </button>
     </div>
   </div>
 }

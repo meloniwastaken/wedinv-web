@@ -19,3 +19,19 @@ export interface UploadFotoEventoRequest {
   fotoBase64: string;
   nomeFile?: string | null;
 }
+
+export interface InvitatoConFoto {
+  invitatoId: string;
+  nome: string;
+  cognome: string;
+  numeroFoto: number;
+  foto: FotoEventoDTO[];
+}
+
+export interface FotoEventoAdminResponse {
+  fotoSposi: FotoEventoDTO[];
+  totaleFotoSposi: number;
+  invitatiConFoto: InvitatoConFoto[];
+  totaleInvitatiConFoto: number;
+  totaleFotoInvitati: number;
+}

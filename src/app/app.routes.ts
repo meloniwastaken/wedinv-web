@@ -111,6 +111,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'foto',
+    loadComponent: () => import('./features/foto/foto.component').then(m => m.FotoComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'tavoli',
     loadComponent: () => import('./features/tavoli/tavoli.component').then(m => m.TavoliComponent),
     canActivate: [authGuard]
