@@ -181,6 +181,9 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <div>
                     <i class="bi bi-people-fill me-2"></i>Gruppo Familiare
+                    @if (invitato()!.nomeGruppo) {
+                      <span class="badge bg-primary ms-2">{{ invitato()!.nomeGruppo }}</span>
+                    }
                     @if (invitato()!.capogruppo) {
                       <span class="badge bg-info ms-2">Capofamiglia</span>
                     } @else {
@@ -558,6 +561,19 @@
                       }
                     </div>
                   }
+                </div>
+              </div>
+
+              <!-- Nome Gruppo -->
+              <div class="mb-4">
+                <h6 class="mb-2">
+                  <i class="bi bi-tag me-1"></i>Nome del Gruppo
+                </h6>
+                <input type="text" class="form-control" placeholder="Es. Fam. Rossi"
+                  [ngModel]="editNomeGruppo()" (ngModelChange)="editNomeGruppo.set($event)"
+                  maxlength="100">
+                <div class="form-text">
+                  Questo nome apparirà nell'invito: "Cara Fam. Rossi" invece di "Caro Nome Cognome e famiglia"
                 </div>
               </div>
 

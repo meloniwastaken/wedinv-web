@@ -60,7 +60,9 @@
         <!-- Saluto personale -->
         <div class="text-center mb-4">
           <p class="lead">
-            @if (isCapogruppo() && hasFamiglia()) {
+            @if (isCapogruppo() && hasFamiglia() && invito()!.nomeGruppo) {
+              Cara <strong>{{ invito()!.nomeGruppo }}</strong>,
+            } @else if (isCapogruppo() && hasFamiglia()) {
               Caro/a <strong>{{ invito()!.nomeInvitato }} {{ invito()!.cognomeInvitato }}</strong> e famiglia,
             } @else {
               Caro/a <strong>{{ invito()!.nomeInvitato }} {{ invito()!.cognomeInvitato }}</strong>,

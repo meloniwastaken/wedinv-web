@@ -47,6 +47,7 @@ export interface InvitoPubblicoResponse {
   // Gruppo familiare
   capogruppo?: boolean | null;
   membroFamiglia?: boolean | null;
+  nomeGruppo?: string | null; // Es. "Fam. Rossi" - per il saluto nell'invito
   membriFamiglia?: MembroFamigliaPubblico[];
 }
 

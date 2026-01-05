@@ -42,6 +42,7 @@ export interface InvitatoDTO {
   // Gruppo familiare
   gruppoFamiliare?: string | null;
   capogruppo?: boolean | null;
+  nomeGruppo?: string | null; // Es. "Fam. Rossi" - solo per capogruppo
   membriFamiglia?: MembroGruppoFamiliareDTO[];
   nomeCapogruppo?: string | null;
 }
@@ -60,6 +61,7 @@ export interface InvitatoRiepilogoDTO {
   // Gruppo familiare
   gruppoFamiliare?: string | null;
   capogruppo?: boolean | null;
+  nomeGruppo?: string | null; // Es. "Fam. Rossi" - solo per capogruppo
   nomeCapogruppo?: string | null;
   numMembriGruppo?: number | null;
 }
@@ -139,9 +141,11 @@ export interface GruppoFamiliareDTO {
 export interface CreaGruppoFamiliareRequest {
   capogruppoId: string;
   membriIds: string[];
+  nomeGruppo?: string | null; // Es. "Fam. Rossi"
 }
 
 export interface AggiornaGruppoFamiliareRequest {
   capogruppoId: string;
   membriIds: string[];
+  nomeGruppo?: string | null; // Es. "Fam. Rossi"
 }

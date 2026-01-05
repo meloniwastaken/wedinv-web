@@ -44,6 +44,7 @@ export class DettaglioInvitatoComponent implements OnInit {
   editSelectedMembriIds = signal<Set<string>>(new Set());
   editCapogruppoSearch = signal('');
   editMembriSearch = signal('');
+  editNomeGruppo = signal<string>(''); // Es. "Fam. Rossi"
 
   // Computed per le liste filtrate nel modal modifica gruppo
   filteredEditCapogruppoList = computed(() => {
@@ -477,6 +478,7 @@ export class DettaglioInvitatoComponent implements OnInit {
 
         this.editCapogruppoSearch.set('');
         this.editMembriSearch.set('');
+        this.editNomeGruppo.set(inv.nomeGruppo || '');
         this.showEditGruppoModal.set(true);
       },
       error: (err) => {
@@ -491,6 +493,7 @@ export class DettaglioInvitatoComponent implements OnInit {
     this.editSelectedMembriIds.set(new Set());
     this.editCapogruppoSearch.set('');
     this.editMembriSearch.set('');
+    this.editNomeGruppo.set('');
     this.savingGruppo.set(false);
     this.deletingGruppo.set(false);
   }
@@ -523,13 +526,15 @@ export class DettaglioInvitatoComponent implements OnInit {
     if (!capogruppoId || !gruppoId) return;
 
     const membriIds = Array.from(this.editSelectedMembriIds());
+    const nomeGruppo = this.editNomeGruppo().trim() || null;
 
     this.savingGruppo.set(true);
     this.error.set(null);
 
     this.gruppoFamiliareService.aggiornaGruppoFamiliare(gruppoId, {
       capogruppoId,
-      membriIds
+      membriIds,
+      nomeGruppo
     }).subscribe({
       next: () => {
         this.success.set('Gruppo familiare aggiornato con successo');
