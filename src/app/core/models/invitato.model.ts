@@ -133,19 +133,18 @@ export enum StatoInvito {
 export interface GruppoFamiliareDTO {
   id: string;
   matrimonio: string;
-  capogruppo: MembroGruppoFamiliareDTO;
+  nomeGruppo?: string | null; // Es. "Fam. Rossi"
+  capogruppo?: MembroGruppoFamiliareDTO; // Per retrocompatibilità
   membri: MembroGruppoFamiliareDTO[];
   totalePersone: number;
 }
 
 export interface CreaGruppoFamiliareRequest {
-  capogruppoId: string;
   membriIds: string[];
   nomeGruppo?: string | null; // Es. "Fam. Rossi"
 }
 
 export interface AggiornaGruppoFamiliareRequest {
-  capogruppoId: string;
   membriIds: string[];
   nomeGruppo?: string | null; // Es. "Fam. Rossi"
 }

@@ -59,9 +59,8 @@ export class InvitoPubblicoComponent implements OnInit {
     this.isConfermato() || this.isRifiutato()
   );
 
-  // Gruppo familiare
+  // Gruppo familiare - tutti i membri hanno accesso uguale
   isCapogruppo = computed(() => this.invito()?.capogruppo === true);
-  isMembroFamiglia = computed(() => this.invito()?.membroFamiglia === true);
   hasFamiglia = computed(() => (this.invito()?.membriFamiglia?.length ?? 0) > 0);
 
   // Per famiglia: ha risposto se tutti i membri hanno risposto

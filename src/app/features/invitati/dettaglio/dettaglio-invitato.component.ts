@@ -40,16 +40,14 @@ export class DettaglioInvitatoComponent implements OnInit {
   savingGruppo = signal(false);
   deletingGruppo = signal(false);
   allInvitati = signal<InvitatoRiepilogoDTO[]>([]);
-  editSelectedCapogruppoId = signal<string | null>(null);
   editSelectedMembriIds = signal<Set<string>>(new Set());
-  editCapogruppoSearch = signal('');
   editMembriSearch = signal('');
   editNomeGruppo = signal<string>(''); // Es. "Fam. Rossi"
 
-  // Computed per le liste filtrate nel modal modifica gruppo
-  filteredEditCapogruppoList = computed(() => {
+  // Computed per la lista filtrata nel modal modifica gruppo
+  filteredEditMembriList = computed(() => {
     const invitati = this.allInvitati();
-    const term = this.editCapogruppoSearch().toLowerCase();
+    const term = this.editMembriSearch().toLowerCase();
     const currentGruppoId = this.invitato()?.gruppoFamiliare;
 
     // Include invitati senza gruppo O che appartengono al gruppo corrente
@@ -70,41 +68,6 @@ export class DettaglioInvitatoComponent implements OnInit {
       if (nomeCompare !== 0) return nomeCompare;
       return a.cognome.localeCompare(b.cognome, 'it');
     });
-  });
-
-  filteredEditMembriList = computed(() => {
-    const invitati = this.allInvitati();
-    const capogruppoId = this.editSelectedCapogruppoId();
-    const term = this.editMembriSearch().toLowerCase();
-    const currentGruppoId = this.invitato()?.gruppoFamiliare;
-
-    // Include invitati senza gruppo O che appartengono al gruppo corrente (escluso capogruppo)
-    let filtered = invitati.filter(inv =>
-      inv.id !== capogruppoId &&
-      (!inv.gruppoFamiliare || inv.gruppoFamiliare === currentGruppoId)
-    );
-
-    if (term) {
-      filtered = filtered.filter(inv =>
-        inv.nome.toLowerCase().includes(term) ||
-        inv.cognome.toLowerCase().includes(term) ||
-        (inv.email?.toLowerCase().includes(term) ?? false)
-      );
-    }
-
-    return [...filtered].sort((a, b) => {
-      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
-      if (nomeCompare !== 0) return nomeCompare;
-      return a.cognome.localeCompare(b.cognome, 'it');
-    });
-  });
-
-  // Nome del capofamiglia dalla lista membri
-  nomeCapofamiglia = computed(() => {
-    const membri = this.invitato()?.membriFamiglia;
-    if (!membri) return '';
-    const capogruppo = membri.find(m => m.capogruppo);
-    return capogruppo ? `${capogruppo.nome} ${capogruppo.cognome}` : '';
   });
 
   constructor(
@@ -450,38 +413,20 @@ export class DettaglioInvitatoComponent implements OnInit {
       next: (data) => {
         this.allInvitati.set(data.invitati || []);
 
-        // Pre-seleziona il capogruppo attuale
-        if (inv.capogruppo) {
-          this.editSelectedCapogruppoId.set(inv.id);
-        } else {
-          // Cerca il capogruppo tra i membri
-          const capogruppo = data.invitati?.find(i =>
-            i.gruppoFamiliare === inv.gruppoFamiliare && i.capogruppo
-          );
-          this.editSelectedCapogruppoId.set(capogruppo?.id || null);
-        }
-
-        // Pre-seleziona i membri attuali (escluso capogruppo)
+        // Pre-seleziona tutti i membri attuali del gruppo
         const membriIds = new Set<string>();
         if (inv.membriFamiglia) {
           inv.membriFamiglia.forEach(m => {
-            if (!m.capogruppo) {
-              membriIds.add(m.id);
-            }
+            membriIds.add(m.id);
           });
-        }
-        // Se l'invitato corrente non è capogruppo, aggiungi se stesso ai membri
-        if (!inv.capogruppo) {
-          membriIds.add(inv.id);
         }
         this.editSelectedMembriIds.set(membriIds);
 
-        this.editCapogruppoSearch.set('');
         this.editMembriSearch.set('');
         this.editNomeGruppo.set(inv.nomeGruppo || '');
         this.showEditGruppoModal.set(true);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Errore nel caricamento degli invitati');
       }
     });
@@ -489,21 +434,11 @@ export class DettaglioInvitatoComponent implements OnInit {
 
   closeEditGruppoModal(): void {
     this.showEditGruppoModal.set(false);
-    this.editSelectedCapogruppoId.set(null);
     this.editSelectedMembriIds.set(new Set());
-    this.editCapogruppoSearch.set('');
     this.editMembriSearch.set('');
     this.editNomeGruppo.set('');
     this.savingGruppo.set(false);
     this.deletingGruppo.set(false);
-  }
-
-  selectEditCapogruppo(id: string): void {
-    this.editSelectedCapogruppoId.set(id);
-    // Rimuovi dai membri se era selezionato
-    const membri = new Set(this.editSelectedMembriIds());
-    membri.delete(id);
-    this.editSelectedMembriIds.set(membri);
   }
 
   toggleEditMembro(id: string): void {
@@ -521,18 +456,18 @@ export class DettaglioInvitatoComponent implements OnInit {
   }
 
   saveEditGruppo(): void {
-    const capogruppoId = this.editSelectedCapogruppoId();
     const gruppoId = this.invitato()?.gruppoFamiliare;
-    if (!capogruppoId || !gruppoId) return;
+    if (!gruppoId) return;
 
     const membriIds = Array.from(this.editSelectedMembriIds());
+    if (membriIds.length < 2) return;
+
     const nomeGruppo = this.editNomeGruppo().trim() || null;
 
     this.savingGruppo.set(true);
     this.error.set(null);
 
     this.gruppoFamiliareService.aggiornaGruppoFamiliare(gruppoId, {
-      capogruppoId,
       membriIds,
       nomeGruppo
     }).subscribe({
