@@ -1,0 +1,297 @@
+/* Foto evento pubblico component styles */
+
+.foto-container {
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-alt) 100%);
+  padding: 2rem;
+}
+
+.foto-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--color-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+/* Header */
+.foto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.foto-header h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--color-text);
+}
+
+.foto-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Info badges */
+.foto-info {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Grid foto */
+.foto-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.foto-slot {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.foto-slot-empty {
+  border: 2px dashed var(--color-border);
+  background: rgba(var(--color-primary-rgb), 0.03);
+}
+
+/* Foto item */
+.foto-item {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.foto-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foto-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.75rem;
+}
+
+.foto-item:hover .foto-overlay {
+  opacity: 1;
+}
+
+.foto-info-overlay {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.foto-info-overlay small {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.btn-delete {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-delete:hover {
+  transform: scale(1.1);
+  background: #dc3545;
+}
+
+/* Slot vuoto */
+.foto-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-text-muted);
+}
+
+.foto-empty i {
+  font-size: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.foto-empty:hover {
+  background: rgba(var(--color-primary-rgb), 0.08);
+  color: var(--color-primary);
+}
+
+.foto-empty:hover i {
+  transform: scale(1.2);
+}
+
+/* Drop zone */
+.drop-zone {
+  background-color: rgba(var(--color-primary-rgb), 0.03);
+  border: 2px dashed var(--color-border) !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.drop-zone:hover {
+  border-color: var(--color-primary) !important;
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.drop-zone-active {
+  border-color: var(--color-primary) !important;
+  background-color: rgba(var(--color-primary-rgb), 0.1) !important;
+  transform: scale(1.01);
+}
+
+/* Pending uploads grid */
+.pending-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.pending-item {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  border: 2px solid var(--color-border);
+}
+
+.pending-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pending-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.pending-item.pending-done {
+  border-color: var(--color-success);
+}
+
+.pending-item.pending-done .pending-overlay {
+  background: rgba(25, 135, 84, 0.6);
+}
+
+.pending-item.pending-error {
+  border-color: var(--color-danger);
+}
+
+.pending-item.pending-error .pending-overlay {
+  background: rgba(220, 53, 69, 0.6);
+}
+
+.pending-item.pending-uploading .pending-overlay {
+  background: rgba(0,0,0,0.5);
+}
+
+.btn-remove {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.btn-remove:hover {
+  background: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .foto-grid,
+  .pending-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .foto-container {
+    padding: 1rem;
+  }
+
+  .foto-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .foto-header-actions {
+    justify-content: center;
+  }
+
+  .foto-grid,
+  .pending-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .foto-info {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .foto-grid,
+  .pending-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .foto-empty i {
+    font-size: 1.5rem;
+  }
+}

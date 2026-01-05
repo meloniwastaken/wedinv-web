@@ -1,0 +1,233 @@
+<app-navbar-pubblico
+  [invitatoId]="invitoId"
+  [nomeInvitato]="nomeInvitato"
+  [showListaNozze]="hasListaNozze()"
+  [showIban]="hasIban">
+</app-navbar-pubblico>
+
+<div class="foto-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+    </div>
+  } @else if (error() && !invito()) {
+    <div class="foto-card">
+      <div class="text-center py-5">
+        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+        <h3 class="mt-4">{{ error() }}</h3>
+        <p class="text-muted">Verifica che il link sia corretto o contatta gli sposi.</p>
+      </div>
+    </div>
+  } @else if (invito()) {
+    <div class="foto-card">
+      <!-- Header -->
+      <div class="foto-header">
+        <div class="foto-header-content">
+          <h2><i class="bi bi-images me-2"></i>Foto dell'Evento</h2>
+          <p class="text-muted mb-0">
+            Condividi i tuoi scatti del matrimonio di {{ invito()!.nomeSposoA }} e {{ invito()!.nomeSposoB }}
+          </p>
+        </div>
+        <div class="foto-header-actions">
+          @if (fotoData()?.uploadAbilitato) {
+            <button class="btn btn-primary" (click)="openUploadModal()" [disabled]="remainingUploads() <= 0">
+              <i class="bi bi-plus-lg me-2"></i>Aggiungi foto
+            </button>
+          } @else {
+            <span class="badge bg-secondary">
+              <i class="bi bi-clock me-1"></i>Upload disponibile dalla data dell'evento
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      @if (error()) {
+        <div class="alert alert-danger mx-4 mt-4">
+          <i class="bi bi-exclamation-circle me-2"></i>{{ error() }}
+        </div>
+      }
+      @if (success()) {
+        <div class="alert alert-success mx-4 mt-4">
+          <i class="bi bi-check-circle me-2"></i>{{ success() }}
+        </div>
+      }
+
+      <!-- Info upload -->
+      @if (fotoData()) {
+        <div class="foto-info mx-4 mt-4">
+          <span class="badge bg-light text-dark">
+            <i class="bi bi-images me-1"></i>
+            {{ fotoData()!.totale }} foto totali
+          </span>
+          <span class="badge bg-primary">
+            <i class="bi bi-person me-1"></i>
+            {{ fotoData()!.fotoCaricateDaMe }} / {{ fotoData()!.maxFotoPerInvitato }} tue foto
+          </span>
+        </div>
+      }
+
+      <!-- Grid foto -->
+      <div class="foto-grid">
+        @for (slot of gridSlots(); track $index) {
+          <div class="foto-slot" [class.foto-slot-empty]="!slot">
+            @if (slot) {
+              <!-- Foto esistente -->
+              <div class="foto-item">
+                <img [src]="slot.fotoBase64" [alt]="slot.nomeFile || 'Foto evento'" loading="lazy">
+                <div class="foto-overlay">
+                  <div class="foto-info-overlay">
+                    <small>{{ slot.nomeInvitato }} {{ slot.cognomeInvitato }}</small>
+                    <small>{{ formatDate(slot.dataCaricamento) }}</small>
+                  </div>
+                  @if (isMyPhoto(slot)) {
+                    <button class="btn-delete" (click)="openDeleteModal(slot)" title="Elimina foto">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  }
+                </div>
+              </div>
+            } @else {
+              <!-- Slot vuoto -->
+              <div class="foto-empty" (click)="openUploadModal()">
+                <i class="bi bi-plus-lg"></i>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Upload Modal -->
+@if (showUploadModal()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Carica Foto
+          </h5>
+          <button type="button" class="btn-close" (click)="closeUploadModal()" [disabled]="isUploading()"></button>
+        </div>
+        <div class="modal-body">
+          @if (pendingUploads().length === 0) {
+            <!-- Drop zone -->
+            <p class="text-muted mb-3 text-center">
+              Puoi caricare fino a <strong>{{ remainingUploads() }}</strong> foto.
+              Formati: JPEG, PNG, GIF, WebP. Max 5MB per foto.
+            </p>
+            <div class="drop-zone p-5 text-center rounded-3"
+              [class.drop-zone-active]="isDragging()"
+              (click)="fileInput.click()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)">
+              <input type="file" #fileInput class="d-none"
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                multiple
+                (change)="onFilesSelected($event)">
+              <i class="bi bi-cloud-arrow-up mb-3" style="font-size: 4rem; color: var(--color-primary);"></i>
+              <p class="mb-1">
+                @if (isDragging()) {
+                  <strong class="text-primary">Rilascia i file qui</strong>
+                } @else {
+                  <strong>Trascina qui le foto</strong>
+                }
+              </p>
+              <small class="text-muted">oppure clicca per selezionare</small>
+            </div>
+          } @else {
+            <!-- Preview uploads -->
+            <div class="pending-uploads">
+              @if (isUploading()) {
+                <div class="progress mb-3">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated"
+                    [style.width.%]="uploadProgress()">
+                    {{ uploadProgress() }}%
+                  </div>
+                </div>
+              }
+              <div class="pending-grid">
+                @for (upload of pendingUploads(); track $index) {
+                  <div class="pending-item" [class.pending-done]="upload.status === 'done'"
+                    [class.pending-error]="upload.status === 'error'"
+                    [class.pending-uploading]="upload.status === 'uploading'">
+                    <img [src]="upload.preview" [alt]="upload.file.name">
+                    <div class="pending-overlay">
+                      @if (upload.status === 'pending' && !isUploading()) {
+                        <button class="btn-remove" (click)="removePendingUpload($index)">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      } @else if (upload.status === 'uploading') {
+                        <div class="spinner-border spinner-border-sm text-white"></div>
+                      } @else if (upload.status === 'done') {
+                        <i class="bi bi-check-lg text-white" style="font-size: 1.5rem;"></i>
+                      } @else if (upload.status === 'error') {
+                        <i class="bi bi-x-lg text-white" style="font-size: 1.5rem;"></i>
+                        <small class="text-white">{{ upload.error }}</small>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          @if (pendingUploads().length > 0 && !isUploading()) {
+            <button type="button" class="btn btn-outline-secondary" (click)="pendingUploads.set([])">
+              <i class="bi bi-arrow-left me-1"></i>Cambia foto
+            </button>
+            <button type="button" class="btn btn-primary" (click)="startUpload()">
+              <i class="bi bi-cloud-arrow-up me-1"></i>
+              Carica {{ pendingUploads().length }} foto
+            </button>
+          } @else if (!isUploading()) {
+            <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">
+              Annulla
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-trash me-2 text-danger"></i>Elimina foto
+          </h5>
+          <button type="button" class="btn-close" (click)="closeDeleteModal()" [disabled]="isDeleting()"></button>
+        </div>
+        <div class="modal-body text-center">
+          @if (fotoToDelete()) {
+            <img [src]="fotoToDelete()!.fotoBase64" alt="Foto da eliminare"
+              class="img-fluid rounded mb-3" style="max-height: 200px;">
+          }
+          <p>Sei sicuro di voler eliminare questa foto?</p>
+          <p class="text-muted small mb-0">L'azione non può essere annullata.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isDeleting()">
+            Annulla
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting()">
+            @if (isDeleting()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Elimina
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

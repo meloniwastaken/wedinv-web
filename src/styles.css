@@ -482,7 +482,7 @@ body:has(.modal.d-block) {
 }
 
 .invitation-card {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   background: var(--color-secondary);
   border-radius: var(--radius-lg);

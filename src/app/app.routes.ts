@@ -52,6 +52,10 @@ export const routes: Routes = [
     path: 'invito/:id/iban',
     loadComponent: () => import('./features/public/iban-pubblico/iban-pubblico.component').then(m => m.IbanPubblicoComponent)
   },
+  {
+    path: 'invito/:id/foto',
+    loadComponent: () => import('./features/public/foto-evento-pubblico/foto-evento-pubblico.component').then(m => m.FotoEventoPubblicoComponent)
+  },
 
   // Route pagamento (autenticato ma non attivo)
   {

@@ -9,3 +9,4 @@ export * from './lista-nozze.service';
 export * from './tavolo.service';
 export * from './title.service';
 export * from './etichetta.service';
+export * from './foto-evento.service';
