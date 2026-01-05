@@ -134,7 +134,6 @@ export interface GruppoFamiliareDTO {
   id: string;
   matrimonio: string;
   nomeGruppo?: string | null; // Es. "Fam. Rossi"
-  capogruppo?: MembroGruppoFamiliareDTO; // Per retrocompatibilità
   membri: MembroGruppoFamiliareDTO[];
   totalePersone: number;
 }
