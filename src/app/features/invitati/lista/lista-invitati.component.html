@@ -153,17 +153,11 @@
               </thead>
               <tbody>
                 @for (invitato of filteredInvitati(); track invitato.id) {
-                  <tr [class.table-secondary]="isFamilyMember(invitato)">
+                  <tr>
                     <td>
-                      @if (isFamilyMember(invitato)) {
-                        <input type="checkbox" class="form-check-input" disabled
-                          [checked]="isFamilyMemberSelected(invitato)"
-                          title="L'invito viene gestito dal capofamiglia">
-                      } @else {
-                        <input type="checkbox" class="form-check-input"
-                          [checked]="selectedIds().has(invitato.id)"
-                          (change)="toggleSelection(invitato.id)">
-                      }
+                      <input type="checkbox" class="form-check-input"
+                        [checked]="selectedIds().has(invitato.id)"
+                        (change)="toggleSelection(invitato.id)">
                     </td>
                     <td>
                       <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
@@ -178,11 +172,7 @@
                       @if (hasGruppoFamiliare(invitato)) {
                         <span class="badge bg-info-subtle text-info" [title]="getGruppoInfo(invitato)">
                           <i class="bi bi-people-fill me-1"></i>
-                          @if (invitato.capogruppo) {
-                            Capofam.
-                          } @else {
-                            {{ invitato.nomeCapogruppo }}
-                          }
+                          {{ invitato.nomeGruppo || 'Famiglia' }}
                         </span>
                       } @else {
                         <span class="text-muted">-</span>
@@ -383,7 +373,7 @@
                       </thead>
                       <tbody>
                         @for (invitato of whatsappInvitati(); track invitato.id) {
-                          <tr [class.table-secondary]="!canSendDirectInvite(invitato)">
+                          <tr>
                             <td>{{ invitato.nome }} {{ invitato.cognome }}</td>
                             <td>{{ invitato.telefono }}</td>
                             <td>
@@ -393,47 +383,39 @@
                             </td>
                             <td>
                               @if (hasGruppoFamiliare(invitato)) {
-                                @if (invitato.capogruppo) {
-                                  <span class="badge bg-info-subtle text-info">
-                                    <i class="bi bi-star-fill me-1"></i>Capofam.
-                                  </span>
-                                } @else {
-                                  <span class="badge bg-secondary-subtle text-secondary" [title]="'Invito gestito da ' + invitato.nomeCapogruppo">
-                                    <i class="bi bi-people me-1"></i>{{ invitato.nomeCapogruppo }}
-                                  </span>
-                                }
+                                <span class="badge bg-info-subtle text-info" [title]="getGruppoInfo(invitato)">
+                                  <i class="bi bi-people me-1"></i>{{ invitato.nomeGruppo || 'Famiglia' }}
+                                </span>
                               } @else {
                                 <span class="text-muted">-</span>
                               }
                             </td>
                             <td class="text-center">
-                              @if (canSendDirectInvite(invitato)) {
-                                <div class="btn-group btn-group-sm">
-                                  @if (!whatsappSentIds().has(invitato.id)) {
-                                    <a [href]="getWhatsappLink(invitato)" target="_blank"
-                                      class="btn btn-success" title="Invia su WhatsApp"
-                                      (click)="markWhatsappSent(invitato.id)">
-                                      <i class="bi bi-whatsapp"></i>
-                                    </a>
+                              <div class="btn-group btn-group-sm">
+                                @if (!whatsappSentIds().has(invitato.id)) {
+                                  <a [href]="getWhatsappLink(invitato)" target="_blank"
+                                    class="btn btn-success" title="Invia su WhatsApp"
+                                    (click)="markWhatsappSent(invitato.id)">
+                                    <i class="bi bi-whatsapp"></i>
+                                  </a>
+                                } @else {
+                                  @if (invitato.statoInvito === StatoInvito.DA_INVIARE) {
+                                    <button class="btn btn-primary" title="Conferma invio"
+                                      (click)="confermaInvioWhatsapp(invitato.id)"
+                                      [disabled]="confirmingIds().has(invitato.id)">
+                                      @if (confirmingIds().has(invitato.id)) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                      } @else {
+                                        <i class="bi bi-check-lg"></i>
+                                      }
+                                    </button>
                                   } @else {
-                                    @if (invitato.statoInvito === StatoInvito.DA_INVIARE) {
-                                      <button class="btn btn-primary" title="Conferma invio"
-                                        (click)="confermaInvioWhatsapp(invitato.id)"
-                                        [disabled]="confirmingIds().has(invitato.id)">
-                                        @if (confirmingIds().has(invitato.id)) {
-                                          <span class="spinner-border spinner-border-sm"></span>
-                                        } @else {
-                                          <i class="bi bi-check-lg"></i>
-                                        }
-                                      </button>
-                                    } @else {
-                                      <span class="btn btn-outline-success disabled">
-                                        <i class="bi bi-check-circle"></i>
-                                      </span>
-                                    }
+                                    <span class="btn btn-outline-success disabled">
+                                      <i class="bi bi-check-circle"></i>
+                                    </span>
                                   }
-                                </div>
-                              }
+                                }
+                              </div>
                             </td>
                           </tr>
                         }
@@ -674,137 +656,84 @@
             <div class="modal-header">
               <h5 class="modal-title">
                 <i class="bi bi-people me-2 text-info"></i>Crea Gruppo Familiare
-                @if (gruppoModalStep() === 1) {
-                  <span class="badge bg-secondary ms-2">1/2</span>
-                } @else {
-                  <span class="badge bg-secondary ms-2">2/2</span>
-                }
               </h5>
               @if (!creatingGruppo()) {
                 <button type="button" class="btn-close" (click)="closeGruppoModal()"></button>
               }
             </div>
             <div class="modal-body">
-              <!-- Step 1: Seleziona capogruppo -->
-              @if (gruppoModalStep() === 1) {
-                <p class="text-muted mb-3">
-                  <strong>Step 1:</strong> Cerca e seleziona chi sarà il <strong>capofamiglia</strong>.
-                </p>
+              <p class="text-muted mb-3">
+                Seleziona almeno <strong>2 membri</strong> per creare un gruppo familiare.
+                Ogni membro potrà gestire le conferme per tutto il gruppo.
+              </p>
 
-                <!-- Search capogruppo -->
-                <div class="input-group mb-3">
-                  <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
-                    [ngModel]="capogruppoSearchTerm()" (ngModelChange)="capogruppoSearchTerm.set($event)">
-                </div>
+              <!-- Nome gruppo (opzionale) -->
+              <div class="mb-3">
+                <label class="form-label">Nome gruppo (opzionale)</label>
+                <input type="text" class="form-control" placeholder="Es. Fam. Rossi"
+                  [ngModel]="nomeGruppo()" (ngModelChange)="nomeGruppo.set($event)">
+              </div>
 
-                <div class="list-group" style="max-height: 300px; overflow-y: auto;">
-                  @for (invitato of filteredCapogruppoList(); track invitato.id) {
-                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                      [class.active]="selectedCapogruppoId() === invitato.id"
-                      (click)="selectCapogruppo(invitato.id)">
-                      <div>
-                        <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
-                        @if (invitato.email) {
-                          <br><small class="text-muted">{{ invitato.email }}</small>
-                        }
-                        @if (invitato.telefono) {
-                          <br><small class="text-muted">{{ invitato.telefono }}</small>
-                        }
-                      </div>
-                      @if (selectedCapogruppoId() === invitato.id) {
-                        <span class="badge bg-primary">
-                          <i class="bi bi-star-fill me-1"></i>Capofamiglia
-                        </span>
-                      }
-                    </button>
-                  } @empty {
-                    <div class="text-center py-3 text-muted">
-                      Nessun risultato per "{{ capogruppoSearchTerm() }}"
-                    </div>
+              <!-- Search membri -->
+              <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
+                  [ngModel]="membriSearchTerm()" (ngModelChange)="membriSearchTerm.set($event)">
+              </div>
+
+              @if (selectedMembriCount() > 0) {
+                <div class="alert py-2 mb-3" [class.alert-info]="selectedMembriCount() >= 2" [class.alert-warning]="selectedMembriCount() < 2">
+                  <i class="bi me-2" [class.bi-check-circle]="selectedMembriCount() >= 2" [class.bi-exclamation-triangle]="selectedMembriCount() < 2"></i>
+                  {{ selectedMembriCount() }} membr{{ selectedMembriCount() === 1 ? 'o' : 'i' }} selezionat{{ selectedMembriCount() === 1 ? 'o' : 'i' }}
+                  @if (selectedMembriCount() < 2) {
+                    <span class="text-muted">(minimo 2)</span>
                   }
                 </div>
               }
 
-              <!-- Step 2: Seleziona membri -->
-              @if (gruppoModalStep() === 2) {
-                <p class="text-muted mb-3">
-                  <strong>Step 2:</strong> Cerca e seleziona i <strong>membri</strong> del gruppo.
-                </p>
-
-                <!-- Search membri -->
-                <div class="input-group mb-3">
-                  <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
-                    [ngModel]="membriSearchTerm()" (ngModelChange)="membriSearchTerm.set($event)">
-                </div>
-
-                @if (selectedMembriCount() > 0) {
-                  <div class="alert alert-info py-2 mb-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    {{ selectedMembriCount() }} membr{{ selectedMembriCount() === 1 ? 'o' : 'i' }} selezionat{{ selectedMembriCount() === 1 ? 'o' : 'i' }}
+              <div class="list-group" style="max-height: 280px; overflow-y: auto;">
+                @for (invitato of filteredMembriList(); track invitato.id) {
+                  <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    [class.active]="isMemberSelected(invitato.id)"
+                    (click)="toggleMembro(invitato.id)">
+                    <div>
+                      <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
+                      @if (invitato.email) {
+                        <br><small class="text-muted">{{ invitato.email }}</small>
+                      }
+                      @if (invitato.telefono) {
+                        <br><small class="text-muted">{{ invitato.telefono }}</small>
+                      }
+                    </div>
+                    @if (isMemberSelected(invitato.id)) {
+                      <span class="badge bg-success">
+                        <i class="bi bi-check-lg"></i>
+                      </span>
+                    }
+                  </button>
+                } @empty {
+                  <div class="text-center py-3 text-muted">
+                    @if (membriSearchTerm()) {
+                      Nessun risultato per "{{ membriSearchTerm() }}"
+                    } @else {
+                      Nessun invitato disponibile
+                    }
                   </div>
                 }
-
-                <div class="list-group" style="max-height: 250px; overflow-y: auto;">
-                  @for (invitato of filteredMembriList(); track invitato.id) {
-                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                      [class.active]="isMemberSelected(invitato.id)"
-                      (click)="toggleMembro(invitato.id)">
-                      <div>
-                        <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
-                        @if (invitato.email) {
-                          <br><small class="text-muted">{{ invitato.email }}</small>
-                        }
-                        @if (invitato.telefono) {
-                          <br><small class="text-muted">{{ invitato.telefono }}</small>
-                        }
-                      </div>
-                      @if (isMemberSelected(invitato.id)) {
-                        <span class="badge bg-success">
-                          <i class="bi bi-check-lg"></i>
-                        </span>
-                      }
-                    </button>
-                  } @empty {
-                    <div class="text-center py-3 text-muted">
-                      @if (membriSearchTerm()) {
-                        Nessun risultato per "{{ membriSearchTerm() }}"
-                      } @else {
-                        Nessun invitato disponibile
-                      }
-                    </div>
-                  }
-                </div>
-
-                <div class="alert alert-info mt-3 mb-0">
-                  <i class="bi bi-info-circle me-2"></i>
-                  <small>Il capofamiglia riceverà l'invito e potrà gestire le conferme per tutti i membri del gruppo.</small>
-                </div>
-              }
+              </div>
             </div>
             <div class="modal-footer">
-              @if (gruppoModalStep() === 1) {
-                <button type="button" class="btn btn-secondary" (click)="closeGruppoModal()">
-                  Annulla
-                </button>
-                <button type="button" class="btn btn-info" (click)="goToMembriStep()"
-                  [disabled]="!selectedCapogruppoId()">
-                  Avanti <i class="bi bi-arrow-right ms-1"></i>
-                </button>
-              } @else {
-                <button type="button" class="btn btn-outline-secondary" (click)="backToCapogruppoStep()"
-                  [disabled]="creatingGruppo()">
-                  <i class="bi bi-arrow-left me-1"></i>Indietro
-                </button>
-                <button type="button" class="btn btn-info" (click)="confirmCreaGruppo()"
-                  [disabled]="creatingGruppo() || selectedMembriCount() === 0">
-                  @if (creatingGruppo()) {
-                    <span class="spinner-border spinner-border-sm me-1"></span>
-                  }
-                  Crea Gruppo
-                </button>
-              }
+              <button type="button" class="btn btn-secondary" (click)="closeGruppoModal()"
+                [disabled]="creatingGruppo()">
+                Annulla
+              </button>
+              <button type="button" class="btn btn-info" (click)="confirmCreaGruppo()"
+                [disabled]="creatingGruppo() || selectedMembriCount() < 2">
+                @if (creatingGruppo()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Crea Gruppo
+              </button>
             </div>
           </div>
         </div>

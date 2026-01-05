@@ -43,11 +43,9 @@ export class ListaInvitatiComponent implements OnInit {
 
   // Gruppo Familiare
   showGruppoModal = signal(false);
-  gruppoModalStep = signal<1 | 2>(1); // 1=select capogruppo, 2=select membri
-  selectedCapogruppoId = signal<string | null>(null);
   selectedMembriIds = signal<Set<string>>(new Set());
-  capogruppoSearchTerm = signal('');
   membriSearchTerm = signal('');
+  nomeGruppo = signal('');
   creatingGruppo = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -134,35 +132,12 @@ export class ListaInvitatiComponent implements OnInit {
     return disponibili.length >= 2;
   });
 
-  // Invitati disponibili per essere capogruppo (senza gruppo familiare)
-  filteredCapogruppoList = computed(() => {
-    const invitati = this.data()?.invitati || [];
-    const term = this.capogruppoSearchTerm().toLowerCase();
-
-    let filtered = invitati.filter(inv => !inv.gruppoFamiliare);
-
-    if (term) {
-      filtered = filtered.filter(inv =>
-        inv.nome.toLowerCase().includes(term) ||
-        inv.cognome.toLowerCase().includes(term) ||
-        (inv.email?.toLowerCase().includes(term) ?? false)
-      );
-    }
-
-    return [...filtered].sort((a, b) => {
-      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
-      if (nomeCompare !== 0) return nomeCompare;
-      return a.cognome.localeCompare(b.cognome, 'it');
-    });
-  });
-
-  // Invitati disponibili per essere membri (senza gruppo, escluso capogruppo selezionato)
+  // Invitati disponibili per essere membri di un gruppo familiare (senza gruppo)
   filteredMembriList = computed(() => {
     const invitati = this.data()?.invitati || [];
-    const capogruppoId = this.selectedCapogruppoId();
     const term = this.membriSearchTerm().toLowerCase();
 
-    let filtered = invitati.filter(inv => !inv.gruppoFamiliare && inv.id !== capogruppoId);
+    let filtered = invitati.filter(inv => !inv.gruppoFamiliare);
 
     if (term) {
       filtered = filtered.filter(inv =>
@@ -215,15 +190,15 @@ export class ListaInvitatiComponent implements OnInit {
 
     if (current.has(id)) {
       current.delete(id);
-      // Se è un capogruppo, deseleziona anche i membri della famiglia
-      if (invitato?.capogruppo && invitato.gruppoFamiliare) {
+      // Se fa parte di un gruppo familiare, deseleziona anche gli altri membri
+      if (invitato?.gruppoFamiliare) {
         const familyMembers = invitati.filter(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare);
         familyMembers.forEach(member => current.delete(member.id));
       }
     } else {
       current.add(id);
-      // Se è un capogruppo, seleziona automaticamente tutti i membri della famiglia
-      if (invitato?.capogruppo && invitato.gruppoFamiliare) {
+      // Se fa parte di un gruppo familiare, seleziona automaticamente tutti i membri
+      if (invitato?.gruppoFamiliare) {
         const familyMembers = invitati.filter(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare);
         familyMembers.forEach(member => current.add(member.id));
       }
@@ -434,8 +409,8 @@ export class ListaInvitatiComponent implements OnInit {
     // Messaggio precompilato con link
     let message: string;
 
-    if (invitato.capogruppo && invitato.numMembriGruppo && invitato.numMembriGruppo > 1) {
-      // Messaggio per capofamiglia
+    if (invitato.gruppoFamiliare && invitato.numMembriGruppo && invitato.numMembriGruppo > 1) {
+      // Messaggio per membro di un gruppo familiare
       message = `Ciao ${invitato.nome}!\n\nSiete invitati al nostro matrimonio!\n\nQuesto invito è per tutta la tua famiglia (${invitato.numMembriGruppo} persone).\n\nClicca qui per confermare la presenza di tutti e vedere i dettagli dell'evento:\n${invitationUrl}`;
     } else {
       // Messaggio per invitato singolo
@@ -574,36 +549,17 @@ export class ListaInvitatiComponent implements OnInit {
   // Gruppo Familiare methods
   openGruppoModal(): void {
     this.showGruppoModal.set(true);
-    this.gruppoModalStep.set(1);
-    this.selectedCapogruppoId.set(null);
     this.selectedMembriIds.set(new Set());
-    this.capogruppoSearchTerm.set('');
     this.membriSearchTerm.set('');
+    this.nomeGruppo.set('');
   }
 
   closeGruppoModal(): void {
     this.showGruppoModal.set(false);
-    this.gruppoModalStep.set(1);
-    this.selectedCapogruppoId.set(null);
     this.selectedMembriIds.set(new Set());
-    this.capogruppoSearchTerm.set('');
     this.membriSearchTerm.set('');
+    this.nomeGruppo.set('');
     this.creatingGruppo.set(false);
-  }
-
-  selectCapogruppo(id: string): void {
-    this.selectedCapogruppoId.set(id);
-  }
-
-  goToMembriStep(): void {
-    if (!this.selectedCapogruppoId()) return;
-    this.gruppoModalStep.set(2);
-    this.membriSearchTerm.set('');
-  }
-
-  backToCapogruppoStep(): void {
-    this.gruppoModalStep.set(1);
-    this.selectedMembriIds.set(new Set());
   }
 
   toggleMembro(id: string): void {
@@ -621,17 +577,16 @@ export class ListaInvitatiComponent implements OnInit {
   }
 
   confirmCreaGruppo(): void {
-    const capogruppoId = this.selectedCapogruppoId();
-    if (!capogruppoId) return;
-
     const membriIds = Array.from(this.selectedMembriIds());
+    if (membriIds.length < 2) return;
 
     this.creatingGruppo.set(true);
     this.error.set(null);
 
+    const nomeGruppoVal = this.nomeGruppo().trim();
     this.gruppoFamiliareService.creaGruppoFamiliare({
-      capogruppoId,
-      membriIds
+      membriIds,
+      nomeGruppo: nomeGruppoVal || null
     }).subscribe({
       next: () => {
         this.success.set('Gruppo familiare creato con successo');
@@ -650,32 +605,16 @@ export class ListaInvitatiComponent implements OnInit {
     return !!invitato.gruppoFamiliare;
   }
 
-  isFamilyMember(invitato: InvitatoRiepilogoDTO): boolean {
-    // È membro di un gruppo familiare ma NON è il capogruppo
-    return !!invitato.gruppoFamiliare && !invitato.capogruppo;
-  }
-
-  isFamilyMemberSelected(invitato: InvitatoRiepilogoDTO): boolean {
-    // Verifica se il capofamiglia di questo membro è selezionato
-    if (!invitato.gruppoFamiliare || invitato.capogruppo) return false;
-    const invitati = this.data()?.invitati || [];
-    const capogruppo = invitati.find(inv => inv.gruppoFamiliare === invitato.gruppoFamiliare && inv.capogruppo);
-    return capogruppo ? this.selectedIds().has(capogruppo.id) : false;
-  }
-
   getGruppoInfo(invitato: InvitatoRiepilogoDTO): string {
     if (!invitato.gruppoFamiliare) return '';
-    if (invitato.capogruppo) {
-      return `Capofamiglia (${invitato.numMembriGruppo} persone)`;
+    if (invitato.nomeGruppo) {
+      return `${invitato.nomeGruppo} (${invitato.numMembriGruppo} persone)`;
     }
-    return `Famiglia di ${invitato.nomeCapogruppo}`;
+    return `Gruppo familiare (${invitato.numMembriGruppo} persone)`;
   }
 
   canSendDirectInvite(invitato: InvitatoRiepilogoDTO): boolean {
-    // Può ricevere invito diretto se:
-    // 1. Non fa parte di un gruppo familiare
-    // 2. È il capogruppo
-    if (!invitato.gruppoFamiliare) return true;
-    return invitato.capogruppo === true;
+    // Tutti possono ricevere invito diretto (anche membri di gruppi familiari)
+    return true;
   }
 }
