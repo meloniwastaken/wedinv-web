@@ -47,6 +47,11 @@
             [disabled]="(data()?.totaleInvitati ?? 0) === 0">
             <i class="bi bi-envelope me-2"></i>Invia Inviti
           </button>
+          @if (canCreateGruppoFamiliare()) {
+            <button class="btn btn-outline-info" (click)="openGruppoModal()">
+              <i class="bi bi-people me-2"></i>Crea gruppo
+            </button>
+          }
           @if (canCreateInvitato()) {
             <a routerLink="/invitati/nuovo" class="btn btn-primary">
               <i class="bi bi-plus-lg me-2"></i>Nuovo Invitato
@@ -118,11 +123,6 @@
               <div class="col-md-6 text-md-end">
                 @if (someSelected()) {
                   <span class="me-3 text-muted">{{ selectedCount() }} selezionati</span>
-                  @if (canCreateGruppoFamiliare()) {
-                    <button class="btn btn-outline-info btn-sm me-2" (click)="openGruppoModal()">
-                      <i class="bi bi-people me-1"></i>Crea gruppo familiare
-                    </button>
-                  }
                   <button class="btn btn-outline-secondary btn-sm me-2" (click)="clearSelection()">
                     Deseleziona
                   </button>
@@ -672,56 +672,137 @@
             <div class="modal-header">
               <h5 class="modal-title">
                 <i class="bi bi-people me-2 text-info"></i>Crea Gruppo Familiare
+                @if (gruppoModalStep() === 1) {
+                  <span class="badge bg-secondary ms-2">1/2</span>
+                } @else {
+                  <span class="badge bg-secondary ms-2">2/2</span>
+                }
               </h5>
               @if (!creatingGruppo()) {
                 <button type="button" class="btn-close" (click)="closeGruppoModal()"></button>
               }
             </div>
             <div class="modal-body">
-              <p class="text-muted mb-3">
-                Seleziona chi sarà il <strong>capofamiglia</strong>. L'invito verrà inviato solo a questa persona, che potrà confermare per tutto il gruppo.
-              </p>
+              <!-- Step 1: Seleziona capogruppo -->
+              @if (gruppoModalStep() === 1) {
+                <p class="text-muted mb-3">
+                  <strong>Step 1:</strong> Cerca e seleziona chi sarà il <strong>capofamiglia</strong>.
+                </p>
 
-              <div class="list-group">
-                @for (invitato of selectedInvitatiForGruppo(); track invitato.id) {
-                  <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                    [class.active]="selectedCapogruppoId() === invitato.id"
-                    (click)="selectCapogruppo(invitato.id)">
-                    <div>
-                      <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
-                      @if (invitato.email) {
-                        <br><small class="text-muted">{{ invitato.email }}</small>
+                <!-- Search capogruppo -->
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
+                    [ngModel]="capogruppoSearchTerm()" (ngModelChange)="capogruppoSearchTerm.set($event)">
+                </div>
+
+                <div class="list-group" style="max-height: 300px; overflow-y: auto;">
+                  @for (invitato of filteredCapogruppoList(); track invitato.id) {
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      [class.active]="selectedCapogruppoId() === invitato.id"
+                      (click)="selectCapogruppo(invitato.id)">
+                      <div>
+                        <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
+                        @if (invitato.email) {
+                          <br><small class="text-muted">{{ invitato.email }}</small>
+                        }
+                        @if (invitato.telefono) {
+                          <br><small class="text-muted">{{ invitato.telefono }}</small>
+                        }
+                      </div>
+                      @if (selectedCapogruppoId() === invitato.id) {
+                        <span class="badge bg-primary">
+                          <i class="bi bi-star-fill me-1"></i>Capofamiglia
+                        </span>
                       }
-                      @if (invitato.telefono) {
-                        <br><small class="text-muted">{{ invitato.telefono }}</small>
+                    </button>
+                  } @empty {
+                    <div class="text-center py-3 text-muted">
+                      Nessun risultato per "{{ capogruppoSearchTerm() }}"
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Step 2: Seleziona membri -->
+              @if (gruppoModalStep() === 2) {
+                <p class="text-muted mb-3">
+                  <strong>Step 2:</strong> Cerca e seleziona i <strong>membri</strong> del gruppo.
+                </p>
+
+                <!-- Search membri -->
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca per nome, cognome o email..."
+                    [ngModel]="membriSearchTerm()" (ngModelChange)="membriSearchTerm.set($event)">
+                </div>
+
+                @if (selectedMembriCount() > 0) {
+                  <div class="alert alert-info py-2 mb-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {{ selectedMembriCount() }} membr{{ selectedMembriCount() === 1 ? 'o' : 'i' }} selezionat{{ selectedMembriCount() === 1 ? 'o' : 'i' }}
+                  </div>
+                }
+
+                <div class="list-group" style="max-height: 250px; overflow-y: auto;">
+                  @for (invitato of filteredMembriList(); track invitato.id) {
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      [class.active]="isMemberSelected(invitato.id)"
+                      (click)="toggleMembro(invitato.id)">
+                      <div>
+                        <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
+                        @if (invitato.email) {
+                          <br><small class="text-muted">{{ invitato.email }}</small>
+                        }
+                        @if (invitato.telefono) {
+                          <br><small class="text-muted">{{ invitato.telefono }}</small>
+                        }
+                      </div>
+                      @if (isMemberSelected(invitato.id)) {
+                        <span class="badge bg-success">
+                          <i class="bi bi-check-lg"></i>
+                        </span>
+                      }
+                    </button>
+                  } @empty {
+                    <div class="text-center py-3 text-muted">
+                      @if (membriSearchTerm()) {
+                        Nessun risultato per "{{ membriSearchTerm() }}"
+                      } @else {
+                        Nessun invitato disponibile
                       }
                     </div>
-                    @if (selectedCapogruppoId() === invitato.id) {
-                      <span class="badge bg-primary">
-                        <i class="bi bi-star-fill me-1"></i>Capofamiglia
-                      </span>
-                    }
-                  </button>
-                }
-              </div>
+                  }
+                </div>
 
-              <div class="alert alert-info mt-3 mb-0">
-                <i class="bi bi-info-circle me-2"></i>
-                <small>Il capofamiglia riceverà l'invito e potrà gestire le conferme per tutti i {{ selectedCount() }} membri del gruppo.</small>
-              </div>
+                <div class="alert alert-info mt-3 mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <small>Il capofamiglia riceverà l'invito e potrà gestire le conferme per tutti i membri del gruppo.</small>
+                </div>
+              }
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeGruppoModal()"
-                [disabled]="creatingGruppo()">
-                Annulla
-              </button>
-              <button type="button" class="btn btn-info" (click)="confirmCreaGruppo()"
-                [disabled]="creatingGruppo() || !selectedCapogruppoId()">
-                @if (creatingGruppo()) {
-                  <span class="spinner-border spinner-border-sm me-1"></span>
-                }
-                Crea Gruppo
-              </button>
+              @if (gruppoModalStep() === 1) {
+                <button type="button" class="btn btn-secondary" (click)="closeGruppoModal()">
+                  Annulla
+                </button>
+                <button type="button" class="btn btn-info" (click)="goToMembriStep()"
+                  [disabled]="!selectedCapogruppoId()">
+                  Avanti <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+              } @else {
+                <button type="button" class="btn btn-outline-secondary" (click)="backToCapogruppoStep()"
+                  [disabled]="creatingGruppo()">
+                  <i class="bi bi-arrow-left me-1"></i>Indietro
+                </button>
+                <button type="button" class="btn btn-info" (click)="confirmCreaGruppo()"
+                  [disabled]="creatingGruppo() || selectedMembriCount() === 0">
+                  @if (creatingGruppo()) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  Crea Gruppo
+                </button>
+              }
             </div>
           </div>
         </div>

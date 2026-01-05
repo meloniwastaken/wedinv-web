@@ -43,7 +43,11 @@ export class ListaInvitatiComponent implements OnInit {
 
   // Gruppo Familiare
   showGruppoModal = signal(false);
+  gruppoModalStep = signal<1 | 2>(1); // 1=select capogruppo, 2=select membri
   selectedCapogruppoId = signal<string | null>(null);
+  selectedMembriIds = signal<Set<string>>(new Set());
+  capogruppoSearchTerm = signal('');
+  membriSearchTerm = signal('');
   creatingGruppo = signal(false);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -123,24 +127,60 @@ export class ListaInvitatiComponent implements OnInit {
     });
   });
 
-  // Può creare gruppo familiare se almeno 2 invitati selezionati non fanno già parte di un gruppo
+  // Può creare gruppo familiare se ci sono almeno 2 invitati disponibili (senza gruppo)
   canCreateGruppoFamiliare = computed(() => {
-    const selected = Array.from(this.selectedIds());
-    if (selected.length < 2) return false;
-
     const invitati = this.data()?.invitati || [];
-    const selectedInvitati = invitati.filter(inv => selected.includes(inv.id));
-
-    // Tutti devono non avere già un gruppo
-    return selectedInvitati.every(inv => !inv.gruppoFamiliare);
+    const disponibili = invitati.filter(inv => !inv.gruppoFamiliare);
+    return disponibili.length >= 2;
   });
 
-  // Invitati selezionati per il modal di creazione gruppo
-  selectedInvitatiForGruppo = computed(() => {
-    const selected = Array.from(this.selectedIds());
+  // Invitati disponibili per essere capogruppo (senza gruppo familiare)
+  filteredCapogruppoList = computed(() => {
     const invitati = this.data()?.invitati || [];
-    return invitati.filter(inv => selected.includes(inv.id));
+    const term = this.capogruppoSearchTerm().toLowerCase();
+
+    let filtered = invitati.filter(inv => !inv.gruppoFamiliare);
+
+    if (term) {
+      filtered = filtered.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.email?.toLowerCase().includes(term) ?? false)
+      );
+    }
+
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
   });
+
+  // Invitati disponibili per essere membri (senza gruppo, escluso capogruppo selezionato)
+  filteredMembriList = computed(() => {
+    const invitati = this.data()?.invitati || [];
+    const capogruppoId = this.selectedCapogruppoId();
+    const term = this.membriSearchTerm().toLowerCase();
+
+    let filtered = invitati.filter(inv => !inv.gruppoFamiliare && inv.id !== capogruppoId);
+
+    if (term) {
+      filtered = filtered.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.email?.toLowerCase().includes(term) ?? false)
+      );
+    }
+
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
+  });
+
+  // Numero membri selezionati
+  selectedMembriCount = computed(() => this.selectedMembriIds().size);
 
   constructor(
     private invitatoService: InvitatoService,
@@ -521,16 +561,20 @@ export class ListaInvitatiComponent implements OnInit {
   // Gruppo Familiare methods
   openGruppoModal(): void {
     this.showGruppoModal.set(true);
-    // Imposta il primo selezionato come capogruppo di default
-    const selected = this.selectedInvitatiForGruppo();
-    if (selected.length > 0) {
-      this.selectedCapogruppoId.set(selected[0].id);
-    }
+    this.gruppoModalStep.set(1);
+    this.selectedCapogruppoId.set(null);
+    this.selectedMembriIds.set(new Set());
+    this.capogruppoSearchTerm.set('');
+    this.membriSearchTerm.set('');
   }
 
   closeGruppoModal(): void {
     this.showGruppoModal.set(false);
+    this.gruppoModalStep.set(1);
     this.selectedCapogruppoId.set(null);
+    this.selectedMembriIds.set(new Set());
+    this.capogruppoSearchTerm.set('');
+    this.membriSearchTerm.set('');
     this.creatingGruppo.set(false);
   }
 
@@ -538,12 +582,36 @@ export class ListaInvitatiComponent implements OnInit {
     this.selectedCapogruppoId.set(id);
   }
 
+  goToMembriStep(): void {
+    if (!this.selectedCapogruppoId()) return;
+    this.gruppoModalStep.set(2);
+    this.membriSearchTerm.set('');
+  }
+
+  backToCapogruppoStep(): void {
+    this.gruppoModalStep.set(1);
+    this.selectedMembriIds.set(new Set());
+  }
+
+  toggleMembro(id: string): void {
+    const current = new Set(this.selectedMembriIds());
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    this.selectedMembriIds.set(current);
+  }
+
+  isMemberSelected(id: string): boolean {
+    return this.selectedMembriIds().has(id);
+  }
+
   confirmCreaGruppo(): void {
     const capogruppoId = this.selectedCapogruppoId();
     if (!capogruppoId) return;
 
-    const selected = Array.from(this.selectedIds());
-    const membriIds = selected.filter(id => id !== capogruppoId);
+    const membriIds = Array.from(this.selectedMembriIds());
 
     this.creatingGruppo.set(true);
     this.error.set(null);
@@ -555,7 +623,6 @@ export class ListaInvitatiComponent implements OnInit {
       next: () => {
         this.success.set('Gruppo familiare creato con successo');
         this.closeGruppoModal();
-        this.selectedIds.set(new Set());
         this.loadInvitati();
         setTimeout(() => this.success.set(null), 3000);
       },
