@@ -62,4 +62,32 @@ export class MatrimonioService {
       })
     );
   }
+
+  uploadFotoInvito(file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<void>(`${this.apiUrl}/foto`, formData).pipe(
+      tap(() => {
+        const current = this.matrimonioSignal();
+        if (current) {
+          this.matrimonioSignal.set({ ...current, hasFotoInvito: true });
+        }
+      })
+    );
+  }
+
+  getFotoInvitoUrl(): string {
+    return `${this.apiUrl}/foto`;
+  }
+
+  deleteFotoInvito(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/foto`).pipe(
+      tap(() => {
+        const current = this.matrimonioSignal();
+        if (current) {
+          this.matrimonioSignal.set({ ...current, hasFotoInvito: false });
+        }
+      })
+    );
+  }
 }

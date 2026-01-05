@@ -24,7 +24,7 @@
     <!-- Messaggio per membri famiglia (non capogruppo) - accesso bloccato -->
     <div class="invitation-card">
       <div class="invitation-header">
-        <p class="mb-2" style="font-size: 1.1rem; opacity: 0.9;">Siete invitati al matrimonio di</p>
+        <p class="mb-2" style="font-size: 1.1rem; color: white;">Siete invitati al matrimonio di</p>
         <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
         <div class="ornament" style="color: rgba(255,255,255,0.6);">&#10084;</div>
       </div>
@@ -44,10 +44,17 @@
     <div class="invitation-card">
       <!-- Header con nomi degli sposi -->
       <div class="invitation-header">
-        <p class="mb-2" style="font-size: 1.1rem; opacity: 0.9;">Siete invitati al matrimonio di</p>
+        <p class="mb-2" style="font-size: 1.1rem; color: white;">Siete invitati al matrimonio di</p>
         <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
         <div class="ornament" style="color: rgba(255,255,255,0.6);">&#10084;</div>
       </div>
+
+      <!-- Foto invito (se presente) -->
+      @if (invito()!.hasFotoInvito && invito()!.matrimonioId) {
+        <div class="invitation-photo">
+          <img [src]="getFotoInvitoUrl()" alt="Foto invito" loading="lazy">
+        </div>
+      }
 
       <div class="invitation-body">
         <!-- Saluto personale -->

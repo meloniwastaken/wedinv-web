@@ -27,6 +27,7 @@ export interface MatrimonioDTO {
   dataCreazione: string;
   dataModifica: string;
   stileCodice: string | null;
+  hasFotoInvito?: boolean | null;
 }
 
 export interface CreaMatrimonioRequest {
