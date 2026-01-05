@@ -1,0 +1,13 @@
+# WedInv - robots.txt
+User-agent: *
+Allow: /$
+Disallow: /invito/
+Disallow: /lista-nozze/
+Disallow: /login
+Disallow: /register
+Disallow: /dashboard/
+Disallow: /matrimonio/
+Disallow: /invitati/
+Disallow: /api/
+
+Sitemap: https://wedinv.it/sitemap.xml

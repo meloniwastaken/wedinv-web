@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#faf8f5"/>
+      <stop offset="100%" style="stop-color:#f5f0e8"/>
+    </linearGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#daa520"/>
+      <stop offset="50%" style="stop-color:#b8860b"/>
+      <stop offset="100%" style="stop-color:#8b6914"/>
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b8860b"/>
+      <stop offset="100%" style="stop-color:#8b6914"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+
+  <!-- Decorative border -->
+  <rect x="20" y="20" width="1160" height="590" fill="none" stroke="#daa520" stroke-width="2" rx="10"/>
+
+  <!-- Logo circle -->
+  <circle cx="600" cy="220" r="90" fill="url(#goldGradient)"/>
+
+  <!-- Letter W -->
+  <path d="M555 175 L567 265 L600 225 L633 265 L645 175 L633 175 L624 250 L600 215 L576 250 L567 175 Z"
+        fill="#ffffff"
+        stroke="#ffffff"
+        stroke-width="2"
+        stroke-linejoin="round"/>
+
+  <!-- Small heart decoration -->
+  <path d="M600 290 C600 290 590 282 590 275 C590 271 593 268 598 268 C601 268 600 270 600 270 C600 270 599 268 602 268 C607 268 610 271 610 275 C610 282 600 290 600 290 Z"
+        fill="#ffffff"/>
+
+  <!-- WedInv text -->
+  <text x="600" y="380" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="bold" fill="url(#textGradient)" text-anchor="middle">WedInv</text>
+
+  <!-- Tagline -->
+  <text x="600" y="440" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-style="italic" fill="#6b5b4f" text-anchor="middle">Gestisci il tuo matrimonio</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="490" font-family="Arial, sans-serif" font-size="22" fill="#8b7355" text-anchor="middle">Inviti digitali • RSVP • Lista nozze</text>
+
+  <!-- Decorative hearts -->
+  <path d="M200 315 C200 315 185 300 185 285 C185 275 195 268 210 268 C220 268 200 285 200 285 C200 285 180 268 190 268 C205 268 215 275 215 285 C215 300 200 315 200 315 Z"
+        fill="#daa520" opacity="0.3"/>
+  <path d="M1000 315 C1000 315 985 300 985 285 C985 275 995 268 1010 268 C1020 268 1000 285 1000 285 C1000 285 980 268 990 268 C1005 268 1015 275 1015 285 C1015 300 1000 315 1000 315 Z"
+        fill="#daa520" opacity="0.3"/>
+
+  <!-- URL -->
+  <text x="600" y="580" font-family="Arial, sans-serif" font-size="20" fill="#a08060" text-anchor="middle">wedinv.it</text>
+</svg>
