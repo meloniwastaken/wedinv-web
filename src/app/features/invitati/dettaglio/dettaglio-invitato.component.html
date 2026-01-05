@@ -209,7 +209,7 @@
                   <ul class="list-group list-group-flush">
                     <!-- Capofamiglia (se non è l'invitato corrente) -->
                     @if (!invitato()!.capogruppo && invitato()!.nomeCapogruppo) {
-                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-light">
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-3 bg-light">
                         <div>
                           <i class="bi bi-star-fill text-warning me-2"></i>
                           <strong>{{ invitato()!.nomeCapogruppo }}</strong>
@@ -219,12 +219,11 @@
                     }
                     <!-- Invitato corrente (se capofamiglia) -->
                     @if (invitato()!.capogruppo) {
-                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-light">
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-3 bg-light">
                         <div>
                           <i class="bi bi-star-fill text-warning me-2"></i>
                           <strong>{{ invitato()!.nome }} {{ invitato()!.cognome }}</strong>
                           <span class="badge bg-info ms-2">Capofamiglia</span>
-                          <span class="badge bg-secondary ms-1">Tu</span>
                         </div>
                         <span class="badge" [class]="getStatoBadgeClass(invitato()!.statoInvito)">
                           {{ getStatoDescrizione(invitato()!.statoInvito) }}
@@ -234,17 +233,10 @@
                     <!-- Altri membri -->
                     @if (invitato()!.membriFamiglia && invitato()!.membriFamiglia!.length > 0) {
                       @for (membro of invitato()!.membriFamiglia!; track membro.id) {
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-0"
-                          [class.bg-light]="membro.id === invitatoId">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3">
                           <div>
                             <i class="bi bi-person me-2"></i>
                             <strong>{{ membro.nome }} {{ membro.cognome }}</strong>
-                            @if (membro.id === invitatoId) {
-                              <span class="badge bg-secondary ms-1">Tu</span>
-                            }
-                            @if (membro.email) {
-                              <br><small class="text-muted ms-4">{{ membro.email }}</small>
-                            }
                           </div>
                           @if (membro.statoInvitoDescrizione) {
                             <span class="badge" [class]="getStatoBadgeClass(membro.statoInvito)">

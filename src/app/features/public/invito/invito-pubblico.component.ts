@@ -3,12 +3,20 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
-import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
+import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO, MembroFamigliaPubblico, ConfermaMembroFamiglia } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 
 interface AccompagnatoreForm {
   nome: string;
   cognome: string;
+}
+
+interface ConfermaMembroForm {
+  id: string;
+  nome: string;
+  cognome: string;
+  confermato: boolean;
+  capogruppo: boolean;
 }
 
 @Component({
@@ -31,6 +39,9 @@ export class InvitoPubblicoComponent implements OnInit {
   intolleranzeAlimentari = signal('');
   accompagnatori = signal<AccompagnatoreForm[]>([]);
 
+  // Conferme famiglia
+  confermeFamiglia = signal<ConfermaMembroForm[]>([]);
+
   StatoInvito = StatoInvito;
 
   // Flag per navbar
@@ -48,9 +59,27 @@ export class InvitoPubblicoComponent implements OnInit {
     this.isConfermato() || this.isRifiutato()
   );
 
+  // Gruppo familiare
+  isCapogruppo = computed(() => this.invito()?.capogruppo === true);
+  isMembroFamiglia = computed(() => this.invito()?.membroFamiglia === true);
+  hasFamiglia = computed(() => (this.invito()?.membriFamiglia?.length ?? 0) > 0);
+
+  // Per famiglia: ha risposto se tutti i membri hanno risposto
+  famigliaHasResponded = computed(() => {
+    const membri = this.invito()?.membriFamiglia;
+    if (!membri || membri.length === 0) return false;
+    return membri.every(m =>
+      m.statoInvito === StatoInvito.CONFERMATO || m.statoInvito === StatoInvito.RIFIUTATO
+    );
+  });
+
   get nomeInvitato(): string {
     const inv = this.invito();
-    return inv ? `${inv.nomeInvitato} ${inv.cognomeInvitato}` : '';
+    if (!inv) return '';
+    if (inv.capogruppo && inv.membriFamiglia && inv.membriFamiglia.length > 0) {
+      return `${inv.nomeInvitato} ${inv.cognomeInvitato} e famiglia`;
+    }
+    return `${inv.nomeInvitato} ${inv.cognomeInvitato}`;
   }
 
   get hasIban(): boolean {
@@ -89,6 +118,16 @@ export class InvitoPubblicoComponent implements OnInit {
           })));
         } else {
           this.syncAccompagnatori(invito.plusConfermati || 0);
+        }
+        // Inizializza conferme famiglia se capogruppo
+        if (invito.capogruppo && invito.membriFamiglia && invito.membriFamiglia.length > 0) {
+          this.confermeFamiglia.set(invito.membriFamiglia.map(m => ({
+            id: m.id,
+            nome: m.nome,
+            cognome: m.cognome,
+            confermato: m.statoInvito === StatoInvito.CONFERMATO,
+            capogruppo: m.capogruppo === true
+          })));
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
@@ -167,6 +206,20 @@ export class InvitoPubblicoComponent implements OnInit {
     this.accompagnatori.set(current);
   }
 
+  toggleConfermaFamiglia(id: string): void {
+    const current = [...this.confermeFamiglia()];
+    const index = current.findIndex(m => m.id === id);
+    if (index >= 0) {
+      current[index] = { ...current[index], confermato: !current[index].confermato };
+      this.confermeFamiglia.set(current);
+    }
+  }
+
+  setAllFamigliaConfermato(value: boolean): void {
+    const current = this.confermeFamiglia().map(m => ({ ...m, confermato: value }));
+    this.confermeFamiglia.set(current);
+  }
+
   confermaPartecipazione(): void {
     this.saving.set(true);
     this.error.set(null);
@@ -176,14 +229,20 @@ export class InvitoPubblicoComponent implements OnInit {
       .filter(a => a.nome.trim() && a.cognome.trim())
       .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }));
 
+    // Prepara conferme famiglia se capogruppo
+    const confermeFamiglia = this.isCapogruppo()
+      ? this.confermeFamiglia().map(m => ({ id: m.id, confermato: m.confermato }))
+      : undefined;
+
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
       confermato: true,
       plusConfermati: this.plusConfermati(),
       intolleranzeAlimentari: this.intolleranzeAlimentari() || null,
-      accompagnatori: accompagnatori.length > 0 ? accompagnatori : undefined
+      accompagnatori: accompagnatori.length > 0 ? accompagnatori : undefined,
+      confermeFamiglia
     }).subscribe({
       next: () => {
-        this.success.set('La tua conferma è stata registrata!');
+        this.success.set(this.isCapogruppo() ? 'Le conferme sono state registrate!' : 'La tua conferma è stata registrata!');
         this.saving.set(false);
         this.showConfirmForm.set(false);
         this.loadInvito();

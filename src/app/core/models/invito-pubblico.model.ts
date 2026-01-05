@@ -1,5 +1,14 @@
 import { AccompagnatoreDTO } from './invitato.model';
 
+export interface MembroFamigliaPubblico {
+  id: string;
+  nome: string;
+  cognome: string;
+  statoInvito: number | null;
+  statoInvitoDescrizione: string | null;
+  capogruppo: boolean | null;
+}
+
 export interface InvitoPubblicoResponse {
   nomeInvitato: string;
   cognomeInvitato: string;
@@ -33,6 +42,15 @@ export interface InvitoPubblicoResponse {
   stileCodice: string | null;
   intolleranzeAlimentari: string | null;
   accompagnatori?: AccompagnatoreDTO[];
+  // Gruppo familiare
+  capogruppo?: boolean | null;
+  membroFamiglia?: boolean | null;
+  membriFamiglia?: MembroFamigliaPubblico[];
+}
+
+export interface ConfermaMembroFamiglia {
+  id: string;
+  confermato: boolean;
 }
 
 export interface ConfermaInvitoRequest {
@@ -40,4 +58,5 @@ export interface ConfermaInvitoRequest {
   plusConfermati?: number | null;
   intolleranzeAlimentari?: string | null;
   accompagnatori?: AccompagnatoreDTO[];
+  confermeFamiglia?: ConfermaMembroFamiglia[];
 }
