@@ -175,6 +175,90 @@
               </div>
             }
 
+            <!-- Gruppo Familiare -->
+            @if (invitato()?.gruppoFamiliare) {
+              <div class="card mb-4">
+                <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="bi bi-people-fill me-2"></i>Gruppo Familiare
+                    @if (invitato()!.capogruppo) {
+                      <span class="badge bg-info ms-2">Capofamiglia</span>
+                    } @else {
+                      <span class="badge bg-secondary ms-2">Membro</span>
+                    }
+                  </div>
+                  <button class="btn btn-sm btn-outline-info" (click)="openEditGruppoModal()">
+                    <i class="bi bi-pencil me-1"></i>Modifica
+                  </button>
+                </div>
+                <div class="card-body">
+                  @if (invitato()!.capogruppo) {
+                    <p class="text-muted mb-3">
+                      <i class="bi bi-star-fill text-warning me-1"></i>
+                      Questo invitato è il <strong>capofamiglia</strong>. L'invito viene gestito da lui per tutti i membri.
+                    </p>
+                  } @else {
+                    <p class="text-muted mb-3">
+                      <i class="bi bi-info-circle me-1"></i>
+                      L'invito viene gestito dal capofamiglia <strong>{{ invitato()!.nomeCapogruppo }}</strong>.
+                    </p>
+                  }
+
+                  <!-- Lista membri famiglia -->
+                  <h6 class="mb-2">Componenti del gruppo:</h6>
+                  <ul class="list-group list-group-flush">
+                    <!-- Capofamiglia (se non è l'invitato corrente) -->
+                    @if (!invitato()!.capogruppo && invitato()!.nomeCapogruppo) {
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-light">
+                        <div>
+                          <i class="bi bi-star-fill text-warning me-2"></i>
+                          <strong>{{ invitato()!.nomeCapogruppo }}</strong>
+                          <span class="badge bg-info ms-2">Capofamiglia</span>
+                        </div>
+                      </li>
+                    }
+                    <!-- Invitato corrente (se capofamiglia) -->
+                    @if (invitato()!.capogruppo) {
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-light">
+                        <div>
+                          <i class="bi bi-star-fill text-warning me-2"></i>
+                          <strong>{{ invitato()!.nome }} {{ invitato()!.cognome }}</strong>
+                          <span class="badge bg-info ms-2">Capofamiglia</span>
+                          <span class="badge bg-secondary ms-1">Tu</span>
+                        </div>
+                        <span class="badge" [class]="getStatoBadgeClass(invitato()!.statoInvito)">
+                          {{ getStatoDescrizione(invitato()!.statoInvito) }}
+                        </span>
+                      </li>
+                    }
+                    <!-- Altri membri -->
+                    @if (invitato()!.membriFamiglia && invitato()!.membriFamiglia!.length > 0) {
+                      @for (membro of invitato()!.membriFamiglia!; track membro.id) {
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0"
+                          [class.bg-light]="membro.id === invitatoId">
+                          <div>
+                            <i class="bi bi-person me-2"></i>
+                            <strong>{{ membro.nome }} {{ membro.cognome }}</strong>
+                            @if (membro.id === invitatoId) {
+                              <span class="badge bg-secondary ms-1">Tu</span>
+                            }
+                            @if (membro.email) {
+                              <br><small class="text-muted ms-4">{{ membro.email }}</small>
+                            }
+                          </div>
+                          @if (membro.statoInvitoDescrizione) {
+                            <span class="badge" [class]="getStatoBadgeClass(membro.statoInvito)">
+                              {{ membro.statoInvitoDescrizione }}
+                            </span>
+                          }
+                        </li>
+                      }
+                    }
+                  </ul>
+                </div>
+              </div>
+            }
+
             <!-- Informazioni -->
             <div class="card mb-4">
               <div class="card-header">
@@ -402,6 +486,133 @@
               </div>
             </form>
           }
+        </div>
+      </div>
+    }
+
+    <!-- Modal Modifica Gruppo Familiare -->
+    @if (showEditGruppoModal()) {
+      <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="bi bi-people me-2 text-info"></i>Modifica Gruppo Familiare
+              </h5>
+              @if (!savingGruppo() && !deletingGruppo()) {
+                <button type="button" class="btn-close" (click)="closeEditGruppoModal()"></button>
+              }
+            </div>
+            <div class="modal-body">
+              <!-- Selezione Capofamiglia -->
+              <div class="mb-4">
+                <h6 class="mb-2">
+                  <i class="bi bi-star-fill text-warning me-1"></i>Capofamiglia
+                </h6>
+                <div class="input-group mb-2">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca capofamiglia..."
+                    [ngModel]="editCapogruppoSearch()" (ngModelChange)="editCapogruppoSearch.set($event)">
+                </div>
+                <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                  @for (inv of filteredEditCapogruppoList(); track inv.id) {
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      [class.active]="editSelectedCapogruppoId() === inv.id"
+                      (click)="selectEditCapogruppo(inv.id)">
+                      <div>
+                        <strong>{{ inv.nome }} {{ inv.cognome }}</strong>
+                        @if (inv.email) {
+                          <br><small class="text-muted">{{ inv.email }}</small>
+                        }
+                      </div>
+                      @if (editSelectedCapogruppoId() === inv.id) {
+                        <span class="badge bg-primary">
+                          <i class="bi bi-star-fill me-1"></i>Capofamiglia
+                        </span>
+                      }
+                    </button>
+                  } @empty {
+                    <div class="text-center py-3 text-muted">
+                      @if (editCapogruppoSearch()) {
+                        Nessun risultato per "{{ editCapogruppoSearch() }}"
+                      } @else {
+                        Nessun invitato disponibile
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Selezione Membri -->
+              <div class="mb-3">
+                <h6 class="mb-2">
+                  <i class="bi bi-people me-1"></i>Membri
+                  @if (editSelectedMembriIds().size > 0) {
+                    <span class="badge bg-info ms-1">{{ editSelectedMembriIds().size }}</span>
+                  }
+                </h6>
+                <div class="input-group mb-2">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Cerca membri..."
+                    [ngModel]="editMembriSearch()" (ngModelChange)="editMembriSearch.set($event)">
+                </div>
+                <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                  @for (inv of filteredEditMembriList(); track inv.id) {
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      [class.active]="isEditMemberSelected(inv.id)"
+                      (click)="toggleEditMembro(inv.id)">
+                      <div>
+                        <strong>{{ inv.nome }} {{ inv.cognome }}</strong>
+                        @if (inv.email) {
+                          <br><small class="text-muted">{{ inv.email }}</small>
+                        }
+                      </div>
+                      @if (isEditMemberSelected(inv.id)) {
+                        <span class="badge bg-success">
+                          <i class="bi bi-check-lg"></i>
+                        </span>
+                      }
+                    </button>
+                  } @empty {
+                    <div class="text-center py-3 text-muted">
+                      @if (editMembriSearch()) {
+                        Nessun risultato per "{{ editMembriSearch() }}"
+                      } @else {
+                        Nessun invitato disponibile
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                <small>Il capofamiglia riceverà l'invito e potrà gestire le conferme per tutti i membri del gruppo.</small>
+              </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-danger" (click)="confirmDeleteGruppo()"
+                [disabled]="savingGruppo() || deletingGruppo()">
+                @if (deletingGruppo()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="bi bi-trash me-1"></i>Elimina gruppo
+              </button>
+              <div>
+                <button type="button" class="btn btn-secondary me-2" (click)="closeEditGruppoModal()"
+                  [disabled]="savingGruppo() || deletingGruppo()">
+                  Annulla
+                </button>
+                <button type="button" class="btn btn-info" (click)="saveEditGruppo()"
+                  [disabled]="savingGruppo() || deletingGruppo() || !editSelectedCapogruppoId()">
+                  @if (savingGruppo()) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  Salva modifiche
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     }

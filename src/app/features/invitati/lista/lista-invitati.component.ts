@@ -637,6 +637,11 @@ export class ListaInvitatiComponent implements OnInit {
     return !!invitato.gruppoFamiliare;
   }
 
+  isFamilyMember(invitato: InvitatoRiepilogoDTO): boolean {
+    // È membro di un gruppo familiare ma NON è il capogruppo
+    return !!invitato.gruppoFamiliare && !invitato.capogruppo;
+  }
+
   getGruppoInfo(invitato: InvitatoRiepilogoDTO): string {
     if (!invitato.gruppoFamiliare) return '';
     if (invitato.capogruppo) {

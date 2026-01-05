@@ -1,14 +1,15 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { InvitatoService, AuthService } from '../../../core/services';
-import { InvitatoDTO, CreaInvitatoRequest, AggiornaInvitatoRequest, StatoInvito, AccompagnatoreDTO } from '../../../core/models';
+import { GruppoFamiliareService } from '../../../core/services/gruppo-familiare.service';
+import { InvitatoDTO, CreaInvitatoRequest, AggiornaInvitatoRequest, StatoInvito, AccompagnatoreDTO, InvitatoRiepilogoDTO } from '../../../core/models';
 
 @Component({
   selector: 'app-dettaglio-invitato',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './dettaglio-invitato.component.html',
   styleUrl: './dettaglio-invitato.component.css'
 })
@@ -33,10 +34,74 @@ export class DettaglioInvitatoComponent implements OnInit {
   isPremium = computed(() => this.authService.isActive());
   canCreate = signal(true);
 
+  // Edit Gruppo Familiare
+  showEditGruppoModal = signal(false);
+  savingGruppo = signal(false);
+  deletingGruppo = signal(false);
+  allInvitati = signal<InvitatoRiepilogoDTO[]>([]);
+  editSelectedCapogruppoId = signal<string | null>(null);
+  editSelectedMembriIds = signal<Set<string>>(new Set());
+  editCapogruppoSearch = signal('');
+  editMembriSearch = signal('');
+
+  // Computed per le liste filtrate nel modal modifica gruppo
+  filteredEditCapogruppoList = computed(() => {
+    const invitati = this.allInvitati();
+    const term = this.editCapogruppoSearch().toLowerCase();
+    const currentGruppoId = this.invitato()?.gruppoFamiliare;
+
+    // Include invitati senza gruppo O che appartengono al gruppo corrente
+    let filtered = invitati.filter(inv =>
+      !inv.gruppoFamiliare || inv.gruppoFamiliare === currentGruppoId
+    );
+
+    if (term) {
+      filtered = filtered.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.email?.toLowerCase().includes(term) ?? false)
+      );
+    }
+
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
+  });
+
+  filteredEditMembriList = computed(() => {
+    const invitati = this.allInvitati();
+    const capogruppoId = this.editSelectedCapogruppoId();
+    const term = this.editMembriSearch().toLowerCase();
+    const currentGruppoId = this.invitato()?.gruppoFamiliare;
+
+    // Include invitati senza gruppo O che appartengono al gruppo corrente (escluso capogruppo)
+    let filtered = invitati.filter(inv =>
+      inv.id !== capogruppoId &&
+      (!inv.gruppoFamiliare || inv.gruppoFamiliare === currentGruppoId)
+    );
+
+    if (term) {
+      filtered = filtered.filter(inv =>
+        inv.nome.toLowerCase().includes(term) ||
+        inv.cognome.toLowerCase().includes(term) ||
+        (inv.email?.toLowerCase().includes(term) ?? false)
+      );
+    }
+
+    return [...filtered].sort((a, b) => {
+      const nomeCompare = a.nome.localeCompare(b.nome, 'it');
+      if (nomeCompare !== 0) return nomeCompare;
+      return a.cognome.localeCompare(b.cognome, 'it');
+    });
+  });
+
   constructor(
     private fb: FormBuilder,
     private invitatoService: InvitatoService,
     private authService: AuthService,
+    private gruppoFamiliareService: GruppoFamiliareService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -363,5 +428,135 @@ export class DettaglioInvitatoComponent implements OnInit {
   getStatoDescrizione(statoInvito: number | null): string {
     const stato = this.statiInvito.find(s => s.id === statoInvito);
     return stato?.descrizione ?? 'Da inviare';
+  }
+
+  // Edit Gruppo Familiare methods
+  openEditGruppoModal(): void {
+    const inv = this.invitato();
+    if (!inv?.gruppoFamiliare) return;
+
+    // Carica tutti gli invitati per la selezione
+    this.invitatoService.getInvitatiRiepilogo().subscribe({
+      next: (data) => {
+        this.allInvitati.set(data.invitati || []);
+
+        // Pre-seleziona il capogruppo attuale
+        if (inv.capogruppo) {
+          this.editSelectedCapogruppoId.set(inv.id);
+        } else {
+          // Cerca il capogruppo tra i membri
+          const capogruppo = data.invitati?.find(i =>
+            i.gruppoFamiliare === inv.gruppoFamiliare && i.capogruppo
+          );
+          this.editSelectedCapogruppoId.set(capogruppo?.id || null);
+        }
+
+        // Pre-seleziona i membri attuali (escluso capogruppo)
+        const membriIds = new Set<string>();
+        if (inv.membriFamiglia) {
+          inv.membriFamiglia.forEach(m => {
+            if (!m.capogruppo) {
+              membriIds.add(m.id);
+            }
+          });
+        }
+        // Se l'invitato corrente non è capogruppo, aggiungi se stesso ai membri
+        if (!inv.capogruppo) {
+          membriIds.add(inv.id);
+        }
+        this.editSelectedMembriIds.set(membriIds);
+
+        this.editCapogruppoSearch.set('');
+        this.editMembriSearch.set('');
+        this.showEditGruppoModal.set(true);
+      },
+      error: (err) => {
+        this.error.set('Errore nel caricamento degli invitati');
+      }
+    });
+  }
+
+  closeEditGruppoModal(): void {
+    this.showEditGruppoModal.set(false);
+    this.editSelectedCapogruppoId.set(null);
+    this.editSelectedMembriIds.set(new Set());
+    this.editCapogruppoSearch.set('');
+    this.editMembriSearch.set('');
+    this.savingGruppo.set(false);
+    this.deletingGruppo.set(false);
+  }
+
+  selectEditCapogruppo(id: string): void {
+    this.editSelectedCapogruppoId.set(id);
+    // Rimuovi dai membri se era selezionato
+    const membri = new Set(this.editSelectedMembriIds());
+    membri.delete(id);
+    this.editSelectedMembriIds.set(membri);
+  }
+
+  toggleEditMembro(id: string): void {
+    const current = new Set(this.editSelectedMembriIds());
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    this.editSelectedMembriIds.set(current);
+  }
+
+  isEditMemberSelected(id: string): boolean {
+    return this.editSelectedMembriIds().has(id);
+  }
+
+  saveEditGruppo(): void {
+    const capogruppoId = this.editSelectedCapogruppoId();
+    const gruppoId = this.invitato()?.gruppoFamiliare;
+    if (!capogruppoId || !gruppoId) return;
+
+    const membriIds = Array.from(this.editSelectedMembriIds());
+
+    this.savingGruppo.set(true);
+    this.error.set(null);
+
+    this.gruppoFamiliareService.aggiornaGruppoFamiliare(gruppoId, {
+      capogruppoId,
+      membriIds
+    }).subscribe({
+      next: () => {
+        this.success.set('Gruppo familiare aggiornato con successo');
+        this.closeEditGruppoModal();
+        this.loadInvitato(this.invitatoId!);
+        setTimeout(() => this.success.set(null), 3000);
+      },
+      error: (err) => {
+        this.savingGruppo.set(false);
+        this.error.set(err.error?.message || 'Errore durante l\'aggiornamento del gruppo');
+      }
+    });
+  }
+
+  confirmDeleteGruppo(): void {
+    if (!confirm('Sei sicuro di voler eliminare questo gruppo familiare? Gli invitati torneranno ad essere indipendenti.')) {
+      return;
+    }
+
+    const gruppoId = this.invitato()?.gruppoFamiliare;
+    if (!gruppoId) return;
+
+    this.deletingGruppo.set(true);
+    this.error.set(null);
+
+    this.gruppoFamiliareService.eliminaGruppoFamiliare(gruppoId).subscribe({
+      next: () => {
+        this.success.set('Gruppo familiare eliminato');
+        this.closeEditGruppoModal();
+        this.loadInvitato(this.invitatoId!);
+        setTimeout(() => this.success.set(null), 3000);
+      },
+      error: (err) => {
+        this.deletingGruppo.set(false);
+        this.error.set(err.error?.message || 'Errore durante l\'eliminazione del gruppo');
+      }
+    });
   }
 }

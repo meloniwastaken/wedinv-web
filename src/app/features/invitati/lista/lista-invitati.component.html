@@ -153,11 +153,16 @@
               </thead>
               <tbody>
                 @for (invitato of filteredInvitati(); track invitato.id) {
-                  <tr>
+                  <tr [class.table-secondary]="isFamilyMember(invitato)">
                     <td>
-                      <input type="checkbox" class="form-check-input"
-                        [checked]="selectedIds().has(invitato.id)"
-                        (change)="toggleSelection(invitato.id)">
+                      @if (isFamilyMember(invitato)) {
+                        <input type="checkbox" class="form-check-input" disabled
+                          title="L'invito viene gestito dal capofamiglia">
+                      } @else {
+                        <input type="checkbox" class="form-check-input"
+                          [checked]="selectedIds().has(invitato.id)"
+                          (change)="toggleSelection(invitato.id)">
+                      }
                     </td>
                     <td>
                       <strong>{{ invitato.nome }} {{ invitato.cognome }}</strong>
@@ -427,10 +432,6 @@
                                     }
                                   }
                                 </div>
-                              } @else {
-                                <span class="text-muted small" title="L'invito viene gestito dal capofamiglia">
-                                  <i class="bi bi-arrow-right-circle"></i>
-                                </span>
                               }
                             </td>
                           </tr>
