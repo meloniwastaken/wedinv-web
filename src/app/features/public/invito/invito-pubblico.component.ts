@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
 import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO, MembroFamigliaPubblico, ConfermaMembroFamiglia } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
+import { SafePipe } from '../../../shared/pipes/safe.pipe';
 
 interface AccompagnatoreForm {
   nome: string;
@@ -22,7 +23,7 @@ interface ConfermaMembroForm {
 @Component({
   selector: 'app-invito-pubblico',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarPubblicoComponent],
+  imports: [CommonModule, FormsModule, NavbarPubblicoComponent, SafePipe],
   templateUrl: './invito-pubblico.component.html',
   styleUrl: './invito-pubblico.component.css'
 })

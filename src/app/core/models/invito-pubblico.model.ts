@@ -23,12 +23,14 @@ export interface InvitoPubblicoResponse {
   indirizzoCerimonia: string | null;
   cittaCerimonia: string | null;
   linkMapsCerimonia: string | null;
+  embedMapsCerimonia: string | null;
   dataRicevimento: string;
   oraRicevimento: string | null;
   luogoRicevimento: string | null;
   indirizzoRicevimento: string | null;
   cittaRicevimento: string | null;
   linkMapsRicevimento: string | null;
+  embedMapsRicevimento: string | null;
   statoInvito: number | null;
   statoInvitoDescrizione: string | null;
   numeroPlusConsentiti: number | null;
