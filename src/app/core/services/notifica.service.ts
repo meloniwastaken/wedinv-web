@@ -144,29 +144,29 @@ export class NotificaService implements OnDestroy {
 
   private buildWsUrl(): string | null {
     const isPageHttps = window.location.protocol === 'https:';
+    const currentHost = window.location.host;
+    const isPageLocalhost = currentHost.includes('localhost') || currentHost.includes('127.0.0.1');
 
-    // Se wsUrl è vuoto, usa URL relativa basata su location
-    if (!environment.wsUrl || environment.wsUrl === '') {
-      // Usa URL relativa (stesso host della pagina)
+    // Se siamo su un dominio reale (non localhost), usa sempre URL relativa
+    // Questo garantisce che WebSocket funzioni anche con environment sbagliato
+    if (!isPageLocalhost) {
       const protocol = isPageHttps ? 'https:' : 'http:';
-      return `${protocol}//${window.location.host}/ws`;
+      return `${protocol}//${currentHost}/ws`;
     }
 
-    // Se wsUrl contiene localhost e pagina è HTTPS, disabilita WebSocket
-    // (localhost non ha SSL, quindi non può funzionare)
-    const isLocalhost = environment.wsUrl.includes('localhost') || environment.wsUrl.includes('127.0.0.1');
-    if (isPageHttps && isLocalhost) {
-      console.warn('WebSocket disabilitato: impossibile connettersi a localhost da pagina HTTPS');
+    // Siamo su localhost - usa wsUrl configurato
+    if (!environment.wsUrl || environment.wsUrl === '') {
+      // wsUrl vuoto su localhost = disabilita WebSocket
       return null;
     }
 
-    // Se pagina HTTPS ma wsUrl HTTP (non localhost), converti a HTTPS
-    const isWsUrlHttp = environment.wsUrl.startsWith('http://');
-    if (isPageHttps && isWsUrlHttp) {
-      const secureUrl = environment.wsUrl.replace('http://', 'https://');
-      return `${secureUrl}/ws`;
+    // Su localhost HTTP, usa wsUrl così com'è
+    if (!isPageHttps) {
+      return `${environment.wsUrl}/ws`;
     }
 
-    return `${environment.wsUrl}/ws`;
+    // Su localhost HTTPS (raro), non possiamo connetterci a backend HTTP
+    console.warn('WebSocket disabilitato: localhost HTTPS non supportato');
+    return null;
   }
 }
