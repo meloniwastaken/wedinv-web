@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bs-tertiary-bg);
+  background: var(--color-background-alt);
   flex-shrink: 0;
 }
 
@@ -14,13 +14,68 @@
 }
 
 .list-group-item-light {
-  background-color: rgba(var(--bs-primary-rgb), 0.05);
+  background-color: var(--color-secondary);
 }
 
 .list-group-item {
   transition: background-color 0.15s ease;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-color: var(--color-border);
 }
 
 .list-group-item:hover {
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--color-background-alt);
+}
+
+/* Override Bootstrap card per tema */
+:host ::ng-deep .card {
+  background-color: var(--color-background);
+  border-color: var(--color-border);
+}
+
+:host ::ng-deep .card-body {
+  color: var(--color-text);
+}
+
+/* Badge colori */
+:host ::ng-deep .badge.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+
+:host ::ng-deep .badge.bg-secondary {
+  background-color: var(--color-text-muted) !important;
+}
+
+/* Paginazione */
+:host ::ng-deep .page-link {
+  background-color: var(--color-background);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+:host ::ng-deep .page-item.active .page-link {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+:host ::ng-deep .page-item.disabled .page-link {
+  background-color: var(--color-background-alt);
+  color: var(--color-text-muted);
+}
+
+/* Button groups */
+:host ::ng-deep .btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+:host ::ng-deep .btn-outline-primary {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+:host ::ng-deep .btn-outline-primary:hover {
+  background-color: var(--color-primary);
+  color: white;
 }

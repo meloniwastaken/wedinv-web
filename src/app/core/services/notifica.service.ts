@@ -143,24 +143,27 @@ export class NotificaService implements OnDestroy {
   }
 
   private buildWsUrl(): string | null {
-    // Se wsUrl è vuoto in produzione, usa URL relativa basata su location
+    const isPageHttps = window.location.protocol === 'https:';
+
+    // Se wsUrl è vuoto, usa URL relativa basata su location
     if (!environment.wsUrl || environment.wsUrl === '') {
-      // In produzione usa URL relativa
-      if (environment.production) {
-        const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-        return `${protocol}//${window.location.host}/ws`;
-      }
+      // Usa URL relativa (stesso host della pagina)
+      const protocol = isPageHttps ? 'https:' : 'http:';
+      return `${protocol}//${window.location.host}/ws`;
+    }
+
+    // Se wsUrl contiene localhost e pagina è HTTPS, disabilita WebSocket
+    // (localhost non ha SSL, quindi non può funzionare)
+    const isLocalhost = environment.wsUrl.includes('localhost') || environment.wsUrl.includes('127.0.0.1');
+    if (isPageHttps && isLocalhost) {
+      console.warn('WebSocket disabilitato: impossibile connettersi a localhost da pagina HTTPS');
       return null;
     }
 
-    // Verifica mixed content: se pagina HTTPS ma wsUrl HTTP
-    const isPageHttps = window.location.protocol === 'https:';
+    // Se pagina HTTPS ma wsUrl HTTP (non localhost), converti a HTTPS
     const isWsUrlHttp = environment.wsUrl.startsWith('http://');
-
     if (isPageHttps && isWsUrlHttp) {
-      // Converti HTTP in HTTPS per evitare mixed content
       const secureUrl = environment.wsUrl.replace('http://', 'https://');
-      console.warn('WebSocket URL convertito a HTTPS per evitare mixed content');
       return `${secureUrl}/ws`;
     }
 
