@@ -1,0 +1,57 @@
+<div class="notifica-bell-wrapper" [class.show]="isDropdownOpen()">
+  <button
+    class="btn btn-link nav-link notifica-bell-btn"
+    (click)="toggleDropdown($event)"
+    [attr.aria-expanded]="isDropdownOpen()"
+    title="Notifiche"
+  >
+    <i class="bi bi-bell"></i>
+    @if (hasNonLette()) {
+      <span class="badge-notification">{{ countNonLette() }}</span>
+    }
+  </button>
+
+  <div class="notifica-dropdown" [class.show]="isDropdownOpen()">
+    <div class="notifica-dropdown-header">
+      <span class="fw-semibold">Notifiche</span>
+      @if (hasNonLette()) {
+        <button class="btn btn-link btn-sm p-0 text-muted" (click)="segnaTutteComeLette($event)">
+          Segna tutte come lette
+        </button>
+      }
+    </div>
+
+    <div class="notifica-dropdown-body">
+      @if (notifiche().length === 0) {
+        <div class="notifica-empty">
+          <i class="bi bi-bell-slash"></i>
+          <p>Nessuna notifica</p>
+        </div>
+      } @else {
+        @for (notifica of notifiche(); track notifica.id) {
+          <a
+            class="notifica-item"
+            [class.non-letta]="!notifica.letta"
+            [routerLink]="notifica.link"
+            (click)="segnaComeLetta(notifica, $event); closeDropdown()"
+          >
+            <div class="notifica-icon">
+              <i class="bi" [ngClass]="getIconForTipo(notifica.tipoNotifica)"></i>
+            </div>
+            <div class="notifica-content">
+              <div class="notifica-titolo">{{ notifica.titolo }}</div>
+              <div class="notifica-tempo">{{ getTempoRelativo(notifica.dataCreazione) }}</div>
+            </div>
+            @if (!notifica.letta) {
+              <div class="notifica-dot"></div>
+            }
+          </a>
+        }
+      }
+    </div>
+
+    <div class="notifica-dropdown-footer">
+      <a routerLink="/notifiche" (click)="closeDropdown()">Vedi tutte le notifiche</a>
+    </div>
+  </div>
+</div>

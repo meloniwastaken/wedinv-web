@@ -67,6 +67,10 @@
             </a>
           </li>
         }
+        <!-- Notifiche -->
+        <li class="nav-item me-2">
+          <app-notifica-bell></app-notifica-bell>
+        </li>
         <li class="nav-item me-2">
           <button class="btn btn-link nav-link theme-toggle" (click)="toggleLightDark()"
             [title]="isDarkTheme() ? 'Passa al tema chiaro' : 'Passa al tema scuro'">

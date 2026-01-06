@@ -121,6 +121,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'notifiche',
+    loadComponent: () => import('./features/notifiche/notifiche.component').then(m => m.NotificheComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'contatti',
     loadComponent: () => import('./features/contatti/contatti.component').then(m => m.ContattiComponent)
     // Route pubblica - nessuna guardia

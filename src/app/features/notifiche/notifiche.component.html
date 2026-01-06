@@ -1,0 +1,164 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="bi bi-bell me-2"></i>Notifiche e Attivita'
+    </h2>
+    @if (notifiche().some(n => !n.letta)) {
+      <button class="btn btn-outline-primary" (click)="segnaTutteComeLette()">
+        <i class="bi bi-check-all me-1"></i>Segna tutte come lette
+      </button>
+    }
+  </div>
+
+  <!-- Filtri -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted small">Filtra per origine</label>
+          <div class="btn-group w-100" role="group">
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroAttore() === null"
+              [class.btn-outline-primary]="filtroAttore() !== null"
+              (click)="setFiltroAttore(null)"
+            >
+              Tutte
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroAttore() === 'INVITATO'"
+              [class.btn-outline-primary]="filtroAttore() !== 'INVITATO'"
+              (click)="setFiltroAttore('INVITATO')"
+            >
+              <i class="bi bi-person me-1"></i>Invitati
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroAttore() === 'SPOSI'"
+              [class.btn-outline-primary]="filtroAttore() !== 'SPOSI'"
+              (click)="setFiltroAttore('SPOSI')"
+            >
+              <i class="bi bi-heart me-1"></i>Le mie azioni
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small">Filtra per stato</label>
+          <div class="btn-group w-100" role="group">
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroLetta() === null"
+              [class.btn-outline-primary]="filtroLetta() !== null"
+              (click)="setFiltroLetta(null)"
+            >
+              Tutte
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroLetta() === false"
+              [class.btn-outline-primary]="filtroLetta() !== false"
+              (click)="setFiltroLetta(false)"
+            >
+              <i class="bi bi-circle-fill text-primary me-1" style="font-size: 0.5rem;"></i>Non lette
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroLetta() === true"
+              [class.btn-outline-primary]="filtroLetta() !== true"
+              (click)="setFiltroLetta(true)"
+            >
+              <i class="bi bi-check me-1"></i>Lette
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Lista Notifiche -->
+    @if (notifiche().length === 0) {
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-bell-slash display-4 text-muted"></i>
+          <p class="text-muted mt-3 mb-0">Nessuna notifica trovata</p>
+        </div>
+      </div>
+    } @else {
+      <div class="list-group">
+        @for (notifica of notifiche(); track notifica.id) {
+          <a
+            class="list-group-item list-group-item-action"
+            [class.list-group-item-light]="!notifica.letta"
+            [routerLink]="notifica.link"
+            (click)="segnaComeLetta(notifica)"
+          >
+            <div class="d-flex w-100 align-items-start gap-3">
+              <div class="notifica-icon-lg">
+                <i class="bi" [ngClass]="getIconForTipo(notifica.tipoNotifica)"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <h6 class="mb-0" [class.fw-bold]="!notifica.letta">
+                    {{ notifica.titolo }}
+                  </h6>
+                  <small class="text-muted">{{ getTempoRelativo(notifica.dataCreazione) }}</small>
+                </div>
+                @if (notifica.messaggio) {
+                  <p class="mb-1 text-muted small">{{ notifica.messaggio }}</p>
+                }
+                <div class="d-flex gap-2 align-items-center">
+                  <span class="badge" [ngClass]="getBadgeClass(notifica.attore)">
+                    {{ notifica.attore === 'INVITATO' ? 'Invitato' : 'Tu' }}
+                  </span>
+                  @if (!notifica.letta) {
+                    <span class="badge bg-primary">Nuova</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+
+      <!-- Paginazione -->
+      @if (totalPages() > 1) {
+        <nav class="mt-4" aria-label="Navigazione notifiche">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage() === 0">
+              <button class="page-link" (click)="goToPage(currentPage() - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+            @for (page of [].constructor(totalPages()); track $index) {
+              <li class="page-item" [class.active]="currentPage() === $index">
+                <button class="page-link" (click)="goToPage($index)">
+                  {{ $index + 1 }}
+                </button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="currentPage() === totalPages() - 1">
+              <button class="page-link" (click)="goToPage(currentPage() + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      }
+    }
+  }
+</div>

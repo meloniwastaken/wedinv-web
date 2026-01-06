@@ -7,3 +7,4 @@ export * from './lista-nozze.model';
 export * from './tavolo.model';
 export * from './etichetta.model';
 export * from './foto-evento.model';
+export * from './notifica.model';

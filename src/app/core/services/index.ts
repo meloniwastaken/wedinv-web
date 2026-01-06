@@ -10,3 +10,4 @@ export * from './tavolo.service';
 export * from './title.service';
 export * from './etichetta.service';
 export * from './foto-evento.service';
+export * from './notifica.service';

@@ -2,11 +2,12 @@ import { Component, computed, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, ThemeService } from '../../../core/services';
+import { NotificaBellComponent } from '../notifica-bell/notifica-bell.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, NotificaBellComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
