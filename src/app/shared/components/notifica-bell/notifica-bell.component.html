@@ -7,7 +7,7 @@
   >
     <i class="bi bi-bell"></i>
     @if (hasNonLette()) {
-      <span class="badge-notification">{{ countNonLette() }}</span>
+      <span class="badge-notification">{{ countDisplay() }}</span>
     }
   </button>
 
@@ -15,8 +15,8 @@
     <div class="notifica-dropdown-header">
       <span class="fw-semibold">Notifiche</span>
       @if (hasNonLette()) {
-        <button class="btn btn-link btn-sm p-0 text-muted" (click)="segnaTutteComeLette($event)">
-          Segna tutte come lette
+        <button class="btn btn-link btn-sm p-0 segna-lette-btn" (click)="segnaTutteComeLette($event)">
+          <i class="bi bi-check-all me-1"></i>Segna tutte lette
         </button>
       }
     </div>

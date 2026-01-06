@@ -121,14 +121,9 @@
                 @if (notifica.messaggio) {
                   <p class="mb-1 text-muted small">{{ notifica.messaggio }}</p>
                 }
-                <div class="d-flex gap-2 align-items-center">
-                  <span class="badge" [ngClass]="getBadgeClass(notifica.attore)">
-                    {{ notifica.attore === 'INVITATO' ? 'Invitato' : 'Tu' }}
-                  </span>
-                  @if (!notifica.letta) {
-                    <span class="badge bg-primary">Nuova</span>
-                  }
-                </div>
+                @if (!notifica.letta) {
+                  <span class="badge bg-primary">Nuova</span>
+                }
               </div>
             </div>
           </a>

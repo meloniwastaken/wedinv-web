@@ -15,17 +15,19 @@
 
 .badge-notification {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -2px;
+  right: -4px;
   background-color: var(--color-danger);
   color: white;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.15rem 0.4rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 5px;
   border-radius: 10px;
-  min-width: 16px;
+  min-width: 18px;
+  height: 18px;
   text-align: center;
-  line-height: 1;
+  line-height: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .notifica-dropdown {
@@ -66,12 +68,15 @@
   color: var(--color-text);
 }
 
-.notifica-dropdown-header .btn-link {
-  color: var(--color-text-muted);
+.segna-lette-btn {
+  color: var(--color-primary) !important;
+  font-size: 0.8rem;
+  text-decoration: none !important;
 }
 
-.notifica-dropdown-header .btn-link:hover {
-  color: var(--color-primary);
+.segna-lette-btn:hover {
+  color: var(--color-primary-dark) !important;
+  text-decoration: underline !important;
 }
 
 .notifica-dropdown-body {

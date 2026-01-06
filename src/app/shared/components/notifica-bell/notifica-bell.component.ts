@@ -21,6 +21,12 @@ export class NotificaBellComponent implements OnInit, OnDestroy {
   countNonLette = this.notificaService.countNonLette;
   hasNonLette = this.notificaService.hasNonLette;
 
+  // Formatta il conteggio: 1-99 o "99+"
+  countDisplay = computed(() => {
+    const count = this.countNonLette();
+    return count > 99 ? '99+' : count.toString();
+  });
+
   ngOnInit(): void {
     this.loadData();
   }
@@ -94,7 +100,11 @@ export class NotificaBellComponent implements OnInit, OnDestroy {
 
   getTempoRelativo(dataCreazione: string): string {
     const now = new Date();
-    const data = new Date(dataCreazione);
+    // Se il timestamp non ha timezone, trattalo come UTC
+    const timestamp = dataCreazione.endsWith('Z') || dataCreazione.includes('+')
+      ? dataCreazione
+      : dataCreazione + 'Z';
+    const data = new Date(timestamp);
     const diffMs = now.getTime() - data.getTime();
     const diffMinutes = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMinutes / 60);
