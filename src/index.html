@@ -33,6 +33,12 @@
   <meta name="twitter:description" content="Crea e gestisci gli inviti del tuo matrimonio in modo semplice e elegante.">
   <meta name="twitter:image" content="https://wedinv.it/og-image.svg">
   <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Polyfill per SockJS (richiede variabile global di Node.js) -->
+  <script>
+    var global = global || window;
+    var process = process || { env: { DEBUG: undefined } };
+  </script>
 </head>
 <body>
   <app-root></app-root>
