@@ -78,8 +78,15 @@ export class NotificaService implements OnDestroy {
 
     this.matrimonioId = matrimonioId;
 
+    // Costruisci URL WebSocket basato sul protocollo corrente
+    const wsUrl = this.buildWsUrl();
+    if (!wsUrl) {
+      console.warn('WebSocket URL non configurato, notifiche real-time disabilitate');
+      return;
+    }
+
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS(`${environment.wsUrl}/ws`),
+      webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -133,5 +140,30 @@ export class NotificaService implements OnDestroy {
   clearCache(): void {
     this.notificheSignal.set([]);
     this.countNonLetteSignal.set(0);
+  }
+
+  private buildWsUrl(): string | null {
+    // Se wsUrl è vuoto in produzione, usa URL relativa basata su location
+    if (!environment.wsUrl || environment.wsUrl === '') {
+      // In produzione usa URL relativa
+      if (environment.production) {
+        const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+        return `${protocol}//${window.location.host}/ws`;
+      }
+      return null;
+    }
+
+    // Verifica mixed content: se pagina HTTPS ma wsUrl HTTP
+    const isPageHttps = window.location.protocol === 'https:';
+    const isWsUrlHttp = environment.wsUrl.startsWith('http://');
+
+    if (isPageHttps && isWsUrlHttp) {
+      // Converti HTTP in HTTPS per evitare mixed content
+      const secureUrl = environment.wsUrl.replace('http://', 'https://');
+      console.warn('WebSocket URL convertito a HTTPS per evitare mixed content');
+      return `${secureUrl}/ws`;
+    }
+
+    return `${environment.wsUrl}/ws`;
   }
 }
