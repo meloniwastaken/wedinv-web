@@ -642,6 +642,30 @@ body:has(.modal.d-block) {
   color: var(--color-primary);
 }
 
+/* Mobile App (Capacitor) - Safe Area */
+html {
+  /* Supporto per safe area su dispositivi con notch */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Disabilita selezione testo per feel nativo su mobile */
+.mobile-app * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Riabilita selezione per input e textarea */
+.mobile-app input,
+.mobile-app textarea,
+.mobile-app [contenteditable] {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 2rem; }
