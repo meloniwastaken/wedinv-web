@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificaService } from '../../core/services';
@@ -21,6 +21,8 @@ export class NotificheComponent implements OnInit {
   totalElements = signal(0);
   filtroAttore = signal<string | null>(null);
   filtroLetta = signal<boolean | null>(null);
+
+  hasNonLette = computed(() => this.notifiche().some((n) => !n.letta));
 
   readonly pageSize = 20;
 

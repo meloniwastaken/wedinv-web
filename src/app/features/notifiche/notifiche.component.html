@@ -3,7 +3,7 @@
     <h2 class="mb-0">
       <i class="bi bi-bell me-2"></i>Notifiche e Attivita'
     </h2>
-    @if (notifiche().some(n => !n.letta)) {
+    @if (hasNonLette()) {
       <button class="btn btn-outline-primary" (click)="segnaTutteComeLette()">
         <i class="bi bi-check-all me-1"></i>Segna tutte come lette
       </button>
