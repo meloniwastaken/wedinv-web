@@ -115,7 +115,9 @@ export class NotificheComponent implements OnInit {
     return attore === AttoreNotificaEnum.INVITATO ? 'bg-primary' : 'bg-secondary';
   }
 
-  private parseDate(dateString: string): Date {
+  private parseDate(dateString: string | null | undefined): Date {
+    if (!dateString) return new Date();
+
     // Se il timestamp non ha timezone, trattalo come UTC
     const timestamp = dateString.endsWith('Z') || dateString.includes('+')
       ? dateString
@@ -123,7 +125,9 @@ export class NotificheComponent implements OnInit {
     return new Date(timestamp);
   }
 
-  formatDate(dateString: string): string {
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return 'Adesso';
+
     const date = this.parseDate(dateString);
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
@@ -134,7 +138,9 @@ export class NotificheComponent implements OnInit {
     });
   }
 
-  getTempoRelativo(dataCreazione: string): string {
+  getTempoRelativo(dataCreazione: string | null | undefined): string {
+    if (!dataCreazione) return 'Adesso';
+
     const now = new Date();
     const data = this.parseDate(dataCreazione);
     const diffMs = now.getTime() - data.getTime();

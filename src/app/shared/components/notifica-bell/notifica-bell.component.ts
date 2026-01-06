@@ -98,7 +98,9 @@ export class NotificaBellComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTempoRelativo(dataCreazione: string): string {
+  getTempoRelativo(dataCreazione: string | null | undefined): string {
+    if (!dataCreazione) return 'Adesso';
+
     const now = new Date();
     // Se il timestamp non ha timezone, trattalo come UTC
     const timestamp = dataCreazione.endsWith('Z') || dataCreazione.includes('+')
