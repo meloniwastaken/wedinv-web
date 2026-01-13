@@ -58,6 +58,7 @@ export interface InvitoPubblicoResponse {
 export interface ConfermaMembroFamiglia {
   id: string;
   confermato: boolean;
+  intolleranzeAlimentari?: string | null;
 }
 
 export interface ConfermaInvitoRequest {

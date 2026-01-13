@@ -8,9 +8,7 @@ import {
   StatoInvito,
   AccompagnatoreDTO,
   MembroFamigliaPubblico,
-  ConfermaMembroFamiglia,
-  IntolleranzeGruppoResponse,
-  AggiornaIntolleranzeGruppoRequest
+  ConfermaMembroFamiglia
 } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 import { SafePipe } from '../../../shared/pipes/safe.pipe';
@@ -26,12 +24,6 @@ interface ConfermaMembroForm {
   cognome: string;
   confermato: boolean;
   capogruppo: boolean;
-}
-
-interface IntolleranzeMembroForm {
-  id: string;
-  nome: string;
-  cognome: string;
   intolleranzeAlimentari: string;
 }
 
@@ -55,12 +47,8 @@ export class InvitoPubblicoComponent implements OnInit {
   intolleranzeAlimentari = signal('');
   accompagnatori = signal<AccompagnatoreForm[]>([]);
 
-  // Conferme famiglia
+  // Conferme famiglia (include anche intolleranze per ogni membro)
   confermeFamiglia = signal<ConfermaMembroForm[]>([]);
-
-  // Intolleranze gruppo familiare
-  intolleranzeGruppoForm = signal<IntolleranzeMembroForm[]>([]);
-  savingIntolleranze = signal(false);
 
   StatoInvito = StatoInvito;
 
@@ -135,24 +123,21 @@ export class InvitoPubblicoComponent implements OnInit {
         } else {
           this.syncAccompagnatori(invito.plusConfermati || 0);
         }
-        // Inizializza conferme famiglia se capogruppo
+        // Inizializza conferme famiglia se capogruppo (include intolleranze)
         if (invito.capogruppo && invito.membriFamiglia && invito.membriFamiglia.length > 0) {
           this.confermeFamiglia.set(invito.membriFamiglia.map(m => ({
             id: m.id,
             nome: m.nome,
             cognome: m.cognome,
             confermato: m.statoInvito === StatoInvito.CONFERMATO,
-            capogruppo: m.capogruppo === true
+            capogruppo: m.capogruppo === true,
+            intolleranzeAlimentari: m.intolleranzeAlimentari || ''
           })));
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
         // Imposta il titolo della pagina con i nomi degli sposi
         this.titleService.setTitleWithSposi(invito.nomeSposoA, invito.nomeSposoB);
-        // Carica intolleranze gruppo se appartiene a un gruppo familiare
-        if (invito.capogruppo && invito.membriFamiglia && invito.membriFamiglia.length > 0) {
-          this.loadIntolleranzeGruppo();
-        }
         // Verifica se ci sono elementi nella lista nozze
         this.checkListaNozze();
       },
@@ -249,9 +234,13 @@ export class InvitoPubblicoComponent implements OnInit {
       .filter(a => a.nome.trim() && a.cognome.trim())
       .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }));
 
-    // Prepara conferme famiglia se capogruppo
+    // Prepara conferme famiglia se capogruppo (include intolleranze per ogni membro)
     const confermeFamiglia = this.isCapogruppo()
-      ? this.confermeFamiglia().map(m => ({ id: m.id, confermato: m.confermato }))
+      ? this.confermeFamiglia().map(m => ({
+          id: m.id,
+          confermato: m.confermato,
+          intolleranzeAlimentari: m.intolleranzeAlimentari || null
+        }))
       : undefined;
 
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
@@ -335,56 +324,13 @@ export class InvitoPubblicoComponent implements OnInit {
     return membri.filter(m => m.intolleranzeAlimentari && m.intolleranzeAlimentari.trim() !== '');
   }
 
-  // === Metodi per gestione intolleranze gruppo familiare ===
-
-  loadIntolleranzeGruppo(): void {
-    if (this.hasFamiglia()) {
-      this.invitoPubblicoService.getIntolleranzeGruppo(this.invitoId).subscribe({
-        next: (response) => {
-          this.intolleranzeGruppoForm.set(response.membri.map(m => ({
-            id: m.id,
-            nome: m.nome,
-            cognome: m.cognome,
-            intolleranzeAlimentari: m.intolleranzeAlimentari || ''
-          })));
-        },
-        error: (err) => {
-          console.error('Errore caricamento intolleranze gruppo', err);
-        }
-      });
-    }
-  }
-
-  updateIntolleranzaMembro(id: string, value: string): void {
-    const current = [...this.intolleranzeGruppoForm()];
+  // Aggiorna intolleranze di un membro nel form conferma famiglia
+  updateIntolleranzeFamiglia(id: string, value: string): void {
+    const current = [...this.confermeFamiglia()];
     const index = current.findIndex(m => m.id === id);
     if (index >= 0) {
       current[index] = { ...current[index], intolleranzeAlimentari: value };
-      this.intolleranzeGruppoForm.set(current);
+      this.confermeFamiglia.set(current);
     }
-  }
-
-  salvaIntolleranzeGruppo(): void {
-    this.savingIntolleranze.set(true);
-    this.error.set(null);
-
-    const request: AggiornaIntolleranzeGruppoRequest = {
-      intolleranze: this.intolleranzeGruppoForm().map(m => ({
-        id: m.id,
-        intolleranzeAlimentari: m.intolleranzeAlimentari || null
-      }))
-    };
-
-    this.invitoPubblicoService.aggiornaIntolleranzeGruppo(this.invitoId, request).subscribe({
-      next: () => {
-        this.success.set('Intolleranze alimentari aggiornate con successo!');
-        this.savingIntolleranze.set(false);
-        this.loadIntolleranzeGruppo();
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Errore durante il salvataggio delle intolleranze');
-        this.savingIntolleranze.set(false);
-      }
-    });
   }
 }
