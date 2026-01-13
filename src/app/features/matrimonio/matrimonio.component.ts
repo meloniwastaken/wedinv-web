@@ -2,13 +2,15 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { QuillModule } from 'ngx-quill';
 import { MatrimonioService, ThemeService, AuthService } from '../../core/services';
 import { MatrimonioDTO, CreaMatrimonioRequest, AggiornaMatrimonioRequest } from '../../core/models';
+import { SafePipe } from '../../shared/pipes/safe.pipe';
 
 @Component({
   selector: 'app-matrimonio',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, QuillModule, SafePipe],
   templateUrl: './matrimonio.component.html',
   styleUrl: './matrimonio.component.css'
 })
@@ -31,6 +33,16 @@ export class MatrimonioComponent implements OnInit {
   pendingFotoBase64 = signal<string | null | undefined>(undefined); // undefined = no change, null = delete, string = new photo
 
   isPremium = computed(() => this.authService.isActive());
+
+  // Configurazione toolbar Quill
+  quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['clean']
+    ]
+  };
 
   hasFotoInvito = computed(() => {
     // Check pending change first

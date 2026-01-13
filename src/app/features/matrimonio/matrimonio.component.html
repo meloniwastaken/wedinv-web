@@ -164,7 +164,7 @@
                   @if (matrimonio()!.note) {
                     <div class="col-12 mb-3">
                       <small class="text-muted d-block">Note per gli invitati</small>
-                      <span>{{ matrimonio()!.note }}</span>
+                      <div class="note-content" [innerHTML]="matrimonio()!.note | safe:'html'"></div>
                     </div>
                   }
                   @if (isPremium() && matrimonio()!.messaggioInvito) {
@@ -397,9 +397,12 @@
                   }
                   <div class="col-12">
                     <label for="note" class="form-label">Note per gli invitati</label>
-                    <textarea class="form-control" id="note" rows="3"
+                    <quill-editor
                       formControlName="note"
-                      placeholder="Informazioni aggiuntive che verranno mostrate nell'invito..."></textarea>
+                      [modules]="quillModules"
+                      placeholder="Informazioni aggiuntive che verranno mostrate nell'invito..."
+                      [styles]="{ 'min-height': '120px' }">
+                    </quill-editor>
                   </div>
                   @if (isPremium()) {
                     <div class="col-12">

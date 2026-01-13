@@ -689,6 +689,31 @@ html {
   }
 }
 
+/* Quill Editor - layout */
+quill-editor {
+  display: block;
+  width: 100%;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--color-text-muted);
+  font-style: normal;
+  opacity: 0.6;
+}
+
+/* Quill content - fix colore liste */
+.ql-editor ol,
+.ql-editor ul,
+.ql-editor li,
+.note-content ol,
+.note-content ul,
+.note-content li,
+.invitation-section ol,
+.invitation-section ul,
+.invitation-section li {
+  color: var(--color-text-muted);
+}
+
 /* Custom Scrollbar - adattiva al tema */
 /* Firefox */
 * {

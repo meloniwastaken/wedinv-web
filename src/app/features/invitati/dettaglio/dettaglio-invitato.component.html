@@ -143,6 +143,18 @@
               </div>
             }
 
+            <!-- Messaggio dell'invitato -->
+            @if (invitato()?.messaggio) {
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-chat-heart text-primary me-2"></i>Messaggio dell'invitato
+                </div>
+                <div class="card-body">
+                  <p class="mb-0 fst-italic">"{{ invitato()!.messaggio }}"</p>
+                </div>
+              </div>
+            }
+
             <!-- Accompagnatori -->
             @if (invitato()?.accompagnatori && invitato()!.accompagnatori!.length > 0) {
               <div class="card mb-4">

@@ -4,11 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
 import { InvitoPubblicoResponse } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
+import { SafePipe } from '../../../shared/pipes/safe.pipe';
 
 @Component({
   selector: 'app-matrimonio-pubblico',
   standalone: true,
-  imports: [CommonModule, NavbarPubblicoComponent],
+  imports: [CommonModule, NavbarPubblicoComponent, SafePipe],
   templateUrl: './matrimonio-pubblico.component.html',
   styleUrl: './matrimonio-pubblico.component.css'
 })

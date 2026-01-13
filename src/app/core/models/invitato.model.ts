@@ -35,6 +35,7 @@ export interface InvitatoDTO {
   dataConferma: string | null;
   note: string | null;
   intolleranzeAlimentari: string | null;
+  messaggio: string | null;
   dataCreazione: string;
   dataModifica: string;
   accompagnatori?: AccompagnatoreDTO[];
