@@ -307,44 +307,6 @@
                     <i class="bi bi-people-fill me-2 text-info"></i>Conferma partecipazioni famiglia
                   </h5>
 
-                  <!-- Tabella membri famiglia -->
-                  <table class="table table-famiglia mb-4">
-                    <thead>
-                      <tr>
-                        <th>Nome</th>
-                        <th class="text-center" style="width: 150px;">Partecipa?</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (membro of confermeFamiglia(); track membro.id) {
-                        <tr>
-                          <td>
-                            {{ membro.nome }} {{ membro.cognome }}
-                            @if (membro.capogruppo) {
-                              <span class="badge bg-info ms-1">Tu</span>
-                            }
-                          </td>
-                          <td class="text-center">
-                            <div class="btn-group btn-group-sm" role="group">
-                              <button type="button" class="btn"
-                                [class.btn-success]="membro.confermato"
-                                [class.btn-outline-success]="!membro.confermato"
-                                (click)="toggleConfermaFamiglia(membro.id)">
-                                Sì
-                              </button>
-                              <button type="button" class="btn"
-                                [class.btn-danger]="!membro.confermato"
-                                [class.btn-outline-danger]="membro.confermato"
-                                (click)="toggleConfermaFamiglia(membro.id)">
-                                No
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-
                   <!-- Pulsanti azioni rapide -->
                   <div class="d-flex gap-2 justify-content-center mb-4">
                     <button class="btn btn-outline-success btn-sm" (click)="setAllFamigliaConfermato(true)">
@@ -355,69 +317,84 @@
                     </button>
                   </div>
 
-                  @if ((invito()!.numeroPlusConsentiti ?? 0) > 0) {
-                    <div class="mb-4 text-start">
-                      <label class="form-label">
-                        Accompagnatori aggiuntivi
-                        <small class="text-muted">(max {{ invito()!.numeroPlusConsentiti }})</small>
-                      </label>
-                      <select class="form-select" style="max-width: 200px;"
-                        [ngModel]="plusConfermati()" (ngModelChange)="onPlusConfermatiChange($event)">
-                        @for (n of [].constructor(invito()!.numeroPlusConsentiti! + 1); track $index) {
-                          <option [value]="$index">{{ $index }}</option>
-                        }
-                      </select>
-                    </div>
-
-                    @if (plusConfermati() > 0) {
-                      <div class="mb-4 text-start">
-                        <label class="form-label">
-                          <i class="bi bi-people me-1"></i>
-                          Dati degli accompagnatori
-                        </label>
-                        @for (acc of accompagnatori(); track $index) {
-                          <div class="row g-2 mb-2">
-                            <div class="col-6">
-                              <input type="text" class="form-control" placeholder="Nome"
-                                [value]="acc.nome"
-                                (input)="updateAccompagnatore($index, 'nome', $any($event.target).value)">
-                            </div>
-                            <div class="col-6">
-                              <input type="text" class="form-control" placeholder="Cognome"
-                                [value]="acc.cognome"
-                                (input)="updateAccompagnatore($index, 'cognome', $any($event.target).value)">
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    }
-                  }
-
-                  <!-- Intolleranze alimentari per ogni membro -->
-                  <div class="mb-4 text-start">
-                    <label class="form-label">
-                      <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
-                      Allergie o intolleranze alimentari
-                    </label>
-                    <p class="text-muted small mb-3">Compila le intolleranze per ogni membro della famiglia</p>
-                    @for (membro of confermeFamiglia(); track membro.id) {
-                      <div class="mb-3">
-                        <label class="form-label fw-semibold small mb-1">
+                  <!-- Card per ogni membro della famiglia -->
+                  @for (membro of confermeFamiglia(); track membro.id) {
+                    <div class="card mb-3 border">
+                      <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-semibold">
                           {{ membro.nome }} {{ membro.cognome }}
                           @if (membro.id === invitoId) {
                             <span class="badge bg-info ms-1">Tu</span>
                           }
-                        </label>
-                        <textarea class="form-control" rows="2"
-                          placeholder="Es: celiaco, intollerante al lattosio, vegetariano..."
-                          [value]="membro.intolleranzeAlimentari"
-                          (input)="updateIntolleranzeFamiglia(membro.id, $any($event.target).value)">
-                        </textarea>
+                        </span>
+                        <!-- Pulsanti Sì/No -->
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button type="button" class="btn"
+                            [class.btn-success]="membro.confermato"
+                            [class.btn-outline-success]="!membro.confermato"
+                            (click)="toggleConfermaFamiglia(membro.id)">
+                            Sì
+                          </button>
+                          <button type="button" class="btn"
+                            [class.btn-danger]="!membro.confermato"
+                            [class.btn-outline-danger]="membro.confermato"
+                            (click)="toggleConfermaFamiglia(membro.id)">
+                            No
+                          </button>
+                        </div>
                       </div>
-                    }
-                  </div>
+                      <div class="card-body py-3">
+                        <!-- Accompagnatori (se ha plus consentiti) -->
+                        @if (membro.numeroPlusConsentiti > 0) {
+                          <div class="mb-3">
+                            <label class="form-label small mb-1">
+                              <i class="bi bi-people me-1"></i>
+                              Accompagnatori <small class="text-muted">(max {{ membro.numeroPlusConsentiti }})</small>
+                            </label>
+                            <select class="form-select form-select-sm" style="max-width: 100px;"
+                              [ngModel]="membro.plusConfermati"
+                              (ngModelChange)="onPlusMembroChange(membro.id, $event)">
+                              @for (n of [].constructor(membro.numeroPlusConsentiti + 1); track $index) {
+                                <option [value]="$index">{{ $index }}</option>
+                              }
+                            </select>
+                          </div>
+                          @if (membro.plusConfermati > 0) {
+                            <div class="mb-3">
+                              @for (acc of membro.accompagnatori; track $index) {
+                                <div class="row g-2 mb-2">
+                                  <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Nome"
+                                      [value]="acc.nome"
+                                      (input)="updateAccompagnatoreMembro(membro.id, $index, 'nome', $any($event.target).value)">
+                                  </div>
+                                  <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Cognome"
+                                      [value]="acc.cognome"
+                                      (input)="updateAccompagnatoreMembro(membro.id, $index, 'cognome', $any($event.target).value)">
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        }
+                        <!-- Intolleranze -->
+                        <div>
+                          <label class="form-label small mb-1">
+                            <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
+                            Intolleranze alimentari
+                          </label>
+                          <textarea class="form-control form-control-sm" rows="2"
+                            placeholder="Es: celiaco, intollerante al lattosio, vegetariano..."
+                            [value]="membro.intolleranzeAlimentari"
+                            (input)="updateIntolleranzeFamiglia(membro.id, $any($event.target).value)">
+                          </textarea>
+                        </div>
+                      </div>
+                    </div>
+                  }
 
-                  <div class="d-flex gap-2 justify-content-center">
+                  <div class="d-flex gap-2 justify-content-center mt-4">
                     <button class="btn btn-secondary" (click)="cancelConfirm()">
                       Annulla
                     </button>
@@ -533,69 +510,84 @@
                     <i class="bi bi-people-fill me-2 text-info"></i>Modifica conferme famiglia
                   </h5>
 
-                  <!-- Tabella membri famiglia -->
-                  <table class="table table-famiglia mb-4">
-                    <thead>
-                      <tr>
-                        <th>Nome</th>
-                        <th class="text-center" style="width: 150px;">Partecipa?</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (membro of confermeFamiglia(); track membro.id) {
-                        <tr>
-                          <td>
-                            {{ membro.nome }} {{ membro.cognome }}
-                            @if (membro.capogruppo) {
-                              <span class="badge bg-info ms-1">Tu</span>
-                            }
-                          </td>
-                          <td class="text-center">
-                            <div class="btn-group btn-group-sm" role="group">
-                              <button type="button" class="btn"
-                                [class.btn-success]="membro.confermato"
-                                [class.btn-outline-success]="!membro.confermato"
-                                (click)="toggleConfermaFamiglia(membro.id)">
-                                Sì
-                              </button>
-                              <button type="button" class="btn"
-                                [class.btn-danger]="!membro.confermato"
-                                [class.btn-outline-danger]="membro.confermato"
-                                (click)="toggleConfermaFamiglia(membro.id)">
-                                No
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-
-                  <!-- Intolleranze alimentari per ogni membro -->
-                  <div class="mb-4 text-start">
-                    <label class="form-label">
-                      <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
-                      Allergie o intolleranze alimentari
-                    </label>
-                    <p class="text-muted small mb-3">Compila le intolleranze per ogni membro della famiglia</p>
-                    @for (membro of confermeFamiglia(); track membro.id) {
-                      <div class="mb-3">
-                        <label class="form-label fw-semibold small mb-1">
+                  <!-- Card per ogni membro della famiglia -->
+                  @for (membro of confermeFamiglia(); track membro.id) {
+                    <div class="card mb-3 border">
+                      <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-semibold">
                           {{ membro.nome }} {{ membro.cognome }}
                           @if (membro.id === invitoId) {
                             <span class="badge bg-info ms-1">Tu</span>
                           }
-                        </label>
-                        <textarea class="form-control" rows="2"
-                          placeholder="Es: celiaco, intollerante al lattosio, vegetariano..."
-                          [value]="membro.intolleranzeAlimentari"
-                          (input)="updateIntolleranzeFamiglia(membro.id, $any($event.target).value)">
-                        </textarea>
+                        </span>
+                        <!-- Pulsanti Sì/No -->
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button type="button" class="btn"
+                            [class.btn-success]="membro.confermato"
+                            [class.btn-outline-success]="!membro.confermato"
+                            (click)="toggleConfermaFamiglia(membro.id)">
+                            Sì
+                          </button>
+                          <button type="button" class="btn"
+                            [class.btn-danger]="!membro.confermato"
+                            [class.btn-outline-danger]="membro.confermato"
+                            (click)="toggleConfermaFamiglia(membro.id)">
+                            No
+                          </button>
+                        </div>
                       </div>
-                    }
-                  </div>
+                      <div class="card-body py-3">
+                        <!-- Accompagnatori (se ha plus consentiti) -->
+                        @if (membro.numeroPlusConsentiti > 0) {
+                          <div class="mb-3">
+                            <label class="form-label small mb-1">
+                              <i class="bi bi-people me-1"></i>
+                              Accompagnatori <small class="text-muted">(max {{ membro.numeroPlusConsentiti }})</small>
+                            </label>
+                            <select class="form-select form-select-sm" style="max-width: 100px;"
+                              [ngModel]="membro.plusConfermati"
+                              (ngModelChange)="onPlusMembroChange(membro.id, $event)">
+                              @for (n of [].constructor(membro.numeroPlusConsentiti + 1); track $index) {
+                                <option [value]="$index">{{ $index }}</option>
+                              }
+                            </select>
+                          </div>
+                          @if (membro.plusConfermati > 0) {
+                            <div class="mb-3">
+                              @for (acc of membro.accompagnatori; track $index) {
+                                <div class="row g-2 mb-2">
+                                  <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Nome"
+                                      [value]="acc.nome"
+                                      (input)="updateAccompagnatoreMembro(membro.id, $index, 'nome', $any($event.target).value)">
+                                  </div>
+                                  <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Cognome"
+                                      [value]="acc.cognome"
+                                      (input)="updateAccompagnatoreMembro(membro.id, $index, 'cognome', $any($event.target).value)">
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        }
+                        <!-- Intolleranze -->
+                        <div>
+                          <label class="form-label small mb-1">
+                            <i class="bi bi-exclamation-triangle me-1 text-warning"></i>
+                            Intolleranze alimentari
+                          </label>
+                          <textarea class="form-control form-control-sm" rows="2"
+                            placeholder="Es: celiaco, intollerante al lattosio, vegetariano..."
+                            [value]="membro.intolleranzeAlimentari"
+                            (input)="updateIntolleranzeFamiglia(membro.id, $any($event.target).value)">
+                          </textarea>
+                        </div>
+                      </div>
+                    </div>
+                  }
 
-                  <div class="d-flex gap-2 justify-content-center">
+                  <div class="d-flex gap-2 justify-content-center mt-4">
                     <button class="btn btn-secondary" (click)="showConfirmForm.set(false)">
                       Annulla
                     </button>

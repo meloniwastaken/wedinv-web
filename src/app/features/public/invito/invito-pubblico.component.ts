@@ -25,6 +25,9 @@ interface ConfermaMembroForm {
   confermato: boolean;
   capogruppo: boolean;
   intolleranzeAlimentari: string;
+  numeroPlusConsentiti: number;
+  plusConfermati: number;
+  accompagnatori: AccompagnatoreForm[];
 }
 
 @Component({
@@ -123,7 +126,7 @@ export class InvitoPubblicoComponent implements OnInit {
         } else {
           this.syncAccompagnatori(invito.plusConfermati || 0);
         }
-        // Inizializza conferme famiglia se capogruppo (include intolleranze)
+        // Inizializza conferme famiglia se capogruppo (include intolleranze e accompagnatori)
         if (invito.capogruppo && invito.membriFamiglia && invito.membriFamiglia.length > 0) {
           this.confermeFamiglia.set(invito.membriFamiglia.map(m => ({
             id: m.id,
@@ -131,7 +134,10 @@ export class InvitoPubblicoComponent implements OnInit {
             cognome: m.cognome,
             confermato: m.statoInvito === StatoInvito.CONFERMATO,
             capogruppo: m.capogruppo === true,
-            intolleranzeAlimentari: m.intolleranzeAlimentari || ''
+            intolleranzeAlimentari: m.intolleranzeAlimentari || '',
+            numeroPlusConsentiti: m.numeroPlusConsentiti || 0,
+            plusConfermati: m.plusConfermati || 0,
+            accompagnatori: (m.accompagnatori || []).map(a => ({ nome: a.nome, cognome: a.cognome }))
           })));
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
@@ -234,12 +240,16 @@ export class InvitoPubblicoComponent implements OnInit {
       .filter(a => a.nome.trim() && a.cognome.trim())
       .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }));
 
-    // Prepara conferme famiglia se capogruppo (include intolleranze per ogni membro)
+    // Prepara conferme famiglia se capogruppo (include intolleranze, plus e accompagnatori per ogni membro)
     const confermeFamiglia = this.isCapogruppo()
       ? this.confermeFamiglia().map(m => ({
           id: m.id,
           confermato: m.confermato,
-          intolleranzeAlimentari: m.intolleranzeAlimentari || null
+          intolleranzeAlimentari: m.intolleranzeAlimentari || null,
+          plusConfermati: m.plusConfermati,
+          accompagnatori: m.accompagnatori
+            .filter(a => a.nome.trim() && a.cognome.trim())
+            .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }))
         }))
       : undefined;
 
@@ -330,6 +340,42 @@ export class InvitoPubblicoComponent implements OnInit {
     const index = current.findIndex(m => m.id === id);
     if (index >= 0) {
       current[index] = { ...current[index], intolleranzeAlimentari: value };
+      this.confermeFamiglia.set(current);
+    }
+  }
+
+  // Aggiorna il numero di plus confermati per un membro
+  onPlusMembroChange(membroId: string, value: number): void {
+    const current = [...this.confermeFamiglia()];
+    const index = current.findIndex(m => m.id === membroId);
+    if (index >= 0) {
+      const membro = { ...current[index] };
+      membro.plusConfermati = value;
+      // Sync accompagnatori array
+      if (value > membro.accompagnatori.length) {
+        const newAccompagnatori = [...membro.accompagnatori];
+        for (let i = membro.accompagnatori.length; i < value; i++) {
+          newAccompagnatori.push({ nome: '', cognome: '' });
+        }
+        membro.accompagnatori = newAccompagnatori;
+      } else {
+        membro.accompagnatori = membro.accompagnatori.slice(0, value);
+      }
+      current[index] = membro;
+      this.confermeFamiglia.set(current);
+    }
+  }
+
+  // Aggiorna un accompagnatore di un membro
+  updateAccompagnatoreMembro(membroId: string, accIndex: number, field: 'nome' | 'cognome', value: string): void {
+    const current = [...this.confermeFamiglia()];
+    const index = current.findIndex(m => m.id === membroId);
+    if (index >= 0) {
+      const membro = { ...current[index] };
+      const accompagnatori = [...membro.accompagnatori];
+      accompagnatori[accIndex] = { ...accompagnatori[accIndex], [field]: value };
+      membro.accompagnatori = accompagnatori;
+      current[index] = membro;
       this.confermeFamiglia.set(current);
     }
   }

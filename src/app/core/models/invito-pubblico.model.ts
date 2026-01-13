@@ -8,6 +8,9 @@ export interface MembroFamigliaPubblico {
   statoInvitoDescrizione: string | null;
   capogruppo: boolean | null;
   intolleranzeAlimentari: string | null;
+  numeroPlusConsentiti?: number | null;
+  plusConfermati?: number | null;
+  accompagnatori?: AccompagnatoreDTO[];
 }
 
 export interface InvitoPubblicoResponse {
@@ -59,6 +62,8 @@ export interface ConfermaMembroFamiglia {
   id: string;
   confermato: boolean;
   intolleranzeAlimentari?: string | null;
+  plusConfermati?: number;
+  accompagnatori?: { nome: string; cognome: string }[];
 }
 
 export interface ConfermaInvitoRequest {
