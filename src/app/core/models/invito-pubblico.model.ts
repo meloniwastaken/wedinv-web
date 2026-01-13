@@ -11,6 +11,7 @@ export interface MembroFamigliaPubblico {
   numeroPlusConsentiti?: number | null;
   plusConfermati?: number | null;
   accompagnatori?: AccompagnatoreDTO[];
+  messaggio?: string | null;
 }
 
 export interface InvitoPubblicoResponse {
@@ -56,6 +57,8 @@ export interface InvitoPubblicoResponse {
   membroFamiglia?: boolean | null;
   nomeGruppo?: string | null; // Es. "Fam. Rossi" - per il saluto nell'invito
   membriFamiglia?: MembroFamigliaPubblico[];
+  // Messaggio invitato
+  messaggio?: string | null;
 }
 
 export interface ConfermaMembroFamiglia {
@@ -64,6 +67,7 @@ export interface ConfermaMembroFamiglia {
   intolleranzeAlimentari?: string | null;
   plusConfermati?: number;
   accompagnatori?: { nome: string; cognome: string }[];
+  messaggio?: string | null;
 }
 
 export interface ConfermaInvitoRequest {
@@ -71,6 +75,7 @@ export interface ConfermaInvitoRequest {
   plusConfermati?: number | null;
   intolleranzeAlimentari?: string | null;
   accompagnatori?: AccompagnatoreDTO[];
+  messaggio?: string | null;
   confermeFamiglia?: ConfermaMembroFamiglia[];
 }
 

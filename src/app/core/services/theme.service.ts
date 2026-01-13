@@ -591,7 +591,7 @@ export class ThemeService {
   }
 
   /**
-   * Imposta il tema:
+   * Imposta il tema (per utenti autenticati):
    * - Applica visivamente
    * - Salva nel cookie
    * - Chiama API per aggiornare matrimonio (se esiste, altrimenti ignora errore)
@@ -612,6 +612,21 @@ export class ThemeService {
           // Ignora errore (matrimonio potrebbe non esistere)
         }
       });
+    }
+  }
+
+  /**
+   * Imposta il tema per pagine pubbliche (utenti non autenticati):
+   * - Applica visivamente
+   * - Salva nel cookie
+   * - NON chiama il backend
+   */
+  setThemePublic(themeId: string): void {
+    const theme = this.getThemeById(themeId);
+    if (theme) {
+      this.currentThemeSignal.set(theme);
+      this.applyTheme(theme);
+      this.setCookie(this.COOKIE_NAME, themeId, 365);
     }
   }
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
 import {
@@ -28,12 +28,13 @@ interface ConfermaMembroForm {
   numeroPlusConsentiti: number;
   plusConfermati: number;
   accompagnatori: AccompagnatoreForm[];
+  messaggio: string;
 }
 
 @Component({
   selector: 'app-invito-pubblico',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarPubblicoComponent, SafePipe],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarPubblicoComponent, SafePipe],
   templateUrl: './invito-pubblico.component.html',
   styleUrl: './invito-pubblico.component.css'
 })
@@ -49,6 +50,7 @@ export class InvitoPubblicoComponent implements OnInit {
   plusConfermati = signal(0);
   intolleranzeAlimentari = signal('');
   accompagnatori = signal<AccompagnatoreForm[]>([]);
+  messaggio = signal('');
 
   // Conferme famiglia (include anche intolleranze per ogni membro)
   confermeFamiglia = signal<ConfermaMembroForm[]>([]);
@@ -81,6 +83,16 @@ export class InvitoPubblicoComponent implements OnInit {
     return membri.every(m =>
       m.statoInvito === StatoInvito.CONFERMATO || m.statoInvito === StatoInvito.RIFIUTATO
     );
+  });
+
+  // Verifica se la deadline è passata
+  isDeadlinePassata = computed(() => {
+    const deadline = this.invito()?.dataDeadlineConferma;
+    if (!deadline) return false;
+    const deadlineDate = new Date(deadline);
+    const oggi = new Date();
+    oggi.setHours(0, 0, 0, 0);
+    return deadlineDate < oggi;
   });
 
   get nomeInvitato(): string {
@@ -117,6 +129,7 @@ export class InvitoPubblicoComponent implements OnInit {
         this.invito.set(invito);
         this.plusConfermati.set(invito.plusConfermati || 0);
         this.intolleranzeAlimentari.set(invito.intolleranzeAlimentari || '');
+        this.messaggio.set(invito.messaggio || '');
         // Popola accompagnatori esistenti
         if (invito.accompagnatori && invito.accompagnatori.length > 0) {
           this.accompagnatori.set(invito.accompagnatori.map(a => ({
@@ -137,7 +150,8 @@ export class InvitoPubblicoComponent implements OnInit {
             intolleranzeAlimentari: m.intolleranzeAlimentari || '',
             numeroPlusConsentiti: m.numeroPlusConsentiti || 0,
             plusConfermati: m.plusConfermati || 0,
-            accompagnatori: (m.accompagnatori || []).map(a => ({ nome: a.nome, cognome: a.cognome }))
+            accompagnatori: (m.accompagnatori || []).map(a => ({ nome: a.nome, cognome: a.cognome })),
+            messaggio: m.messaggio || ''
           })));
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
@@ -179,6 +193,7 @@ export class InvitoPubblicoComponent implements OnInit {
     this.showConfirmForm.set(false);
     this.plusConfermati.set(this.invito()?.plusConfermati || 0);
     this.intolleranzeAlimentari.set(this.invito()?.intolleranzeAlimentari || '');
+    this.messaggio.set(this.invito()?.messaggio || '');
     // Ripristina accompagnatori dal server
     const invito = this.invito();
     if (invito?.accompagnatori && invito.accompagnatori.length > 0) {
@@ -240,7 +255,7 @@ export class InvitoPubblicoComponent implements OnInit {
       .filter(a => a.nome.trim() && a.cognome.trim())
       .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }));
 
-    // Prepara conferme famiglia se capogruppo (include intolleranze, plus e accompagnatori per ogni membro)
+    // Prepara conferme famiglia se capogruppo (include intolleranze, plus, accompagnatori e messaggio per ogni membro)
     const confermeFamiglia = this.isCapogruppo()
       ? this.confermeFamiglia().map(m => ({
           id: m.id,
@@ -249,7 +264,8 @@ export class InvitoPubblicoComponent implements OnInit {
           plusConfermati: m.plusConfermati,
           accompagnatori: m.accompagnatori
             .filter(a => a.nome.trim() && a.cognome.trim())
-            .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() }))
+            .map(a => ({ nome: a.nome.trim(), cognome: a.cognome.trim() })),
+          messaggio: m.messaggio || null
         }))
       : undefined;
 
@@ -258,6 +274,7 @@ export class InvitoPubblicoComponent implements OnInit {
       plusConfermati: this.plusConfermati(),
       intolleranzeAlimentari: this.intolleranzeAlimentari() || null,
       accompagnatori: accompagnatori.length > 0 ? accompagnatori : undefined,
+      messaggio: this.messaggio() || null,
       confermeFamiglia
     }).subscribe({
       next: () => {
@@ -284,7 +301,8 @@ export class InvitoPubblicoComponent implements OnInit {
     this.invitoPubblicoService.confermaInvito(this.invitoId, {
       confermato: false,
       plusConfermati: 0,
-      intolleranzeAlimentari: this.intolleranzeAlimentari() || null
+      intolleranzeAlimentari: this.intolleranzeAlimentari() || null,
+      messaggio: this.messaggio() || null
     }).subscribe({
       next: () => {
         this.success.set('La tua risposta è stata registrata.');
@@ -340,6 +358,16 @@ export class InvitoPubblicoComponent implements OnInit {
     const index = current.findIndex(m => m.id === id);
     if (index >= 0) {
       current[index] = { ...current[index], intolleranzeAlimentari: value };
+      this.confermeFamiglia.set(current);
+    }
+  }
+
+  // Aggiorna messaggio di un membro nel form conferma famiglia
+  updateMessaggioFamiglia(id: string, value: string): void {
+    const current = [...this.confermeFamiglia()];
+    const index = current.findIndex(m => m.id === id);
+    if (index >= 0) {
+      current[index] = { ...current[index], messaggio: value };
       this.confermeFamiglia.set(current);
     }
   }

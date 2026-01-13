@@ -34,7 +34,7 @@ export class NavbarPubblicoComponent {
 
     const targetTheme = this.themeService.getThemeById(newId);
     if (targetTheme) {
-      this.themeService.setTheme(newId);
+      this.themeService.setThemePublic(newId);
     }
   }
 
