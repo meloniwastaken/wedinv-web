@@ -2,7 +2,12 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { InvitoPubblicoResponse, ConfermaInvitoRequest } from '../models';
+import {
+  InvitoPubblicoResponse,
+  ConfermaInvitoRequest,
+  IntolleranzeGruppoResponse,
+  AggiornaIntolleranzeGruppoRequest
+} from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -65,5 +70,19 @@ export class InvitoPubblicoService {
         }
       })
     );
+  }
+
+  /**
+   * Recupera le intolleranze alimentari di tutti i membri del gruppo familiare
+   */
+  getIntolleranzeGruppo(invitatoId: string): Observable<IntolleranzeGruppoResponse> {
+    return this.http.get<IntolleranzeGruppoResponse>(`${this.apiUrl}/${invitatoId}/gruppo/intolleranze`);
+  }
+
+  /**
+   * Aggiorna le intolleranze alimentari di tutti i membri del gruppo familiare
+   */
+  aggiornaIntolleranzeGruppo(invitatoId: string, request: AggiornaIntolleranzeGruppoRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${invitatoId}/gruppo/intolleranze`, request);
   }
 }

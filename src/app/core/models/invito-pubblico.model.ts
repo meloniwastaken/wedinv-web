@@ -67,3 +67,25 @@ export interface ConfermaInvitoRequest {
   accompagnatori?: AccompagnatoreDTO[];
   confermeFamiglia?: ConfermaMembroFamiglia[];
 }
+
+// Intolleranze gruppo familiare
+export interface IntolleranzaMembro {
+  id: string;
+  intolleranzeAlimentari: string | null;
+}
+
+export interface AggiornaIntolleranzeGruppoRequest {
+  intolleranze: IntolleranzaMembro[];
+}
+
+export interface IntolleranzeMembroResponse {
+  id: string;
+  nome: string;
+  cognome: string;
+  intolleranzeAlimentari: string | null;
+}
+
+export interface IntolleranzeGruppoResponse {
+  nomeGruppo: string | null;
+  membri: IntolleranzeMembroResponse[];
+}

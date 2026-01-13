@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvitoPubblicoService, ThemeService, ListaNozzeService, TitleService } from '../../../core/services';
-import { InvitoPubblicoResponse, StatoInvito, AccompagnatoreDTO, MembroFamigliaPubblico, ConfermaMembroFamiglia } from '../../../core/models';
+import {
+  InvitoPubblicoResponse,
+  StatoInvito,
+  AccompagnatoreDTO,
+  MembroFamigliaPubblico,
+  ConfermaMembroFamiglia,
+  IntolleranzeGruppoResponse,
+  AggiornaIntolleranzeGruppoRequest
+} from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 import { SafePipe } from '../../../shared/pipes/safe.pipe';
 
@@ -18,6 +26,13 @@ interface ConfermaMembroForm {
   cognome: string;
   confermato: boolean;
   capogruppo: boolean;
+}
+
+interface IntolleranzeMembroForm {
+  id: string;
+  nome: string;
+  cognome: string;
+  intolleranzeAlimentari: string;
 }
 
 @Component({
@@ -42,6 +57,10 @@ export class InvitoPubblicoComponent implements OnInit {
 
   // Conferme famiglia
   confermeFamiglia = signal<ConfermaMembroForm[]>([]);
+
+  // Intolleranze gruppo familiare
+  intolleranzeGruppoForm = signal<IntolleranzeMembroForm[]>([]);
+  savingIntolleranze = signal(false);
 
   StatoInvito = StatoInvito;
 
@@ -130,6 +149,10 @@ export class InvitoPubblicoComponent implements OnInit {
         this.themeService.applyThemeForPublicPage(invito.stileCodice);
         // Imposta il titolo della pagina con i nomi degli sposi
         this.titleService.setTitleWithSposi(invito.nomeSposoA, invito.nomeSposoB);
+        // Carica intolleranze gruppo se appartiene a un gruppo familiare
+        if (invito.capogruppo && invito.membriFamiglia && invito.membriFamiglia.length > 0) {
+          this.loadIntolleranzeGruppo();
+        }
         // Verifica se ci sono elementi nella lista nozze
         this.checkListaNozze();
       },
@@ -310,5 +333,58 @@ export class InvitoPubblicoComponent implements OnInit {
     const membri = this.invito()?.membriFamiglia;
     if (!membri) return [];
     return membri.filter(m => m.intolleranzeAlimentari && m.intolleranzeAlimentari.trim() !== '');
+  }
+
+  // === Metodi per gestione intolleranze gruppo familiare ===
+
+  loadIntolleranzeGruppo(): void {
+    if (this.hasFamiglia()) {
+      this.invitoPubblicoService.getIntolleranzeGruppo(this.invitoId).subscribe({
+        next: (response) => {
+          this.intolleranzeGruppoForm.set(response.membri.map(m => ({
+            id: m.id,
+            nome: m.nome,
+            cognome: m.cognome,
+            intolleranzeAlimentari: m.intolleranzeAlimentari || ''
+          })));
+        },
+        error: (err) => {
+          console.error('Errore caricamento intolleranze gruppo', err);
+        }
+      });
+    }
+  }
+
+  updateIntolleranzaMembro(id: string, value: string): void {
+    const current = [...this.intolleranzeGruppoForm()];
+    const index = current.findIndex(m => m.id === id);
+    if (index >= 0) {
+      current[index] = { ...current[index], intolleranzeAlimentari: value };
+      this.intolleranzeGruppoForm.set(current);
+    }
+  }
+
+  salvaIntolleranzeGruppo(): void {
+    this.savingIntolleranze.set(true);
+    this.error.set(null);
+
+    const request: AggiornaIntolleranzeGruppoRequest = {
+      intolleranze: this.intolleranzeGruppoForm().map(m => ({
+        id: m.id,
+        intolleranzeAlimentari: m.intolleranzeAlimentari || null
+      }))
+    };
+
+    this.invitoPubblicoService.aggiornaIntolleranzeGruppo(this.invitoId, request).subscribe({
+      next: () => {
+        this.success.set('Intolleranze alimentari aggiornate con successo!');
+        this.savingIntolleranze.set(false);
+        this.loadIntolleranzeGruppo();
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Errore durante il salvataggio delle intolleranze');
+        this.savingIntolleranze.set(false);
+      }
+    });
   }
 }
