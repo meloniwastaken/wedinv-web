@@ -164,7 +164,7 @@
                   @if (matrimonio()!.note) {
                     <div class="col-12 mb-3">
                       <small class="text-muted d-block">Note per gli invitati</small>
-                      <div class="note-content" [innerHTML]="matrimonio()!.note | safe:'html'"></div>
+                      <div class="note-content" [innerHTML]="matrimonio()!.note | safe:'html'" style="overflow-wrap: break-word;"></div>
                     </div>
                   }
                   @if (isPremium() && matrimonio()!.messaggioInvito) {

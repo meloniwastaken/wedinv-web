@@ -200,7 +200,7 @@ export class MatrimonioComponent implements OnInit {
       dataDeadlineConferma: formValue.dataDeadlineConferma || null,
       contattoRiferimento: formValue.contattoRiferimento || null,
       iban: formValue.iban || null,
-      note: formValue.note || null,
+      note: this.transformWysiwygHtml(formValue.note) || null,
       messaggioInvito: formValue.messaggioInvito || null,
       messaggioInvitoFamiglia: formValue.messaggioInvitoFamiglia || null,
       messaggioIban: formValue.messaggioIban || null,
@@ -312,6 +312,14 @@ export class MatrimonioComponent implements OnInit {
   formatTime(timeStr: string | null): string {
     if (!timeStr) return '-';
     return timeStr.substring(0, 5);
+  }
+
+  private transformWysiwygHtml(html: string | null): string | null {
+    if (!html) return null;
+    return html
+      .replace(/<p>/g, '<span>')
+      .replace(/<\/p>/g, '</span><br>')
+      .replace(/&nbsp;/g, ' ');
   }
 
   // Foto invito methods

@@ -146,7 +146,7 @@
                   @if (invito()!.note) {
                     <div class="col-12">
                       <small class="text-muted d-block">Note</small>
-                      <div [innerHTML]="invito()!.note | safe:'html'"></div>
+                      <div [innerHTML]="invito()!.note | safe:'html'" style="overflow-wrap: break-word;"></div>
                     </div>
                   }
                 </div>
