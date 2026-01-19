@@ -140,27 +140,21 @@
               </div>
             </div>
 
-            <!-- Sezione Info Aggiuntive -->
+            <!-- Sezione Informazioni Invito -->
             <div class="card mb-4">
               <div class="card-header">
-                <i class="bi bi-info-circle me-2"></i>Informazioni Aggiuntive
+                <i class="bi bi-envelope-paper me-2"></i>Informazioni Invito
               </div>
               <div class="card-body">
                 <div class="row">
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-6 mb-3">
                     <small class="text-muted d-block">Deadline Conferme</small>
                     <span>{{ formatDate(matrimonio()!.dataDeadlineConferma) }}</span>
                   </div>
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-6 mb-3">
                     <small class="text-muted d-block">Contatto di riferimento</small>
                     <span>{{ matrimonio()!.contattoRiferimento || '-' }}</span>
                   </div>
-                  @if (isPremium()) {
-                    <div class="col-md-4 mb-3">
-                      <small class="text-muted d-block">IBAN</small>
-                      <span>{{ matrimonio()!.iban || '-' }}</span>
-                    </div>
-                  }
                   @if (matrimonio()!.note) {
                     <div class="col-12 mb-3">
                       <small class="text-muted d-block">Note per gli invitati</small>
@@ -174,20 +168,41 @@
                     </div>
                   }
                   @if (isPremium() && matrimonio()!.messaggioInvitoFamiglia) {
-                    <div class="col-12 mb-3">
+                    <div class="col-12">
                       <small class="text-muted d-block">Messaggio di invito (famiglie)</small>
                       <span>{{ matrimonio()!.messaggioInvitoFamiglia }}</span>
-                    </div>
-                  }
-                  @if (isPremium() && matrimonio()!.messaggioIban) {
-                    <div class="col-12">
-                      <small class="text-muted d-block">Messaggio per contributo IBAN</small>
-                      <span>{{ matrimonio()!.messaggioIban }}</span>
                     </div>
                   }
                 </div>
               </div>
             </div>
+
+            <!-- Sezione IBAN (solo premium) -->
+            @if (isPremium()) {
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-credit-card me-2"></i>IBAN
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <small class="text-muted d-block">Beneficiario Bonifico</small>
+                      <span>{{ matrimonio()!.beneficiarioBonifico || '-' }}</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <small class="text-muted d-block">IBAN</small>
+                      <span>{{ matrimonio()!.iban || '-' }}</span>
+                    </div>
+                    @if (matrimonio()!.messaggioIban) {
+                      <div class="col-12">
+                        <small class="text-muted d-block">Messaggio per contributo IBAN</small>
+                        <span>{{ matrimonio()!.messaggioIban }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
 
             <!-- Sezione Foto Invito (View Mode) -->
             <div class="card mb-4">
@@ -370,31 +385,24 @@
               </div>
             </div>
 
-            <!-- Sezione Info Aggiuntive -->
+            <!-- Sezione Informazioni Invito -->
             <div class="card mb-4">
               <div class="card-header">
-                <i class="bi bi-info-circle me-2"></i>Informazioni Aggiuntive
+                <i class="bi bi-envelope-paper me-2"></i>Informazioni Invito
               </div>
               <div class="card-body">
                 <div class="row g-3">
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <label for="dataDeadlineConferma" class="form-label">Deadline Conferme</label>
                     <input type="date" class="form-control" id="dataDeadlineConferma"
                       formControlName="dataDeadlineConferma">
                     <div class="form-text">Data entro cui gli invitati devono confermare</div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <label for="contattoRiferimento" class="form-label">Contatto di riferimento</label>
                     <input type="text" class="form-control" id="contattoRiferimento"
                       formControlName="contattoRiferimento" placeholder="es. +39 123 456 7890">
                   </div>
-                  @if (isPremium()) {
-                    <div class="col-md-4">
-                      <label for="iban" class="form-label">IBAN (per regali)</label>
-                      <input type="text" class="form-control" id="iban"
-                        formControlName="iban" placeholder="IT00X0000000000000000000000">
-                    </div>
-                  }
                   <div class="col-12">
                     <label for="note" class="form-label">Note per gli invitati</label>
                     <quill-editor
@@ -419,6 +427,29 @@
                         placeholder="es. Saremmo onorati della vostra presenza nel giorno più importante della nostra vita."></textarea>
                       <div class="form-text">Messaggio mostrato ai gruppi familiari. Se vuoto, verrà usato il messaggio per singoli</div>
                     </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Sezione IBAN (solo premium) -->
+            @if (isPremium()) {
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="bi bi-credit-card me-2"></i>IBAN
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="beneficiarioBonifico" class="form-label">Beneficiario Bonifico</label>
+                      <input type="text" class="form-control" id="beneficiarioBonifico"
+                        formControlName="beneficiarioBonifico" placeholder="es. Mario Rossi e Giulia Bianchi">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="iban" class="form-label">IBAN</label>
+                      <input type="text" class="form-control" id="iban"
+                        formControlName="iban" placeholder="IT00X0000000000000000000000">
+                    </div>
                     <div class="col-12">
                       <label for="messaggioIban" class="form-label">Messaggio per contributo IBAN</label>
                       <textarea class="form-control" id="messaggioIban" rows="2"
@@ -426,10 +457,10 @@
                         placeholder="es. Se preferisci, puoi contribuire con un regalo in denaro tramite bonifico bancario."></textarea>
                       <div class="form-text">Se lasciato vuoto, verrà usato il messaggio predefinito nella pagina di contributo IBAN</div>
                     </div>
-                  }
+                  </div>
                 </div>
               </div>
-            </div>
+            }
 
             <!-- Sezione Foto Invito (Edit Mode) - Prima dei bottoni -->
             <div class="card mb-4">

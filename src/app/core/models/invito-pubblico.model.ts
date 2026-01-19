@@ -41,6 +41,7 @@ export interface InvitoPubblicoResponse {
   plusConfermati: number | null;
   dataDeadlineConferma: string | null;
   contattoRiferimento: string | null;
+  beneficiarioBonifico: string | null;
   iban: string | null;
   linkListaNozze: string | null;
   note: string | null;

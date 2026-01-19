@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatrimonioService, InvitatoService, AuthService, ThemeService } from '../../core/services';
 import { MatrimonioDTO, ListaInvitatiResponse, StatoInvito } from '../../core/models';
+import { FlipCountdownComponent } from '../../shared/components/flip-countdown/flip-countdown.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FlipCountdownComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

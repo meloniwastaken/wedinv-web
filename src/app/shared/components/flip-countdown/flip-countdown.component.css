@@ -1,0 +1,333 @@
+/* Flip Countdown Component */
+
+.flip-countdown {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+  perspective: 1000px;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.digits-container {
+  display: flex;
+  gap: 4px;
+}
+
+/* Singola carta flip */
+.flip-card {
+  position: relative;
+  width: 50px;
+  height: 70px;
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 2.8rem;
+  font-weight: 600;
+  perspective: 300px;
+}
+
+/* Parte superiore e inferiore statiche */
+.flip-card-top,
+.flip-card-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+  color: #fff;
+  border-radius: 6px;
+}
+
+.flip-card-top {
+  top: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+}
+
+.flip-card-top span {
+  display: block;
+  width: 100%;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+}
+
+.flip-card-bottom {
+  bottom: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+.flip-card-bottom span {
+  display: block;
+  width: 100%;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+/* Linea di separazione centrale */
+.flip-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  z-index: 10;
+  transform: translateY(-50%);
+}
+
+/* Flap che appaiono/scompaiono */
+.flip-card-flap-top,
+.flip-card-flap-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  border-radius: 6px;
+}
+
+.flip-card-flap-top {
+  top: 0;
+  background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+  color: #fff;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  transform-origin: bottom center;
+  transform: rotateX(0deg);
+  z-index: 5;
+}
+
+.flip-card-flap-top span {
+  display: block;
+  width: 100%;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+}
+
+/* Animazione flap-top: ruota da 0 a -90deg */
+.flip-card-flap-top.animating {
+  animation: flipTop 0.3s ease-in forwards;
+}
+
+.flip-card-flap-bottom {
+  bottom: 0;
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #fff;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  transform-origin: top center;
+  transform: rotateX(90deg);
+  z-index: 4;
+}
+
+.flip-card-flap-bottom span {
+  display: block;
+  width: 100%;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+/* Animazione flap-bottom: ruota da 90deg a 0 */
+.flip-card-flap-bottom.animating {
+  animation: flipBottom 0.3s ease-out forwards;
+}
+
+@keyframes flipTop {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(-90deg);
+  }
+}
+
+@keyframes flipBottom {
+  0% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+/* Ombra durante il flip */
+.flip-card-flap-top.animating::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
+  animation: shadowFade 0.3s ease-in forwards;
+}
+
+@keyframes shadowFade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Separatore : */
+.countdown-separator {
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 70px;
+  padding: 0 0.25rem;
+}
+
+/* Line-height custom per ogni cifra (per centraggio perfetto) */
+.digit-0 span { line-height: 60px; }
+.digit-1 span { line-height: 60px; }
+.digit-2 span { line-height: 60px; }
+.digit-3 span { line-height: 54px; }
+.digit-4 span { line-height: 54px; }
+.digit-5 span { line-height: 54px; }
+.digit-6 span { line-height: 76px; }
+.digit-7 span { line-height: 54px; }
+.digit-8 span { line-height: 72px; }
+.digit-9 span { line-height: 54px; }
+
+/* Etichette */
+.countdown-label {
+  margin-top: 0.5rem;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted, #666);
+}
+
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+  .flip-countdown {
+    gap: 0.35rem;
+  }
+
+  .flip-card {
+    width: 40px;
+    height: 56px;
+    font-size: 2rem;
+  }
+
+  .flip-card-top span,
+  .flip-card-bottom span,
+  .flip-card-flap-top span,
+  .flip-card-flap-bottom span {
+    height: 56px;
+    line-height: 56px;
+  }
+
+  .flip-card-bottom span,
+  .flip-card-flap-bottom span {
+    transform: translateY(-50%);
+  }
+
+  .countdown-separator {
+    font-size: 2rem;
+    line-height: 56px;
+  }
+
+  .countdown-label {
+    font-size: 0.65rem;
+  }
+
+  .digits-container {
+    gap: 3px;
+  }
+
+  /* Line-height custom per tablet */
+  .digit-0 span { line-height: 48px; }
+  .digit-1 span { line-height: 48px; }
+  .digit-2 span { line-height: 48px; }
+  .digit-3 span { line-height: 42px; }
+  .digit-4 span { line-height: 42px; }
+  .digit-5 span { line-height: 42px; }
+  .digit-6 span { line-height: 58px; }
+  .digit-7 span { line-height: 42px; }
+  .digit-8 span { line-height: 56px; }
+  .digit-9 span { line-height: 42px; }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+  .flip-countdown {
+    gap: 0.25rem;
+  }
+
+  .flip-card {
+    width: 32px;
+    height: 46px;
+    font-size: 1.5rem;
+  }
+
+  .flip-card-top span,
+  .flip-card-bottom span,
+  .flip-card-flap-top span,
+  .flip-card-flap-bottom span {
+    height: 46px;
+    line-height: 46px;
+  }
+
+  .flip-card-bottom span,
+  .flip-card-flap-bottom span {
+    transform: translateY(-50%);
+  }
+
+  .countdown-separator {
+    font-size: 1.5rem;
+    line-height: 46px;
+    padding: 0 0.15rem;
+  }
+
+  .countdown-label {
+    font-size: 0.55rem;
+    margin-top: 0.35rem;
+  }
+
+  .digits-container {
+    gap: 2px;
+  }
+
+  /* Line-height custom per mobile */
+  .digit-0 span { line-height: 40px; }
+  .digit-1 span { line-height: 40px; }
+  .digit-2 span { line-height: 40px; }
+  .digit-3 span { line-height: 36px; }
+  .digit-4 span { line-height: 36px; }
+  .digit-5 span { line-height: 36px; }
+  .digit-6 span { line-height: 48px; }
+  .digit-7 span { line-height: 36px; }
+  .digit-8 span { line-height: 46px; }
+  .digit-9 span { line-height: 36px; }
+}
+
+/* === TEMA LIGHT: usa colore primario dark === */
+:host-context([data-theme-mode="light"]) .flip-card-top,
+:host-context([data-theme-mode="light"]) .flip-card-bottom,
+:host-context([data-theme-mode="light"]) .flip-card-flap-top,
+:host-context([data-theme-mode="light"]) .flip-card-flap-bottom {
+  background: var(--color-primary);
+  color: #fff;
+}
+/* Linea di separazione centrale */
+:host-context([data-theme-mode="light"]) .flip-card::after {
+  background: rgba(0, 0, 0, 0.2);
+}
+:host-context([data-theme-mode="dark"]) .flip-card::after {
+  background: rgba(0, 0, 0, 0.2);
+}

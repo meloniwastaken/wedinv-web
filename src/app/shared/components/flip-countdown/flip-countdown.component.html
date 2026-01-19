@@ -1,0 +1,125 @@
+<div class="flip-countdown">
+  <!-- Giorni -->
+  <div class="countdown-unit">
+    <div class="digits-container">
+      @for (digit of days(); track $index) {
+        <div class="flip-card">
+          <!-- Div statici sempre visibili -->
+          <div class="flip-card-top" [class]="'flip-card-top digit-' + digit.displayTop">
+            <span>{{ digit.displayTop }}</span>
+          </div>
+          <div class="flip-card-bottom" [class]="'flip-card-bottom digit-' + digit.displayBottom">
+            <span>{{ digit.displayBottom }}</span>
+          </div>
+          <!-- Flap che appaiono/scompaiono -->
+          @if (digit.flapTopVisible) {
+            <div class="flip-card-flap-top" [class]="'flip-card-flap-top digit-' + digit.flapTop" [class.animating]="digit.flapTopAnimating">
+              <span>{{ digit.flapTop }}</span>
+            </div>
+          }
+          @if (digit.flapBottomVisible) {
+            <div class="flip-card-flap-bottom" [class]="'flip-card-flap-bottom digit-' + digit.flapBottom" [class.animating]="digit.flapBottomAnimating">
+              <span>{{ digit.flapBottom }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    @if (showLabels) {
+      <div class="countdown-label">Giorni</div>
+    }
+  </div>
+
+  <div class="countdown-separator">:</div>
+
+  <!-- Ore -->
+  <div class="countdown-unit">
+    <div class="digits-container">
+      @for (digit of hours(); track $index) {
+        <div class="flip-card">
+          <div class="flip-card-top" [class]="'flip-card-top digit-' + digit.displayTop">
+            <span>{{ digit.displayTop }}</span>
+          </div>
+          <div class="flip-card-bottom" [class]="'flip-card-bottom digit-' + digit.displayBottom">
+            <span>{{ digit.displayBottom }}</span>
+          </div>
+          @if (digit.flapTopVisible) {
+            <div class="flip-card-flap-top" [class]="'flip-card-flap-top digit-' + digit.flapTop" [class.animating]="digit.flapTopAnimating">
+              <span>{{ digit.flapTop }}</span>
+            </div>
+          }
+          @if (digit.flapBottomVisible) {
+            <div class="flip-card-flap-bottom" [class]="'flip-card-flap-bottom digit-' + digit.flapBottom" [class.animating]="digit.flapBottomAnimating">
+              <span>{{ digit.flapBottom }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    @if (showLabels) {
+      <div class="countdown-label">Ore</div>
+    }
+  </div>
+
+  <div class="countdown-separator">:</div>
+
+  <!-- Minuti -->
+  <div class="countdown-unit">
+    <div class="digits-container">
+      @for (digit of minutes(); track $index) {
+        <div class="flip-card">
+          <div class="flip-card-top" [class]="'flip-card-top digit-' + digit.displayTop">
+            <span>{{ digit.displayTop }}</span>
+          </div>
+          <div class="flip-card-bottom" [class]="'flip-card-bottom digit-' + digit.displayBottom">
+            <span>{{ digit.displayBottom }}</span>
+          </div>
+          @if (digit.flapTopVisible) {
+            <div class="flip-card-flap-top" [class]="'flip-card-flap-top digit-' + digit.flapTop" [class.animating]="digit.flapTopAnimating">
+              <span>{{ digit.flapTop }}</span>
+            </div>
+          }
+          @if (digit.flapBottomVisible) {
+            <div class="flip-card-flap-bottom" [class]="'flip-card-flap-bottom digit-' + digit.flapBottom" [class.animating]="digit.flapBottomAnimating">
+              <span>{{ digit.flapBottom }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    @if (showLabels) {
+      <div class="countdown-label">Minuti</div>
+    }
+  </div>
+
+  <div class="countdown-separator">:</div>
+
+  <!-- Secondi -->
+  <div class="countdown-unit">
+    <div class="digits-container">
+      @for (digit of seconds(); track $index) {
+        <div class="flip-card">
+          <div class="flip-card-top" [class]="'flip-card-top digit-' + digit.displayTop">
+            <span>{{ digit.displayTop }}</span>
+          </div>
+          <div class="flip-card-bottom" [class]="'flip-card-bottom digit-' + digit.displayBottom">
+            <span>{{ digit.displayBottom }}</span>
+          </div>
+          @if (digit.flapTopVisible) {
+            <div class="flip-card-flap-top" [class]="'flip-card-flap-top digit-' + digit.flapTop" [class.animating]="digit.flapTopAnimating">
+              <span>{{ digit.flapTop }}</span>
+            </div>
+          }
+          @if (digit.flapBottomVisible) {
+            <div class="flip-card-flap-bottom" [class]="'flip-card-flap-bottom digit-' + digit.flapBottom" [class.animating]="digit.flapBottomAnimating">
+              <span>{{ digit.flapBottom }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    @if (showLabels) {
+      <div class="countdown-label">Secondi</div>
+    }
+  </div>
+</div>

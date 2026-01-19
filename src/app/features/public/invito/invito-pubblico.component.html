@@ -33,6 +33,13 @@
         </p>
         <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
         <div class="ornament">~ <i class="bi bi-heart-fill"></i> ~</div>
+
+        <!-- Countdown -->
+        @if (invito()!.dataCerimonia) {
+          <div class="countdown-wrapper">
+            <app-flip-countdown [targetDate]="invito()!.dataCerimonia"></app-flip-countdown>
+          </div>
+        }
       </div>
 
       <!-- Foto invito (se presente) -->

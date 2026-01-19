@@ -37,27 +37,28 @@
         </div>
       </div>
 
+      <!-- Flip Countdown -->
+      @if (matrimonio()?.dataCerimonia) {
+        <div class="text-center mb-5">
+          <app-flip-countdown [targetDate]="matrimonio()!.dataCerimonia"></app-flip-countdown>
+        </div>
+      }
+
       <!-- Stats Cards -->
       <div class="row g-4 mb-5">
-        <div class="col-md-3 col-6">
-          <div class="stat-card">
-            <div class="stat-number">{{ giorniMancanti() ?? '-' }}</div>
-            <div class="stat-label">Giorni mancanti</div>
-          </div>
-        </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
           <div class="stat-card">
             <div class="stat-number">{{ invitatiData()?.totaleInvitati ?? 0 }}</div>
             <div class="stat-label">Invitati totali</div>
           </div>
         </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
           <div class="stat-card">
             <div class="stat-number">{{ invitatiData()?.totaleConfermati ?? 0 }}</div>
             <div class="stat-label">Confermati</div>
           </div>
         </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-12">
           <div class="stat-card">
             <div class="stat-number">{{ totalePersone() }}</div>
             <div class="stat-label">Persone totali</div>

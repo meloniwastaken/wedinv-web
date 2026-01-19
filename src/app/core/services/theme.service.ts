@@ -647,6 +647,10 @@ export class ThemeService {
     root.style.setProperty('--color-success', theme.colors.success);
     root.style.setProperty('--color-danger', theme.colors.danger);
     root.style.setProperty('--color-warning', theme.colors.warning);
+
+    // Imposta attributo per distinguere temi light/dark
+    const isDark = theme.id.endsWith('-dark');
+    root.setAttribute('data-theme-mode', isDark ? 'dark' : 'light');
   }
 
   private setCookie(name: string, value: string, days: number): void {

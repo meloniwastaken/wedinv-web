@@ -12,6 +12,7 @@ import {
 } from '../../../core/models';
 import { NavbarPubblicoComponent } from '../../../shared/components/navbar-pubblico/navbar-pubblico.component';
 import { SafePipe } from '../../../shared/pipes/safe.pipe';
+import { FlipCountdownComponent } from '../../../shared/components/flip-countdown/flip-countdown.component';
 
 interface AccompagnatoreForm {
   nome: string;
@@ -34,7 +35,7 @@ interface ConfermaMembroForm {
 @Component({
   selector: 'app-invito-pubblico',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarPubblicoComponent, SafePipe],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarPubblicoComponent, SafePipe, FlipCountdownComponent],
   templateUrl: './invito-pubblico.component.html',
   styleUrl: './invito-pubblico.component.css'
 })

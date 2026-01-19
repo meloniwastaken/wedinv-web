@@ -19,6 +19,7 @@ export interface MatrimonioDTO {
   linkMapsRicevimento: string | null;
   dataDeadlineConferma: string | null;
   contattoRiferimento: string | null;
+  beneficiarioBonifico: string | null;
   iban: string | null;
   linkListaNozze: string | null;
   note: string | null;
@@ -51,6 +52,7 @@ export interface CreaMatrimonioRequest {
   linkMapsRicevimento?: string | null;
   dataDeadlineConferma?: string | null;
   contattoRiferimento?: string | null;
+  beneficiarioBonifico?: string | null;
   iban?: string | null;
   linkListaNozze?: string | null;
   note?: string | null;
