@@ -43,10 +43,13 @@ export class FotoComponent implements OnInit {
   viewerPhotos = signal<FotoEventoDTO[]>([]);
   viewerCurrentIndex = signal(0);
   viewerTitle = signal('');
+  viewerImageUrl = signal<string>('');
 
   // Invitato detail modal
   showInvitatoModal = signal(false);
   selectedInvitato = signal<InvitatoConFoto | null>(null);
+  loadingInvitatoFoto = signal(false);
+  invitatoFoto = signal<FotoEventoDTO[]>([]);
 
   constructor(private fotoEventoService: FotoEventoService) {}
 
@@ -269,14 +272,14 @@ export class FotoComponent implements OnInit {
 
         // Update invitato modal if open
         if (this.showInvitatoModal() && this.selectedInvitato()) {
-          const invitato = this.selectedInvitato()!;
-          const updatedFoto = invitato.foto.filter(p => p.id !== foto.id);
+          const updatedFoto = this.invitatoFoto().filter(p => p.id !== foto.id);
           if (updatedFoto.length === 0) {
             this.closeInvitatoModal();
           } else {
+            this.invitatoFoto.set(updatedFoto);
+            const invitato = this.selectedInvitato()!;
             this.selectedInvitato.set({
               ...invitato,
-              foto: updatedFoto,
               numeroFoto: updatedFoto.length
             });
           }
@@ -295,23 +298,35 @@ export class FotoComponent implements OnInit {
     this.viewerCurrentIndex.set(index);
     this.viewerTitle.set(title);
     this.showViewerModal.set(true);
+
+    // Carica l'immagine originale via endpoint binario
+    this.loadViewerImage(photos[index].id);
+  }
+
+  private loadViewerImage(fotoId: string): void {
+    this.viewerImageUrl.set(this.fotoEventoService.getImageUrl(fotoId));
   }
 
   closeViewerModal(): void {
     this.showViewerModal.set(false);
     this.viewerPhotos.set([]);
+    this.viewerImageUrl.set('');
   }
 
   viewerPrev(): void {
     const current = this.viewerCurrentIndex();
     const total = this.viewerPhotos().length;
-    this.viewerCurrentIndex.set(current > 0 ? current - 1 : total - 1);
+    const newIndex = current > 0 ? current - 1 : total - 1;
+    this.viewerCurrentIndex.set(newIndex);
+    this.loadViewerImage(this.viewerPhotos()[newIndex].id);
   }
 
   viewerNext(): void {
     const current = this.viewerCurrentIndex();
     const total = this.viewerPhotos().length;
-    this.viewerCurrentIndex.set(current < total - 1 ? current + 1 : 0);
+    const newIndex = current < total - 1 ? current + 1 : 0;
+    this.viewerCurrentIndex.set(newIndex);
+    this.loadViewerImage(this.viewerPhotos()[newIndex].id);
   }
 
   get viewerCurrentPhoto(): FotoEventoDTO | null {
@@ -326,20 +341,39 @@ export class FotoComponent implements OnInit {
     this.openViewerModal(photos, index, 'Le nostre foto');
   }
 
-  // Open viewer for invitato photos
-  openInvitatoViewer(invitato: InvitatoConFoto, index: number): void {
-    this.openViewerModal(invitato.foto, index, `Foto di ${invitato.nome} ${invitato.cognome}`);
+  // Open viewer for invitato photos (usa foto caricate)
+  openInvitatoViewer(index: number): void {
+    const invitato = this.selectedInvitato();
+    const photos = this.invitatoFoto();
+    if (invitato && photos.length > 0) {
+      this.openViewerModal(photos, index, `Foto di ${invitato.nome} ${invitato.cognome}`);
+    }
   }
 
   // === Invitato Detail Modal ===
   openInvitatoModal(invitato: InvitatoConFoto): void {
     this.selectedInvitato.set(invitato);
     this.showInvitatoModal.set(true);
+    this.loadingInvitatoFoto.set(true);
+    this.invitatoFoto.set([]);
+
+    // Carica le foto dell'invitato
+    this.fotoEventoService.getFotoByInvitato(invitato.invitatoId).subscribe({
+      next: (foto) => {
+        this.invitatoFoto.set(foto);
+        this.loadingInvitatoFoto.set(false);
+      },
+      error: () => {
+        this.loadingInvitatoFoto.set(false);
+        this.error.set('Errore nel caricamento delle foto');
+      }
+    });
   }
 
   closeInvitatoModal(): void {
     this.showInvitatoModal.set(false);
     this.selectedInvitato.set(null);
+    this.invitatoFoto.set([]);
   }
 
   formatDate(dateStr: string): string {

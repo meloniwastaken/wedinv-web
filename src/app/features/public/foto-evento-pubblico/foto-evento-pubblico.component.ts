@@ -43,6 +43,7 @@ export class FotoEventoPubblicoComponent implements OnInit {
   showViewerModal = signal(false);
   viewerPhotos = signal<FotoEventoDTO[]>([]);
   viewerCurrentIndex = signal(0);
+  viewerImageUrl = signal<string>('');
 
   // Flag per navbar
   hasListaNozze = signal(false);
@@ -381,23 +382,35 @@ export class FotoEventoPubblicoComponent implements OnInit {
     this.viewerPhotos.set(photos);
     this.viewerCurrentIndex.set(index);
     this.showViewerModal.set(true);
+
+    // Carica l'immagine originale via endpoint binario
+    this.loadViewerImage(photos[index].id);
+  }
+
+  private loadViewerImage(fotoId: string): void {
+    this.viewerImageUrl.set(this.fotoEventoService.getImageUrlPubblico(this.invitoId, fotoId));
   }
 
   closeViewerModal(): void {
     this.showViewerModal.set(false);
     this.viewerPhotos.set([]);
+    this.viewerImageUrl.set('');
   }
 
   viewerPrev(): void {
     const current = this.viewerCurrentIndex();
     const total = this.viewerPhotos().length;
-    this.viewerCurrentIndex.set(current > 0 ? current - 1 : total - 1);
+    const newIndex = current > 0 ? current - 1 : total - 1;
+    this.viewerCurrentIndex.set(newIndex);
+    this.loadViewerImage(this.viewerPhotos()[newIndex].id);
   }
 
   viewerNext(): void {
     const current = this.viewerCurrentIndex();
     const total = this.viewerPhotos().length;
-    this.viewerCurrentIndex.set(current < total - 1 ? current + 1 : 0);
+    const newIndex = current < total - 1 ? current + 1 : 0;
+    this.viewerCurrentIndex.set(newIndex);
+    this.loadViewerImage(this.viewerPhotos()[newIndex].id);
   }
 
   get viewerCurrentPhoto(): FotoEventoDTO | null {

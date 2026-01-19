@@ -1,6 +1,7 @@
 export interface FotoEventoDTO {
   id: string;
-  fotoBase64: string;
+  invitatoId?: string | null;
+  thumbnailBase64: string;
   nomeFile?: string | null;
   dataCaricamento: string;
   nomeInvitato?: string;
@@ -25,7 +26,7 @@ export interface InvitatoConFoto {
   nome: string;
   cognome: string;
   numeroFoto: number;
-  foto: FotoEventoDTO[];
+  coverThumbnailBase64: string;
 }
 
 export interface FotoEventoAdminResponse {

@@ -72,7 +72,7 @@
             @if (slot) {
               <!-- Foto esistente -->
               <div class="foto-item" (click)="openViewerModal($index)">
-                <img [src]="slot.fotoBase64" [alt]="slot.nomeFile || 'Foto evento'" loading="lazy">
+                <img [src]="slot.thumbnailBase64" [alt]="slot.nomeFile || 'Foto evento'" loading="lazy">
                 <div class="foto-overlay">
                   <div class="foto-info-overlay">
                     <small>{{ formatDate(slot.dataCaricamento) }}</small>
@@ -203,7 +203,7 @@
         </div>
         <div class="modal-body text-center">
           @if (fotoToDelete()) {
-            <img [src]="fotoToDelete()!.fotoBase64" alt="Foto da eliminare"
+            <img [src]="fotoToDelete()!.thumbnailBase64" alt="Foto da eliminare"
               class="img-fluid rounded mb-3" style="max-height: 200px;">
           }
           <p>Sei sicuro di voler eliminare questa foto?</p>
@@ -241,7 +241,7 @@
         <i class="bi bi-chevron-left"></i>
       </button>
       <div class="viewer-image-container" (click)="$event.stopPropagation()">
-        <img [src]="viewerCurrentPhoto.fotoBase64" [alt]="viewerCurrentPhoto.nomeFile || 'Foto'">
+        <img [src]="viewerImageUrl()" [alt]="viewerCurrentPhoto.nomeFile || 'Foto'">
       </div>
       <button class="viewer-nav viewer-next" (click)="viewerNext(); $event.stopPropagation()"
         [class.d-none]="viewerPhotos().length <= 1">

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { FotoEventoListResponse, FotoEventoAdminResponse, UploadFotoEventoRequest, IdResponse } from '../models';
+import { FotoEventoListResponse, FotoEventoAdminResponse, FotoEventoDTO, UploadFotoEventoRequest, IdResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -56,5 +56,26 @@ export class FotoEventoService {
    */
   deleteFotoAdmin(fotoId: string): Observable<void> {
     return this.http.delete<void>(`${this.adminApiUrl}/${fotoId}`);
+  }
+
+  /**
+   * Recupera l'URL per l'immagine binaria (admin).
+   */
+  getImageUrl(fotoId: string): string {
+    return `${this.adminApiUrl}/${fotoId}/image`;
+  }
+
+  /**
+   * Recupera l'URL per l'immagine binaria (pubblico).
+   */
+  getImageUrlPubblico(invitatoId: string, fotoId: string): string {
+    return `${this.apiUrl}/${invitatoId}/foto-evento/${fotoId}/image`;
+  }
+
+  /**
+   * Recupera le foto (thumbnail) di un invitato specifico (admin).
+   */
+  getFotoByInvitato(invitatoId: string): Observable<FotoEventoDTO[]> {
+    return this.http.get<FotoEventoDTO[]>(`${this.adminApiUrl}/invitato/${invitatoId}`);
   }
 }

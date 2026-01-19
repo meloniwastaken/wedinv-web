@@ -77,7 +77,7 @@
           <div class="foto-grid">
             @for (foto of fotoData()!.fotoSposi; track foto.id; let i = $index) {
               <div class="foto-item" (click)="openSposiViewer(i)">
-                <img [src]="foto.fotoBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
+                <img [src]="foto.thumbnailBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
                 <div class="foto-overlay">
                   <small>{{ formatDate(foto.dataCaricamento) }}</small>
                   <button class="btn-delete" (click)="openDeleteModal(foto); $event.stopPropagation()" title="Elimina">
@@ -106,8 +106,8 @@
             @for (invitato of fotoData()!.invitatiConFoto; track invitato.invitatoId) {
               <div class="invitato-card" (click)="openInvitatoModal(invitato)">
                 <div class="invitato-preview">
-                  @if (invitato.foto.length > 0) {
-                    <img [src]="invitato.foto[0].fotoBase64" alt="Preview">
+                  @if (invitato.coverThumbnailBase64) {
+                    <img [src]="invitato.coverThumbnailBase64" alt="Preview">
                     @if (invitato.numeroFoto > 1) {
                       <div class="foto-count">+{{ invitato.numeroFoto - 1 }}</div>
                     }
@@ -236,7 +236,7 @@
         </div>
         <div class="modal-body text-center">
           @if (fotoToDelete()) {
-            <img [src]="fotoToDelete()!.fotoBase64" alt="Foto da eliminare"
+            <img [src]="fotoToDelete()!.thumbnailBase64" alt="Foto da eliminare"
               class="img-fluid rounded mb-3" style="max-height: 200px;">
           }
           <p>Sei sicuro di voler eliminare questa foto?</p>
@@ -271,19 +271,27 @@
           <button type="button" class="btn-close" (click)="closeInvitatoModal()"></button>
         </div>
         <div class="modal-body">
-          <div class="foto-grid">
-            @for (foto of selectedInvitato()!.foto; track foto.id; let i = $index) {
-              <div class="foto-item" (click)="openInvitatoViewer(selectedInvitato()!, i)">
-                <img [src]="foto.fotoBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
-                <div class="foto-overlay">
-                  <small>{{ formatDate(foto.dataCaricamento) }}</small>
-                  <button class="btn-delete" (click)="openDeleteModal(foto); $event.stopPropagation()" title="Elimina">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
+          @if (loadingInvitatoFoto()) {
+            <div class="text-center py-4">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Caricamento...</span>
               </div>
-            }
-          </div>
+            </div>
+          } @else {
+            <div class="foto-grid">
+              @for (foto of invitatoFoto(); track foto.id; let i = $index) {
+                <div class="foto-item" (click)="openInvitatoViewer(i)">
+                  <img [src]="foto.thumbnailBase64" [alt]="foto.nomeFile || 'Foto'" loading="lazy">
+                  <div class="foto-overlay">
+                    <small>{{ formatDate(foto.dataCaricamento) }}</small>
+                    <button class="btn-delete" (click)="openDeleteModal(foto); $event.stopPropagation()" title="Elimina">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeInvitatoModal()">
@@ -311,7 +319,7 @@
         <i class="bi bi-chevron-left"></i>
       </button>
       <div class="viewer-image-container" (click)="$event.stopPropagation()">
-        <img [src]="viewerCurrentPhoto.fotoBase64" [alt]="viewerCurrentPhoto.nomeFile || 'Foto'">
+        <img [src]="viewerImageUrl()" [alt]="viewerCurrentPhoto.nomeFile || 'Foto'">
       </div>
       <button class="viewer-nav viewer-next" (click)="viewerNext(); $event.stopPropagation()"
         [class.d-none]="viewerPhotos().length <= 1">
