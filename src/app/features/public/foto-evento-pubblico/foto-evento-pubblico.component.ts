@@ -388,10 +388,31 @@ export class FotoEventoPubblicoComponent implements OnInit {
   }
 
   private loadViewerImage(fotoId: string): void {
-    this.viewerImageUrl.set(this.fotoEventoService.getImageUrlPubblico(this.invitoId, fotoId));
+    // Revoca il precedente Blob URL per evitare memory leak
+    const prevUrl = this.viewerImageUrl();
+    if (prevUrl && prevUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(prevUrl);
+    }
+
+    this.viewerImageUrl.set(''); // Reset mentre carica
+
+    this.fotoEventoService.getImageBlobPubblico(this.invitoId, fotoId).subscribe({
+      next: (blobUrl) => {
+        this.viewerImageUrl.set(blobUrl);
+      },
+      error: () => {
+        this.error.set('Errore nel caricamento dell\'immagine');
+      }
+    });
   }
 
   closeViewerModal(): void {
+    // Revoca il Blob URL per evitare memory leak
+    const url = this.viewerImageUrl();
+    if (url && url.startsWith('blob:')) {
+      URL.revokeObjectURL(url);
+    }
+
     this.showViewerModal.set(false);
     this.viewerPhotos.set([]);
     this.viewerImageUrl.set('');

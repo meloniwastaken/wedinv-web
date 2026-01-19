@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { FotoEventoListResponse, FotoEventoAdminResponse, FotoEventoDTO, UploadFotoEventoRequest, IdResponse } from '../models';
 
@@ -59,17 +60,21 @@ export class FotoEventoService {
   }
 
   /**
-   * Recupera l'URL per l'immagine binaria (admin).
+   * Recupera l'immagine binaria (admin) e restituisce un Blob URL.
    */
-  getImageUrl(fotoId: string): string {
-    return `${this.adminApiUrl}/${fotoId}/image`;
+  getImageBlob(fotoId: string): Observable<string> {
+    return this.http.get(`${this.adminApiUrl}/${fotoId}/image`, { responseType: 'blob' }).pipe(
+      map(blob => URL.createObjectURL(blob))
+    );
   }
 
   /**
-   * Recupera l'URL per l'immagine binaria (pubblico).
+   * Recupera l'immagine binaria (pubblico) e restituisce un Blob URL.
    */
-  getImageUrlPubblico(invitatoId: string, fotoId: string): string {
-    return `${this.apiUrl}/${invitatoId}/foto-evento/${fotoId}/image`;
+  getImageBlobPubblico(invitatoId: string, fotoId: string): Observable<string> {
+    return this.http.get(`${this.apiUrl}/${invitatoId}/foto-evento/${fotoId}/image`, { responseType: 'blob' }).pipe(
+      map(blob => URL.createObjectURL(blob))
+    );
   }
 
   /**
