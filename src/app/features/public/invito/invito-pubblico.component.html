@@ -32,7 +32,7 @@
           }
         </p>
         <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
-        <div class="ornament">~ <i class="bi bi-heart-fill"></i> ~</div>
+        <div class="ornament"><i class="bi bi-heart-fill"></i></div>
 
         <!-- Countdown -->
         @if (invito()!.dataCerimonia) {
@@ -327,23 +327,23 @@
                             <span class="badge bg-info ms-1">Tu</span>
                           }
                         </span>
-                        <!-- Pulsanti Sì/No -->
-                        <div class="btn-group btn-group-sm" role="group">
-                          <button type="button" class="btn"
-                            [class.btn-success]="membro.confermato"
-                            [class.btn-outline-success]="!membro.confermato"
-                            (click)="toggleConfermaFamiglia(membro.id)">
-                            Sì
-                          </button>
-                          <button type="button" class="btn"
-                            [class.btn-danger]="!membro.confermato"
-                            [class.btn-outline-danger]="membro.confermato"
-                            (click)="toggleConfermaFamiglia(membro.id)">
-                            No
-                          </button>
-                        </div>
                       </div>
                       <div class="card-body py-3">
+                        <!-- Pulsanti conferma/rifiuto -->
+                        <div class="d-flex gap-2 mb-3 flex-wrap">
+                          <button type="button" class="btn btn-sm"
+                            [class.btn-success]="membro.hasChosen && membro.confermato"
+                            [class.btn-outline-success]="!membro.hasChosen || !membro.confermato"
+                            (click)="setConfermaFamiglia(membro.id, true)">
+                            <i class="bi bi-check-lg me-1"></i>Conferma Partecipazione
+                          </button>
+                          <button type="button" class="btn btn-sm"
+                            [class.btn-secondary]="membro.hasChosen && !membro.confermato"
+                            [class.btn-outline-secondary]="!membro.hasChosen || membro.confermato"
+                            (click)="setConfermaFamiglia(membro.id, false)">
+                            Non potrò esserci
+                          </button>
+                        </div>
                         <!-- Accompagnatori (se ha plus consentiti) -->
                         @if (membro.numeroPlusConsentiti > 0) {
                           <div class="mb-3">
@@ -551,23 +551,23 @@
                             <span class="badge bg-info ms-1">Tu</span>
                           }
                         </span>
-                        <!-- Pulsanti Sì/No -->
-                        <div class="btn-group btn-group-sm" role="group">
-                          <button type="button" class="btn"
-                            [class.btn-success]="membro.confermato"
-                            [class.btn-outline-success]="!membro.confermato"
-                            (click)="toggleConfermaFamiglia(membro.id)">
-                            Sì
-                          </button>
-                          <button type="button" class="btn"
-                            [class.btn-danger]="!membro.confermato"
-                            [class.btn-outline-danger]="membro.confermato"
-                            (click)="toggleConfermaFamiglia(membro.id)">
-                            No
-                          </button>
-                        </div>
                       </div>
                       <div class="card-body py-3">
+                        <!-- Pulsanti conferma/rifiuto -->
+                        <div class="d-flex gap-2 mb-3 flex-wrap">
+                          <button type="button" class="btn btn-sm"
+                            [class.btn-success]="membro.hasChosen && membro.confermato"
+                            [class.btn-outline-success]="!membro.hasChosen || !membro.confermato"
+                            (click)="setConfermaFamiglia(membro.id, true)">
+                            <i class="bi bi-check-lg me-1"></i>Conferma Partecipazione
+                          </button>
+                          <button type="button" class="btn btn-sm"
+                            [class.btn-secondary]="membro.hasChosen && !membro.confermato"
+                            [class.btn-outline-secondary]="!membro.hasChosen || membro.confermato"
+                            (click)="setConfermaFamiglia(membro.id, false)">
+                            Non potrò esserci
+                          </button>
+                        </div>
                         <!-- Accompagnatori (se ha plus consentiti) -->
                         @if (membro.numeroPlusConsentiti > 0) {
                           <div class="mb-3">

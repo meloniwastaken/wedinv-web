@@ -141,18 +141,79 @@ a:hover {
 }
 
 .btn-secondary {
-  background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
+  background-color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  color: var(--color-white);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-white);
+}
+
+.btn-outline-secondary {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  background-color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  color: var(--color-white);
 }
 
 .btn-success {
   background-color: var(--color-success);
   border-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  filter: brightness(0.9);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline-success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background-color: transparent;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-white);
 }
 
 .btn-danger {
   background-color: var(--color-danger);
   border-color: var(--color-danger);
+  color: var(--color-white);
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  filter: brightness(0.9);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background-color: transparent;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-white);
 }
 
 .btn-link {

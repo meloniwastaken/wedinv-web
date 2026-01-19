@@ -30,6 +30,7 @@ interface ConfermaMembroForm {
   plusConfermati: number;
   accompagnatori: AccompagnatoreForm[];
   messaggio: string;
+  hasChosen: boolean; // true se l'utente ha fatto una scelta nel form
 }
 
 @Component({
@@ -152,7 +153,8 @@ export class InvitoPubblicoComponent implements OnInit {
             numeroPlusConsentiti: m.numeroPlusConsentiti || 0,
             plusConfermati: m.plusConfermati || 0,
             accompagnatori: (m.accompagnatori || []).map(a => ({ nome: a.nome, cognome: a.cognome })),
-            messaggio: m.messaggio || ''
+            messaggio: m.messaggio || '',
+            hasChosen: m.statoInvito === StatoInvito.CONFERMATO || m.statoInvito === StatoInvito.RIFIUTATO
           })));
         }
         // Applica il tema del matrimonio (se presente, altrimenti default)
@@ -242,8 +244,17 @@ export class InvitoPubblicoComponent implements OnInit {
     }
   }
 
+  setConfermaFamiglia(id: string, confermato: boolean): void {
+    const current = [...this.confermeFamiglia()];
+    const index = current.findIndex(m => m.id === id);
+    if (index >= 0) {
+      current[index] = { ...current[index], confermato, hasChosen: true };
+      this.confermeFamiglia.set(current);
+    }
+  }
+
   setAllFamigliaConfermato(value: boolean): void {
-    const current = this.confermeFamiglia().map(m => ({ ...m, confermato: value }));
+    const current = this.confermeFamiglia().map(m => ({ ...m, confermato: value, hasChosen: true }));
     this.confermeFamiglia.set(current);
   }
 

@@ -40,3 +40,34 @@
   vertical-align: middle;
   border: none;
 }
+
+/* Mobile-only styles */
+@media (max-width: 576px) {
+  /* Bottoni conferma/rifiuto famiglia - larghezza 100% */
+  .card-body .d-flex.gap-2.mb-3.flex-wrap .btn {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  /* Tabella famiglia - larghezza piena del container */
+  .table-famiglia {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Card membri famiglia - rimuovi margini per occupare tutto lo spazio */
+  .card.mb-3.border {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  /* Card body padding ridotto su mobile */
+  .card.mb-3.border .card-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
