@@ -32,7 +32,9 @@
           }
         </p>
         <h1>{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</h1>
-        <div class="ornament"><i class="bi bi-heart-fill"></i></div>
+        <div>
+          <span style="font-size: 1.2rem;">{{ formatDate(invito()!.dataCerimonia) }} alle {{ formatTime(invito()!.oraCerimonia) }}</span>
+        </div>
 
         <!-- Countdown -->
         @if (invito()!.dataCerimonia) {
