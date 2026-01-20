@@ -7,6 +7,21 @@ import { MatrimonioService, ThemeService, AuthService } from '../../core/service
 import { MatrimonioDTO, CreaMatrimonioRequest, AggiornaMatrimonioRequest } from '../../core/models';
 import { SafePipe } from '../../shared/pipes/safe.pipe';
 
+export const ICONE_SEZIONE_IBAN = [
+  { value: 'bi-credit-card', label: 'Carta di credito' },
+  { value: 'bi-piggy-bank', label: 'Salvadanaio' },
+  { value: 'bi-wallet', label: 'Portafoglio' },
+  { value: 'bi-cash', label: 'Contanti' },
+  { value: 'bi-bank', label: 'Banca' },
+  { value: 'bi-currency-euro', label: 'Euro' },
+  { value: 'bi-coin', label: 'Moneta' },
+  { value: 'bi-gift', label: 'Regalo' },
+  { value: 'bi-heart-fill', label: 'Cuore' },
+  { value: 'bi-envelope-heart', label: 'Busta con cuore' },
+  { value: 'bi-box-seam', label: 'Pacco' },
+  { value: 'bi-star-fill', label: 'Stella' }
+];
+
 @Component({
   selector: 'app-matrimonio',
   standalone: true,
@@ -43,6 +58,9 @@ export class MatrimonioComponent implements OnInit {
       ['clean']
     ]
   };
+
+  // Preset icone per sezione IBAN
+  iconeSezioneIban = ICONE_SEZIONE_IBAN;
 
   hasFotoInvito = computed(() => {
     // Check pending change first
@@ -98,7 +116,9 @@ export class MatrimonioComponent implements OnInit {
       note: [''],
       messaggioInvito: [''],
       messaggioInvitoFamiglia: [''],
-      messaggioIban: ['']
+      messaggioIban: [''],
+      nomeSezioneIban: ['', [Validators.maxLength(30)]],
+      iconaSezioneIban: ['bi-credit-card']
     });
   }
 
@@ -148,7 +168,9 @@ export class MatrimonioComponent implements OnInit {
       note: matrimonio.note || '',
       messaggioInvito: matrimonio.messaggioInvito || '',
       messaggioInvitoFamiglia: matrimonio.messaggioInvitoFamiglia || '',
-      messaggioIban: matrimonio.messaggioIban || ''
+      messaggioIban: matrimonio.messaggioIban || '',
+      nomeSezioneIban: matrimonio.nomeSezioneIban || '',
+      iconaSezioneIban: matrimonio.iconaSezioneIban || 'bi-credit-card'
     });
   }
 
@@ -207,6 +229,8 @@ export class MatrimonioComponent implements OnInit {
       messaggioInvito: formValue.messaggioInvito || null,
       messaggioInvitoFamiglia: formValue.messaggioInvitoFamiglia || null,
       messaggioIban: formValue.messaggioIban || null,
+      nomeSezioneIban: formValue.nomeSezioneIban || null,
+      iconaSezioneIban: formValue.iconaSezioneIban || null,
       stileCodice: this.themeService.currentTheme().id,
       fotoInvitoBase64: fotoInvitoBase64
     };

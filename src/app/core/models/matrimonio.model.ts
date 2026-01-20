@@ -26,6 +26,8 @@ export interface MatrimonioDTO {
   messaggioInvito: string | null;
   messaggioInvitoFamiglia: string | null;
   messaggioIban: string | null;
+  nomeSezioneIban: string | null;
+  iconaSezioneIban: string | null;
   dataCreazione: string;
   dataModifica: string;
   stileCodice: string | null;
@@ -59,6 +61,8 @@ export interface CreaMatrimonioRequest {
   messaggioInvito?: string | null;
   messaggioInvitoFamiglia?: string | null;
   messaggioIban?: string | null;
+  nomeSezioneIban?: string | null;
+  iconaSezioneIban?: string | null;
   stileCodice?: string | null;
   fotoInvitoBase64?: string | null;
 }

@@ -33,7 +33,7 @@
           <li class="nav-item">
             <a class="nav-link" [routerLink]="['/invito', invitatoId, 'iban']" routerLinkActive="active"
               (click)="closeMenu()">
-              <i class="bi bi-credit-card me-1"></i>IBAN
+              <i class="bi {{ iconaSezioneIban }} me-1"></i>{{ nomeSezioneIban }}
             </a>
           </li>
         }

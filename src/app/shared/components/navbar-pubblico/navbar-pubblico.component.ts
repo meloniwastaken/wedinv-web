@@ -17,6 +17,8 @@ export class NavbarPubblicoComponent {
   @Input() nomeInvitato: string = '';
   @Input() showListaNozze: boolean = false;
   @Input() showIban: boolean = false;
+  @Input() nomeSezioneIban: string = 'IBAN';
+  @Input() iconaSezioneIban: string = 'bi-credit-card';
 
   isMenuOpen = false;
 

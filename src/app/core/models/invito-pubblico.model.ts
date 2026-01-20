@@ -48,6 +48,8 @@ export interface InvitoPubblicoResponse {
   messaggioInvito: string | null;
   messaggioInvitoFamiglia: string | null;
   messaggioIban: string | null;
+  nomeSezioneIban: string | null;
+  iconaSezioneIban: string | null;
   stileCodice: string | null;
   // Foto invito (base64)
   fotoInvitoBase64?: string | null;

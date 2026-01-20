@@ -2,7 +2,9 @@
   [invitatoId]="invitoId"
   [nomeInvitato]="nomeInvitato"
   [showListaNozze]="hasListaNozze()"
-  [showIban]="hasIban">
+  [showIban]="hasIban"
+  [nomeSezioneIban]="invito()?.nomeSezioneIban || 'IBAN'"
+  [iconaSezioneIban]="invito()?.iconaSezioneIban || 'bi-credit-card'">
 </app-navbar-pubblico>
 
 <div class="foto-container">

@@ -193,6 +193,13 @@
                       <small class="text-muted d-block">IBAN</small>
                       <span>{{ matrimonio()!.iban || '-' }}</span>
                     </div>
+                    <div class="col-md-6 mb-3">
+                      <small class="text-muted d-block">Nome Sezione Navbar</small>
+                      <span>
+                        <i class="bi {{ matrimonio()!.iconaSezioneIban || 'bi-credit-card' }} me-1"></i>
+                        {{ matrimonio()!.nomeSezioneIban || 'IBAN' }}
+                      </span>
+                    </div>
                     @if (matrimonio()!.messaggioIban) {
                       <div class="col-12">
                         <small class="text-muted d-block">Messaggio per contributo IBAN</small>
@@ -449,6 +456,28 @@
                       <label for="iban" class="form-label">IBAN</label>
                       <input type="text" class="form-control" id="iban"
                         formControlName="iban" placeholder="IT00X0000000000000000000000">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="nomeSezioneIban" class="form-label">Nome Sezione Navbar</label>
+                      <input type="text" class="form-control" id="nomeSezioneIban"
+                        formControlName="nomeSezioneIban"
+                        placeholder="es. Regalo, Contributo..."
+                        maxlength="30">
+                      <div class="form-text">Testo mostrato nella navbar (default: "IBAN")</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="iconaSezioneIban" class="form-label">Icona Sezione Navbar</label>
+                      <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select" id="iconaSezioneIban" formControlName="iconaSezioneIban">
+                          @for (icona of iconeSezioneIban; track icona.value) {
+                            <option [value]="icona.value">{{ icona.label }}</option>
+                          }
+                        </select>
+                        <span class="icon-preview p-2 border rounded bg-light">
+                          <i class="bi {{ f['iconaSezioneIban'].value || 'bi-credit-card' }}" style="font-size: 1.25rem;"></i>
+                        </span>
+                      </div>
+                      <div class="form-text">Icona mostrata nella navbar</div>
                     </div>
                     <div class="col-12">
                       <label for="messaggioIban" class="form-label">Messaggio per contributo IBAN</label>
