@@ -26,8 +26,8 @@
         <div class="col-lg-8">
           <!-- Header -->
           <div class="text-center mb-5">
-            <i class="bi bi-credit-card" style="font-size: 4rem; color: var(--color-primary);"></i>
-            <h1 class="display-title mt-3">Contributo</h1>
+            <i class="bi {{ invito()!.iconaSezioneIban || 'bi-credit-card' }}" style="font-size: 4rem; color: var(--color-primary);"></i>
+            <h1 class="display-title mt-3">{{ invito()!.nomeSezioneIban || 'Contributo' }}</h1>
             <p class="text-muted">{{ invito()!.nomeSposoA }} & {{ invito()!.nomeSposoB }}</p>
           </div>
 
@@ -42,8 +42,8 @@
             <!-- IBAN per bonifico -->
             <div class="card mb-4">
               <div class="card-body text-center py-5">
-                <i class="bi bi-credit-card text-primary" style="font-size: 4rem;"></i>
-                <h4 class="mt-4">Contributo tramite Bonifico</h4>
+                <i class="bi {{ invito()!.iconaSezioneIban || 'bi-credit-card' }} text-primary" style="font-size: 4rem;"></i>
+                <h4 class="mt-4">{{ invito()!.nomeSezioneIban || 'Contributo' }} tramite Bonifico</h4>
                 <p class="text-muted mb-4">
                   {{ invito()!.messaggioIban || 'Se desideri contribuire con un regalo in denaro, puoi effettuare un bonifico bancario all\'IBAN sottostante.' }}
                 </p>
