@@ -763,8 +763,8 @@
             <div class="col">
               <a [routerLink]="['/invito', invitoId, 'iban']" class="text-decoration-none">
                 <div class="card h-100 text-center py-3">
-                  <i class="bi bi-credit-card text-primary" style="font-size: 1.5rem;"></i>
-                  <small class="mt-1 text-muted">IBAN</small>
+                  <i class="bi {{ invito()?.iconaSezioneIban || 'bi-credit-card' }} text-primary" style="font-size: 1.5rem;"></i>
+                  <small class="mt-1 text-muted">{{ invito()?.nomeSezioneIban || 'IBAN' }}</small>
                 </div>
               </a>
             </div>
