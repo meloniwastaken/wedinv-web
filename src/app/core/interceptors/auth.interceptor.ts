@@ -1,11 +1,13 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService, MatrimonioService } from '../services';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const matrimonioService = inject(MatrimonioService);
+  const router = inject(Router);
 
   const token = authService.getToken();
 
@@ -33,6 +35,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // Effettua logout (include già il redirect a /login)
         authService.logout();
       }
+
+      // Gestisci 403 (Forbidden) - redirect alla home
+      if (error.status === 403) {
+        matrimonioService.clearCache();
+        authService.logout();
+        router.navigate(['/']);
+      }
+
       return throwError(() => error);
     })
   );
