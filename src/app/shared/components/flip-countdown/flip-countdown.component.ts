@@ -22,6 +22,7 @@ interface DigitState {
 export class FlipCountdownComponent implements OnInit, OnDestroy {
   @Input() targetDate: Date | string | null = null;
   @Input() showLabels: boolean = true;
+  @Input() showSeconds: boolean = false;
 
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private readonly FLIP_DURATION = 300; // ms per ogni flap
@@ -80,8 +81,13 @@ export class FlipCountdownComponent implements OnInit, OnDestroy {
 
     const d = Math.floor(distance / (1000 * 60 * 60 * 24));
     const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Se i secondi non sono mostrati, aggiungi 1 minuto per evitare che sembri in ritardo
+    if (!this.showSeconds && s > 0) {
+      m += 1;
+    }
 
     const daysStr = d.toString().padStart(2, '0');
     const hoursStr = h.toString().padStart(2, '0');

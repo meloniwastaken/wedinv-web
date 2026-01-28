@@ -40,6 +40,18 @@ export class DashboardComponent implements OnInit {
     return diffDays > 0 ? diffDays : 0;
   });
 
+  // Combina data e ora per il countdown (aggiunge 1 ora per compensare il fuso orario)
+  dataOraCerimonia = computed(() => {
+    const mat = this.matrimonio();
+    if (!mat?.dataCerimonia) return null;
+    const dateStr = mat.oraCerimonia
+      ? `${mat.dataCerimonia}T${mat.oraCerimonia}`
+      : mat.dataCerimonia;
+    const date = new Date(dateStr);
+    date.setHours(date.getHours() + 1);
+    return date;
+  });
+
   totalePersone = computed(() => {
     const data = this.invitatiData();
     if (!data) return 0;

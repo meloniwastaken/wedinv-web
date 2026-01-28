@@ -97,6 +97,18 @@ export class InvitoPubblicoComponent implements OnInit {
     return deadlineDate < oggi;
   });
 
+  // Combina data e ora per il countdown (aggiunge 1 ora per compensare il fuso orario)
+  dataOraCerimonia = computed(() => {
+    const inv = this.invito();
+    if (!inv?.dataCerimonia) return null;
+    const dateStr = inv.oraCerimonia
+      ? `${inv.dataCerimonia}T${inv.oraCerimonia}`
+      : inv.dataCerimonia;
+    const date = new Date(dateStr);
+    date.setHours(date.getHours() + 1);
+    return date;
+  });
+
   get nomeInvitato(): string {
     const inv = this.invito();
     if (!inv) return '';
