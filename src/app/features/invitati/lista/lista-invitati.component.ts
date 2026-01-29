@@ -417,7 +417,9 @@ export class ListaInvitatiComponent implements OnInit {
       message = `Ciao ${invitato.nome}!\n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
     }
 
-    return `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+    // Rimuove tutti i caratteri non numerici (inclusi caratteri invisibili Unicode)
+    const cleanPhone = phone.replace(/[^\d]/g, '');
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   }
 
   markWhatsappSent(id: string): void {
