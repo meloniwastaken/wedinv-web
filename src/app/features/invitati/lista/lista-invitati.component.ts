@@ -391,16 +391,12 @@ export class ListaInvitatiComponent implements OnInit {
   getWhatsappLink(invitato: InvitatoRiepilogoDTO): string {
     if (!invitato.telefono) return '';
 
-    // Normalizza il numero (rimuovi spazi, trattini, parentesi)
-    let phone = invitato.telefono.replace(/[\s\-\(\)]/g, '');
+    // Rimuove tutti i caratteri non numerici (inclusi caratteri invisibili Unicode)
+    let phone = invitato.telefono.replace(/[^\d]/g, '');
 
-    // Se inizia con 0, sostituisci con +39 (Italia)
-    if (phone.startsWith('0')) {
-      phone = '+39' + phone.substring(1);
-    }
-    // Se non ha prefisso internazionale, aggiungi +39
-    if (!phone.startsWith('+')) {
-      phone = '+39' + phone;
+    // Se ha 10 cifre o meno, è italiano senza prefisso: aggiungo 39
+    if (phone.length <= 10) {
+      phone = '39' + phone;
     }
 
     // Costruisci il link all'invito
@@ -417,9 +413,7 @@ export class ListaInvitatiComponent implements OnInit {
       message = `Ciao ${invitato.nome}!\n\nSei invitato al nostro matrimonio!\n\nClicca qui per confermare la tua presenza e vedere tutti i dettagli dell'evento:\n${invitationUrl}`;
     }
 
-    // Rimuove tutti i caratteri non numerici (inclusi caratteri invisibili Unicode)
-    const cleanPhone = phone.replace(/[^\d]/g, '');
-    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   }
 
   markWhatsappSent(id: string): void {
